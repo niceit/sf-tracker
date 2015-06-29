@@ -1,0 +1,26 @@
+{% extends '::login.html.twig' %}
+{% block body %}
+    {{ block('fos_user_content') }}
+    <form action="" id="validate" class="form">
+        <fieldset>
+            <div class="formRow">
+                <label for="login">Username:</label>
+                <div class="loginInput"><input type="text" name="username" class="validate[required]" id="login" /></div>
+                <div class="clear"></div>
+            </div>
+
+            <div class="formRow">
+                <label for="pass">Password:</label>
+                <div class="loginInput"><input type="password" name="password" class="validate[required]" id="pass" /></div>
+                <div class="clear"></div>
+            </div>
+
+            <div class="loginControl">
+                <div class="rememberMe"><input type="checkbox" id="remMe" name="remMe" /><label for="remMe">Remember me</label></div>
+                <input type="submit" value="Log me in" class="dredB logMeIn" />
+                <div class="clear"></div>
+            </div>
+        </fieldset>
+    </form>
+
+{% endblock %}
