@@ -4,7 +4,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
-    <title>{% block title %}Admin - {% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
     {% block stylesheets %}
         <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet" type="text/css" />
     {% endblock %}
@@ -50,50 +50,8 @@
     <div class="sidebarSep"></div>
 
     <!-- Left navigation -->
-    <ul id="menu" class="nav">
-        <li class="dash"><a href="index.html" title="" class="active"><span>Dashboard</span></a></li>
-        <li class="charts"><a href="charts.html" title=""><span>Statistics and charts</span></a></li>
-        <li class="forms"><a href="#" title="" class="exp"><span>Forms stuff</span><strong>4</strong></a>
-            <ul class="sub">
-                <li><a href="forms.html" title="">Form elements</a></li>
-                <li><a href="form_validation.html" title="">Validation</a></li>
-                <li><a href="form_editor.html" title="">WYSIWYG and file uploader</a></li>
-                <li class="last"><a href="form_wizards.html" title="">Wizards</a></li>
-            </ul>
-        </li>
-        <li class="ui"><a href="ui_elements.html" title=""><span>Interface elements</span></a></li>
-        <li class="tables"><a href="tables.html" title="" class="exp"><span>Tables</span><strong>3</strong></a>
-            <ul class="sub">
-                <li><a href="table_static.html" title="">Static tables</a></li>
-                <li><a href="table_dynamic.html" title="">Dynamic table</a></li>
-                <li class="last"><a href="table_sortable_resizable.html" title="">Sortable &amp; resizable tables</a></li>
-            </ul>
-        </li>
-        <li class="widgets"><a href="#" title="" class="exp"><span>Widgets and grid</span><strong>2</strong></a>
-            <ul class="sub">
-                <li><a href="widgets.html" title="">Widgets</a></li>
-                <li class="last"><a href="grid.html" title="">Grid</a></li>
-            </ul>
-        </li>
-        <li class="errors"><a href="#" title="" class="exp"><span>Error pages</span><strong>6</strong></a>
-            <ul class="sub">
-                <li><a href="403.html" title="">403 page</a></li>
-                <li><a href="404.html" title="">404 page</a></li>
-                <li><a href="405.html" title="">405 page</a></li>
-                <li><a href="500.html" title="">500 page</a></li>
-                <li><a href="503.html" title="">503 page</a></li>
-                <li class="last"><a href="offline.html" title="">Website is offline</a></li>
-            </ul>
-        </li>
-        <li class="files"><a href="file_manager.html" title=""><span>File manager</span></a></li>
-        <li class="typo"><a href="#" title="" class="exp"><span>Other pages</span><strong>3</strong></a>
-            <ul class="sub">
-                <li><a href="typography.html" title="">Typography</a></li>
-                <li><a href="calendar.html" title="">Calendar</a></li>
-                <li class="last"><a href="gallery.html" title="">Gallery</a></li>
-            </ul>
-        </li>
-    </ul>
+    {% include'TrackersBundle:Components:menu.twig.html'%}
+
 </div>
 
 
@@ -103,11 +61,11 @@
     <!-- Top fixed navigation -->
     <div class="topNav">
         <div class="wrapper">
-            <div class="welcome"><a href="#" title=""><img src="{{ asset('assets/images/userPic.png') }}" alt="" /></a><span>Howdy, Eugene!</span></div>
+            <div class="welcome"><a href="#" title=""><img src="{{ asset('assets/images/userPic.png') }}" alt="" /></a><span>Howdy, {{app.user.username}}!</span></div>
             <div class="userNav">
                 <ul>
                     {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-                        <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>{{ 'layout.logged_in_as'|trans({'%username%': app.user.username}, 'FOSUserBundle') }}</span></a></li>
+                        <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>Profile</span></a></li>
                     {% endif %}
 
                     <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/tasks.png') }}" alt="" /><span>Tasks</span></a></li>
@@ -193,14 +151,27 @@
 
 
 
-
-
-    <!-- Footer line -->
-    <div id="footer">
-        <div class="wrapper">As usually all rights reserved. And as usually brought to you by <a href="http://themeforest.net/user/Kopyov?ref=kopyov" title="">Eugene Kopyov</a></div>
+    <div class="titleArea">
+        <div class="wrapper">
+            <div class="pageTitle">
+                {% block Breadcrumb %}
+                {% endblock %}
+            </div>
+            <div class="clear"></div>
+        </div>
     </div>
+    <div class="line"></div>
+    {% block body %}
+
+    {% endblock %}
+
 
 </div>
+
+<!-- Footer line -->
+{% include'TrackersBundle:Components:footer.twig.html'%}
+
+
 
 <div class="clear"></div>
 {% block javascripts %}

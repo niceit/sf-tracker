@@ -123,8 +123,10 @@ select[multiple] { border: 1px solid #ddd; box-shadow: 0 0 0 2px #f4f4f4; -webki
 .loginPage #footer .wrapper { padding-left: 0; }
 .loginPage .formRow { padding: 18px 14px; }
 
-.loginWrapper { margin: -119px 0 0 -170px; position: absolute; top: 50%; left: 50%; }
-.loginWrapper .widget { width: 340px; background: #f9f9f9; border: 1px solid #cdcdcd; display: block; height: 236px; }
+.loginWrapper {}
+.loginWrapper .widget {
+    margin: 0 auto;
+    width: 340px; background: #f9f9f9; border: 1px solid #cdcdcd; display: block; height: 236px; }
 .loginLogo { position: absolute; width: 236px; height: 60px; display: block; top: -55px; left: 50%; margin-left: -118px; } 
 .loginControl { border-top: 1px solid #fff; padding: 16px 14px; }
 .logMeIn { float: right; padding: 7px 20px 8px 20px!important; }
@@ -1266,7 +1268,7 @@ li.plupload_droptext:hover { background: #fff; }
 /* Footer
 ================================================== */
 
-#footer { clear: both; position: absolute; bottom: 0; left: 0; width: 100%;  }
+#footer { clear: both; margin-top: 30px; bottom: 0; left: 0; width: 100%;  }
 #footer .wrapper { text-align: center; padding: 20px 0 20px 222px; margin: 0; }
 
 
@@ -1538,7 +1540,7 @@ color: #656565;
 
 @media only screen and (max-width: 480px) {
 
-.loginWrapper { margin: -119px 0 0 -141px; }
+.loginWrapper {  }
 .loginWrapper .widget { width: 282px; }
 .loginWrapper .formRow > label { float: left; padding: 4px 0; }
 .loginInput { width: 160px; margin-right: 4px; }
@@ -1707,12 +1709,20 @@ color: #656565;
 	.dataTables_filter input[type="text"] { width: 150px!important; }
 
 }
-
+.registerLogo{
+    text-align: center;
+}
+.form-register{
+    width:400px;
+    margin: 0 auto;
+}
 	
 /* Mobile Portrait Size to Mobile Landscape Size (devices and browsers) */
 
 @media only screen and (max-width: 767px) {
-	
+	.form-register{
+        width:100%;
+    }
 	.resp { display: block; }
 	.respHead { text-align: center; }
 	.respHead > a { margin: 20px 0; display: block; }
@@ -1783,4 +1793,7 @@ color: #656565;
 	.pInfo { max-width: 70%; }
 	.searchWidget input[type="text"] { width: 92%!important; }
 	
+}
+.form-register .formRow .formRight{
+    width: 63% ;
 }

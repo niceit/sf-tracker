@@ -2,7 +2,17 @@
 
 {% trans_default_domain 'FOSUserBundle' %}
 
+
+{% block title %}Login{% endblock %}
+
 {% block fos_user_content %}
+
+<!-- Main content wrapper -->
+<div class="loginWrapper">
+    <div style="text-align: center" class="loginLogos"><img src="{{ asset('assets/images/loginLogo.png') }}" alt="" /></div>
+    <div class="widget">
+
+    <div class="title"><img src="{{ asset('assets/images/icons/dark/files.png') }}" alt="" class="titleIcon" /><h6>Login</h6></div>
 {% if error %}
     <div style="margin: 5px; padding: 0px" class="nNote nFailure hideit">
         <p><strong>{{ error.messageKey|trans(error.messageData, 'security') }}</p>
@@ -30,4 +40,8 @@
             </div>
         </fieldset>
     </form>
+        <div class="clear" ></div>
+    </div>
+</div>
 {% endblock fos_user_content %}
+

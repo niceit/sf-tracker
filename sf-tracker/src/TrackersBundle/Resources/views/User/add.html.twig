@@ -1,0 +1,85 @@
+{% extends '::layoutmain.html.twig' %}
+
+{% block title %}Users{% endblock %}
+
+{% block Breadcrumb %}
+    <h5>User manager</h5>
+    <span>Do your layouts deserve better than Lorem Ipsum.</span>
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+        <form id="usualValidate" class="form from-addUser" method="post" action="" novalidate="novalidate">
+            <fieldset>
+                <div class="widget">
+                    <div class="title"><img src="{{ asset('assets/images/icons/dark/list.png') }}" alt="" class="titleIcon"><h6>Create user</h6></div>
+                    <div class="formRow">
+                        <label>User name:<span class="req">*</span></label>
+                        <div class="formRight is-username"><input type="text" class="required error" name="account[userName]" id="username">
+                        </div><div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>Password:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" class="required error" name="account[password]" id="password">
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>Repeat password:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" class="required error" name="account[repeatPassword]" id="repeatPassword">
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>Email:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" class="required error" name="account[email]" id="email">
+                        </div><div class="clear"></div>
+                    </div>
+                    <div class="formSubmit"><input id="button-addUser" type="button" value="submit" class="redB"></div>
+                    <div class="clear"></div>
+                </div>
+
+
+            </fieldset>
+        </form>
+    </div>
+
+    <script type="text/javascript" >
+
+        $(function(){
+
+            $('#username').keypress(function(){
+                var URL = 'isusername';
+                var username = $('#username').val();
+                $.ajax({
+                    type: "post",
+                    url : URL,
+                    data:{'username':username},
+                    dataType : "html",
+                    success : function(data){
+                        if(data==1){
+                            $('.is-username').append('<lable>User name exist!</lable>');
+                        }
+                    }
+                });
+            });
+
+            $('#button-addUser').click(function(){
+                var URL = 'isusername';
+                var username = $('#username').val();
+                $.ajax({
+                    type: "post",
+                    url : URL,
+                    data:{'username':username},
+                    dataType : "html",
+                    success : function(data){
+                        alert(data);
+                    }
+                });
+               // $('.from-addUser').submit();
+            });
+        });
+    </script>
+{% endblock %}

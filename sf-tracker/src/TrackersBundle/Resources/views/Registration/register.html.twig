@@ -1,0 +1,172 @@
+{% extends '::login.html.twig' %}
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    <script type="text/javascript" src="{{ asset('assets/js/jquery.validate.js') }}"></script>
+    <div class="form-register">
+        <div class="registerLogo"><img src="{{ asset('assets/images/loginLogo.png') }}" alt="" /></div>
+
+
+
+        <form id="usualValidate" class="form from-addUser" method="post" action="" novalidate="novalidate">
+            <fieldset>
+                <div class="widget">
+                    <div class="title"><img src="{{ asset('assets/images/icons/dark/list.png') }}" alt="" class="titleIcon"><h6>Register</h6></div>
+
+                    <div class="formRow">
+                        <label for="firstName">First name:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" name="firstName"  required="required" class="validate[required]" id="firstName" />
+                            <label class="is-firstname error"></label>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label for="lastName">Last name:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" name="lastName"  required="required" class="validate[required]" id="lastName" />
+                            <label class="is-lastname error"></label>
+                        </div>
+
+                        <div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>User name:<span class="req">*</span></label>
+                        <div class="formRight "><input onchange="change_username()" type="text" class="required error" name="userName" id="userName">
+                            <label class="is-username error"></label>
+                        </div><div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>Email:<span class="req">*</span></label>
+                        <div class="formRight"><input onchange="onchange_email();" type="text" class="required error" name="email" id="email">
+                            <label class="is-email error"></label>
+                        </div><div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>Password:<span class="req">*</span></label>
+                        <div class="formRight"><input type="password" class="required error" name="password" id="password">
+                            <label class="is-password error"></label>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>Repeat password:<span class="req">*</span></label>
+                        <div class="formRight"><input type="password" class="required error" name="repeatPassword" id="repeatPassword">
+                            <label class="is-repeatPassword error"></label>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+
+                    <div style="display: none; text-align: center" class="send-loading">Loading.....</div>
+
+                    <div class="formSubmit"><input id="button-addUser" type="button" value="submit" class="redB"></div>
+                    <div class="clear"></div>
+                </div>
+
+
+            </fieldset>
+        </form>
+    </div>
+
+
+
+    <script type="text/javascript" >
+
+        function change_username(){
+            $('.is-username').html('');
+            var URL = 'isusername';
+            var username = $('#userName').val();
+            $.ajax({
+                type: "post",
+                url : URL,
+                data:{'username':username},
+                dataType : "html",
+                success : function(data){
+                    if(data==1){
+                        is_fs = false;
+                        $('.is-username').html('User name exist!');
+                        return false;
+                    }
+                }
+            });
+        }
+        function onchange_email(){
+            $('.is-email').html('');
+            var URL = 'isemail';
+            var email = $('#email').val();
+            $.ajax({
+                type: "post",
+                url : URL,
+                data:{'email':email},
+                dataType : "html",
+                success : function(data){
+                    if(data==1){
+                        is_fs = false;
+                        $('.is-email').html('Email exist!');
+                        return false;
+                    }
+                }
+            });
+        }
+        $(function(){
+
+
+            $('#button-addUser').click(function(){
+
+                $('.send-loading').show();
+                $('.error').html('');
+                change_username();
+                onchange_email();
+                var URL = 'registersubmit';
+                var firstName = $('#firstName').val();
+                var lastName = $('#lastName').val();
+                var email = $('#email').val();
+                var userName = $('#userName').val();
+                var password = $('#password').val();
+                var repeatPassword = $('#repeatPassword').val();
+
+                $.ajax({
+                    type: "post",
+                    url : URL,
+                    data:{
+                        'firstName':firstName,
+                        'lastName':lastName,
+                        'email':email,
+                        'userName':userName,
+                        'repeatPassword':repeatPassword,
+                        'password':password
+
+                    },
+                    dataType : "json",
+                    success : function(data){
+                        if(data['firstname']){
+                            $('.is-firstname').html(data['firstname']);
+                        }
+                        if(data['lastname']){
+                            $('.is-lastname').html(data['lastname']);
+                        }
+                        if(data['username']){
+                            $('.is-username').html(data['username']);
+                        }
+                        if(data['email']){
+                            $('.is-email').html(data['email']);
+                        }
+                        if(data['password']){
+                            $('.is-password').html(data['password']);
+                        }
+                        if(data['repeatPassword']){
+                            $('.is-repeatPassword').html(data['repeatPassword']);
+                        }
+
+                        if(data['ok']){
+                            window.location.href = '{{ asset('/login') }}';
+                        }
+                        $('.send-loading').hide();
+                    }
+                });
+
+            });
+        });
+    </script>
+
+{% endblock %}
