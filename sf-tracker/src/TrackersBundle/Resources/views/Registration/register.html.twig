@@ -71,6 +71,10 @@
 
 
     <script type="text/javascript" >
+        function validateEmail(email) {
+            var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+            return re.test(email);
+        }
 
         function change_username(){
             $('.is-username').html('');
@@ -91,6 +95,8 @@
             });
         }
         function onchange_email(){
+
+
             $('.is-email').html('');
             var URL = 'isemail';
             var email = $('#email').val();
@@ -113,6 +119,9 @@
 
             $('#button-addUser').click(function(){
 
+
+
+
                 $('.send-loading').show();
                 $('.error').html('');
                 change_username();
@@ -124,6 +133,11 @@
                 var userName = $('#userName').val();
                 var password = $('#password').val();
                 var repeatPassword = $('#repeatPassword').val();
+
+                if(!validateEmail(email)){
+                    $('.is-email').html('Please enter a valid email address');
+                    return false;
+                }
 
                 $.ajax({
                     type: "post",

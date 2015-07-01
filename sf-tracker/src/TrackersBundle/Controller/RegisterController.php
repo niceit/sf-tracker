@@ -6,11 +6,20 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
+use Symfony\Component\Config\Definition\Exception\Exception;
 use TrackersBundle\Entity\UserDetail;
 
 class RegisterController extends Controller
 {
 
+    /**
+     * @Route("/singup", name="_singup")
+     * @Template("TrackersBundle:Registration:register.html.twig")
+     */
+    public function singupAction()
+    {
+        return array();
+    }
 
     /**
      * @Route("/registersubmit", name="_registersubmit")
@@ -61,7 +70,8 @@ class RegisterController extends Controller
             $user->setEmail($email);
             $user->setPlainPassword($password);
             $user->setEnabled(true);
-
+            // a:1:{i:0;s:8:"ROLE_USER"}
+            //a:2:{i:0;s:8:"ROLE_USER";i:1;s:16:"ROLE_ADMIN"}
             $manager = $this->getDoctrine()->getEntityManager();
             $manager->persist($user);
             $manager->flush();
@@ -82,16 +92,26 @@ class RegisterController extends Controller
                 $em->persist($user_detail);
                 $em->flush();
                 $arr_err['ok'] = 1;
-                /*
-                $mailer = $this->get('mailer');
-                $message = $mailer->createMessage()
-                    ->setSubject('Mail register')
-                    ->setFrom('phamquocvinh99@gmail.com')
-                    ->setTo($email)
-                    ->setBody($this->renderView('TrackerBundle:Mail:registeremail.txt.twig'));
 
-                $mailer->send($message);
-                */
+                try{
+
+                }catch (Exception $e){
+                    $mailer = $this->get('mailer');
+                    $message = \Swift_Message::newInstance();
+
+                    $template = $this->render('TrackersBundle:Mail:register_email.html.twig', array('register_info' => array()));
+
+                    $message->setSubject("Register")
+                        ->setFrom('contact@tracker.com')
+                        ->setTo(array($email))
+                        //->setTo(array('soufiane@illusio.fr'))
+                        //->setBcc(array('admin@illusio.fr'))
+                        ->addPart($template->getContent(), 'text/html');
+
+                    if ($mailer->send($message)){
+
+                    }
+                }
             }
         }
         echo json_encode($arr_err);
@@ -116,10 +136,12 @@ class RegisterController extends Controller
         echo 0;
         exit;
     }
+
     /**
      * @Route("/isemail", name="_is_email")
      */
     public  function is_email(){
+
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
             $email = trim($requestData->get('email'));

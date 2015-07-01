@@ -22,14 +22,7 @@ class UserController extends Controller
     {
         return array('active'=>'users');
     }
-    /**
-     * @Route("/singup", name="_singup")
-     * @Template("TrackersBundle:Registration:register.html.twig")
-     */
-    public function singupAction()
-    {
-        return array();
-    }
+
 
     /**
      * @Route("/user/add", name="_user_add")
@@ -75,7 +68,7 @@ class UserController extends Controller
         }
 
 
-        return array('active'=>'users');
+        return array();
     }
 
 
