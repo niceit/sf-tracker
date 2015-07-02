@@ -13,10 +13,10 @@ class RegisterController extends Controller
 {
 
     /**
-     * @Route("/singup", name="_singup")
+     * @Route("/signup", name="_singup")
      * @Template("TrackersBundle:Registration:register.html.twig")
      */
-    public function singupAction()
+    public function signupAction()
     {
         return array();
     }
