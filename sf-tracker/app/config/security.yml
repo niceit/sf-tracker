@@ -30,7 +30,7 @@ security:
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/registers, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/singup, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/signup, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/isusername, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/isemail, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/registersubmit, role: IS_AUTHENTICATED_ANONYMOUSLY }
