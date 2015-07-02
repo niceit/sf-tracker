@@ -1,0 +1,54 @@
+{% extends '::layoutmain.html.twig' %}
+
+{% block title %}Add issues{% endblock %}
+
+{% block Breadcrumb %}
+    <h5>Add issues</h5>
+{% endblock %}
+
+{% block body %}
+
+    <div class="wrapper">
+    {{ form_errors(form)  }}
+    {% for flashMessage in app.session.flashbag.get('notice') %}
+        <div class="nNote nSuccess hideit">
+            <p><strong>SUCCESS: </strong>{{ flashMessage }}</p>
+        </div>
+    {% endfor %}
+
+        {{ form_start(form) }}
+        <div class="form">
+            <fieldset>
+                <div class="widget">
+                    <div class="title"><img src="{{ asset('assets/images/icons/dark/list.png') }}" alt="" class="titleIcon" /><h6>Add Issues</h6></div>
+                    <div class="formRow">
+                        <label>{{ form_label(form.title) }}</label>
+                        <div class="formRight">{{ form_widget(form.title) }}</div>
+                        {{ form_errors(form.title) }}
+                        <div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>{{ form_label(form.description) }}</label>
+                        <div class="formRight">{{ form_widget(form.description) }}</div>
+                        <div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>{{ form_label(form.status) }}</label>
+                        <div class="formRight">
+                            <div class="selector" >
+                                {{ form_widget(form.status) }}
+                            </div>
+                            </div>
+                        {{ form_errors(form.status) }}
+                        <div class="clear"></div>
+                    </div>
+                    <div class="formSubmit"><input type="submit" value="submit" class="redB"></div>
+                    <div class="clear"></div>
+                </div>
+            </fieldset>
+        </div>
+        {{ form_end(form) }}
+
+    </div>
+{% endblock %}

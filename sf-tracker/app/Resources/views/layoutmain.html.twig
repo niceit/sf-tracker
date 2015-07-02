@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
     <title>{% block title %}{% endblock %}</title>
     {% block stylesheets %}
-        <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet" type="text/css" />
     {% endblock %}
+        <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet" type="text/css" />
+
     <script type="text/javascript" src="{{ asset('assets/js/jquery.min.js') }}"></script>
     <!-- Shared on MafiaShare.net  --><!-- Shared on MafiaShare.net  -->
 </head>
@@ -175,19 +176,21 @@
 
 <div class="clear"></div>
 {% block javascripts %}
-
+{% endblock %}
 
 <script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/ui.spinner.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/jquery.mousewheel.js') }}"></script>
 
 <script type="text/javascript" src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
 
+<!--
 <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/excanvas.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.orderBars.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.pie.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.resize.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.sparkline.min.js') }}"></script>
+-->
 
 <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/uniform.js') }}"></script>
 <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.cleditor.js') }}"></script>
@@ -228,9 +231,9 @@
 
 <script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
 
-<script type="text/javascript" src="{{ asset('assets/js/charts/chart.js') }}"></script>
 
 
-{% endblock %}
+
+
 </body>
 </html>

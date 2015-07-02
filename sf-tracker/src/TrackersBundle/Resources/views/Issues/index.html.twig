@@ -1,0 +1,72 @@
+{% extends '::layoutmain.html.twig' %}
+
+{% block title %}Projects{% endblock %}
+
+{% block Breadcrumb %}
+    <h5>Projects manager</h5>
+    <span>Do your layouts deserve better than Lorem Ipsum.</span>
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+        <a href="{{ path('_addProjects') }}" title="" class="wButton bluewB ml15 m10"><span>Add project</span></a>
+
+        <div class="line"></div>
+        <!-- Table with check all checkboxes fubction -->
+        <div class="widget">
+            <div class="title"><h6>Projects</h6></div>
+            <table cellpadding="0" cellspacing="0" width="100%" class="sTable withCheck" id="checkAll">
+                <thead>
+                <tr>
+                    <td>NAME</td>
+                    <td>IMAGE</td>
+                    <td>STATUS</td>
+                    <td>ACTIVE DATE</td>
+                    <td>ACTION</td>
+                </tr>
+                </thead>
+                <tbody id="content_projects">
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    <script type="text/javascript">
+        jQuery(function(){
+            list_projects(0);
+        });
+        function list_projects(page)
+        {
+
+            $("#content_projects").html("<tr><td colspan='5' style='text-align: center'><img src='{{ asset('assets/images/loaders/loader12.gif') }}'></td></tr>");
+            var URL = '{{ path('_ajaxlistProjects') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'page':page},
+                dataType : "html",
+                success : function(data){
+                    jQuery('#content_projects').html(data);
+                }
+            });
+
+        }
+        function delete_project(id){
+            var confirmBox = confirm('Are you sure?');
+            if (!confirmBox) return false;
+
+            var URL = '{{ path('_deleteProjects') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'id':id},
+                dataType : "html",
+                success : function(data){
+                    if(data=1)
+                    jQuery('.row-'+id).hide();
+                }
+            });
+        }
+    </script>
+{% endblock %}

@@ -188,6 +188,12 @@ $(function() {
 		height:"100%",
 		bodyStyle: "margin: 10px; font: 12px Arial,Verdana; cursor:text"
 	});
+
+    $("#form_description").cleditor({
+        width:"100%",
+        height:"100%",
+        bodyStyle: "margin: 10px; font: 12px Arial,Verdana; cursor:text"
+    });
 	
 	
 	//===== File uploader =====//
@@ -668,11 +674,11 @@ $(function() {
 
 
 	//===== Sparklines =====//
-	
+	/*
 	$('.negBar').sparkline('html', {type: 'bar', barColor: '#db6464'} );
 	$('.posBar').sparkline('html', {type: 'bar', barColor: '#6daa24'} );
 	$('.zeroBar').sparkline('html', {type: 'bar', barColor: '#4e8fc6'} ); 
-	
+	*/
 	
 	
 	//===== Tooltips =====//
