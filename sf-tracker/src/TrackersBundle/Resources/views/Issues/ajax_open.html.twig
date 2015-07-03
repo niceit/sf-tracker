@@ -1,0 +1,23 @@
+{% for issue in issues %}
+    <tr class="row-{{ issue.id }}">
+        <td><div class="checker" id="uniform-titleCheck2"><span><input value="{{ issue.id }}" type="checkbox" id="titleCheck2" name="checkRow" style="opacity: 0;"></span></div></td>
+        <td align="center">#{{ issue.id }}</td>
+        <td><h4><a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': project_id }) }}">{{ issue.title }}</a></h4>
+            {% for user in issue.users %}
+                {{ user.firstname }} {{ user.lastname }}
+            {% endfor %}
+            {{ time_diff(issue.created) }}
+
+        </td>
+    </tr>
+{% endfor %}
+<tr>
+    <td colspan="3">
+
+        <div class="pagination">
+            <ul class="pages">
+               {{ paginations| raw }}
+            </ul>
+        </div>
+    </td>
+</tr>

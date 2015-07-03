@@ -8,11 +8,19 @@
 {% endblock %}
 
 {% block body %}
-    <div class="wrapper">
-        <a href="{{ path('_addProjects') }}" title="" class="wButton bluewB ml15 m10"><span>Add project</span></a>
 
-        <div class="line"></div>
-        <!-- Table with check all checkboxes fubction -->
+    <div class="wrapper">
+        <div class="invButtons">
+
+            <a style="margin: 0" href="{{ path('_addProjects' ) }}" title="" class="sButton sBlue"><img src="{{ asset('assets/images/icons/sPlus.png') }}" alt=""><span>Add new project</span></a>
+            <div class="clear"></div>
+        </div>
+        <br>
+    </div>
+    <div class="line"></div>
+
+    <div class="wrapper">
+
         <div class="widget">
             <div class="title"><h6>Projects</h6></div>
             <table cellpadding="0" cellspacing="0" width="100%" class="sTable withCheck" id="checkAll">

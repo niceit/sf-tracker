@@ -13,6 +13,8 @@ use TrackersBundle\Entity\User_projects;
 use TrackersBundle\Models\Document;
 use TrackersBundle\Entity\Pagination;
 
+use TrackersBundle\Entity\Project_issuesRepository;
+
 class ProjectsController extends Controller
 {
     /**

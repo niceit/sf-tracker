@@ -1,0 +1,119 @@
+{% extends '::layoutmain.html.twig' %}
+
+{% block title %}Projects Issues{% endblock %}
+
+{% block Breadcrumb %}
+    <h5>{{ issue.getTitle() }}</h5>
+    <span>On Project <a href="{{ path('_detailProjects', { 'id': project.getId() }) }}">{{ project.getName() }}</a></span>
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+
+        <div class="widget">
+            <ul class="partners">
+                <li>
+                    <a href="#" title="" class="floatL"><img src="{% if user.getAvatar() == '' %} {{ asset('assets/images/user.png') }} {% else %} {{ asset('upload/'.user.getAvatar()) }}  {% endif %}" alt=""></a>
+                    <div class="pInfo">
+                        <a href="#" title=""><strong> {{ user.getFirstname() }} {{ user.getLastname() }} opened this issue </strong> {{ issue.getCreated |date('Y-m-d h:i:s') }}</a>
+                        <i>{{ issue.getDescription()| raw }}</i>
+                    </div>
+
+                    <div class="pLinks">
+                        <a href="#" class="tipW" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
+                        <a href="#" class="tipW" original-title="Update"><img src="{{ asset('assets/images/icons/edit.png') }}" alt=""></a>
+                    </div>
+                    <div class="clear"></div>
+                </li>
+
+            </ul>
+        </div>
+
+
+
+        <!-- WYSIWYG editor -->
+        <div class="widget">
+            <div class="title"><img src="{{ asset('assets/images/icons/dark/pencil.png') }}" alt="" class="titleIcon" /><h6>Comment on this issue:</h6></div>
+            <textarea id="editor" rows="8" cols="" name="growingTextarea" class="autoGrow comment" style="height: auto; overflow: hidden; width: 100%"></textarea>
+            <div id="uploaders"></div>
+            <div id="arr_file"></div>
+            <a href="javasrcipt:void(0);" id="btn-comment" title="" class="wButton bluewB ml15 m10"><span>Comment</span></a>
+        </div>
+
+    </div>
+
+
+
+    <script type="text/javascript">
+        function load_fileloader(){
+            var uploader = $("#uploaders").pluploadQueue({
+                runtimes : 'html5,html4',
+                url : '{{ path('_uploadfile' ,{ 'id': project.getId(), 'issue_id': issue.getId() }) }}',
+                max_file_size : '1mb',
+                unique_names : true,
+                filters : [
+                    {title : "Image files", extensions : "jpg,gif,png"},
+                    {title : "Zip files", extensions : "zip"}
+                ],
+
+                init : {
+                    UploadComplete: function(up, files) {
+                        var URL = '{{ path('_getuploadfile') }}';
+                        jQuery.ajax({
+                            type: "post",
+                            url : URL,
+                            data:{},
+                            dataType : "json",
+                            success : function(data){
+                                for( var i=0 ; i < data.length ; i++ ){
+                                    $('#arr_file').append('<input value="'+data[i]+'" type="hidden" id="comment" name="comment[]" />');
+                                }
+
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        $(function(){
+
+
+            load_fileloader();
+
+            $('#btn-comment').click(function(){
+
+                var file_id = $("input[id='comment']")
+                        .map(function(){return $(this).val();}).get();
+                var  editor = $('#editor').cleditor()[0];
+                var comment = editor.$area.val();
+                if(comment.trim==''){
+                    return false;
+                }
+                var URL = '{{ path('_savecomment') }}';
+                jQuery.ajax({
+                    type: "post",
+                    url: URL,
+                    data: {
+                        'file_id':file_id,
+                        'comment' : comment,
+                        'issue_id' : {{ issue.getId() }},
+                        'project_id' : {{ project.getId() }}
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        load_fileloader();
+                        $('#editor').cleditor()[0].clear();
+
+                    }
+                });
+
+            });
+
+
+        });
+
+    </script>
+
+
+
+{% endblock %}
