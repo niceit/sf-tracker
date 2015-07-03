@@ -148,23 +148,22 @@
         <div class="cLine"></div>
     </div>
 
+    <div class="layout-wrapper">
 
-
-
-
-    <div class="titleArea">
-        <div class="wrapper">
-            <div class="pageTitle">
-                {% block Breadcrumb %}
-                {% endblock %}
+        <div class="titleArea">
+            <div class="wrapper">
+                <div class="pageTitle">
+                    {% block Breadcrumb %}
+                    {% endblock %}
+                </div>
+                <div class="clear"></div>
             </div>
-            <div class="clear"></div>
         </div>
-    </div>
-    <div class="line"></div>
-    {% block body %}
+        <div class="line"></div>
+        {% block body %}
 
-    {% endblock %}
+        {% endblock %}
+    </div>
 
 
 </div>
@@ -230,6 +229,8 @@
 <script type="text/javascript" src="{{ asset('assets/js/plugins/elfinder.min.js') }}"></script>
 
 <script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/core/main.js') }}"></script>
+<script type="text/javascript" src="{{ asset('assets/core/ajax-request.js') }}"></script>
 
 
 

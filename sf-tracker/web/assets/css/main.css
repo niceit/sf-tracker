@@ -1797,3 +1797,38 @@ color: #656565;
 .form-register .formRow .formRight{
     width: 63% ;
 }
+
+/*Some extra style */
+.layout-wrapper { position: relative; }
+.progress-loading {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+    top: 0px;
+    left: 0px;
+}
+.progress-loading .bg-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #FFFFFF;
+    z-index: 1;
+    opacity: 0.5;
+}
+.progress-loading .loading-content-container {
+    height: 64px;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    margin-top: 15%;
+}
+.progress-loading .loading-content {}
+.progress-loading .loader-img {
+    background: url("../images/loaders/loader7.gif") no-repeat left center;
+    height: 50px;
+    width: 50px;
+    margin: 0 auto;
+}
+/**/

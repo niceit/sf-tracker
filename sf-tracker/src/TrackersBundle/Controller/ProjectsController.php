@@ -122,7 +122,6 @@ class ProjectsController extends Controller
                 'label'=>'Status'
             ))
             ->getForm();
-
         return array('form' => $form->createView(),'err'=>$arr_err);
     }
     /**
