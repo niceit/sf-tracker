@@ -146,6 +146,7 @@ class IssuesController extends Controller
         $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
         $users = $repository_user->findBy(array('user_id'=>$issue->getCreatedBy()));
         $user = $repository_user->find($users[0]->getId());
+
         return array( 'issue' => $issue , 'project' => $project , 'user' => $user );
 
     }

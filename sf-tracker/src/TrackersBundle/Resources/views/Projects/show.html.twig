@@ -17,6 +17,12 @@
         <br>
     </div>
     <div class="line"></div>
+
+
+
+
+
+
     <div class="wrapper">
         <div class="widget">
             <ul class="tabs">
@@ -85,6 +91,36 @@
             </div>
             <div class="clear"></div>
         </div>
+
+        <div class="widget">
+            <div class="title"><img src="{{ asset('assets/images/icons/dark/transfer.png') }}" alt="" class="titleIcon">
+                <h6>Assigned Users</h6>
+                <div style="float: right; width:300px">
+                    <input type="text" value="" onchange="changeuser(this.value)" class="assigned_user" >
+                    <div id="content_assigned_user">
+                    </div>
+                </div>
+
+            </div>
+            <div class="scroll">
+                <ul class="partners">
+                    <li>
+                        <a href="#" title="" class="floatL"><img src="images/user.png" alt=""></a>
+                        <div class="pInfo">
+                            <a href="#" title=""><strong>Dave Armstrong</strong></a>
+                            <i>Creative director at Google Inc. Zurich</i>
+                        </div>
+                        <div class="pLinks">
+                            <a href="#" class="tipW" original-title="Direct call"><img src="images/icons/pSkype.png" alt=""></a>
+                            <a href="#" class="tipW" original-title="Send an email"><img src="images/icons/pEmail.png" alt=""></a>
+                        </div>
+                        <div class="clear"></div>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+
     </div>
 
     <script type="text/javascript" >
@@ -95,6 +131,21 @@
             load_close(0);
             load_assigned(0);
         });
+
+        function changeuser(user_name){
+            var URL = '{{ path('_ajaxSearch_user') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'user_name':user_name},
+                dataType : "html",
+                success : function(data){
+                    $('#content_assigned_user').html(data);
+                }
+            });
+
+        }
+
         function load_activity(page){
             var URL = '{{ path('_ajaxlistProjects') }}';
             jQuery.ajax({

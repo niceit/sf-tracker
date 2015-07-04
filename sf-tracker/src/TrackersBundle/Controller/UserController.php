@@ -70,7 +70,35 @@ class UserController extends Controller
 
         return array();
     }
+    /**
+     * @Route("/ajaxSearch_user", name="_ajaxSearch_user")
+     */
+    public function ajaxSearch_userAction()
+    {
+        $requestData = $this->getRequest()->request;
+        $user_name = $requestData->get('user_name');
 
+        $html = '';
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $query = $em->createQuery("SELECT n.firstname , n.lastname , u.id FROM TrackersBundle:UserDetail n, TrackersBundle:User u WHERE  u.id = n.user_id AND ( n.firstname LIKE  :firstname OR n.lastname LIKE  :lastname OR u.username LIKE  :username  OR u.email LIKE  :email)")
+            ->setParameter('firstname', '%'.$user_name.'%')
+            ->setParameter('lastname', '%'.$user_name.'%')
+            ->setParameter('username', '%'.$user_name.'%')
+            ->setParameter('email', '%'.$user_name.'%');
+
+        $entities = $query->getResult();
+        if(!empty($entities)){
+            $html = '<ul>';
+            foreach($entities as $entitie){
+                $html .= '<li><a onclick="fcadd_user('.$entitie['id'].');" href="javascript:void(0);">'.$entitie['firstname'].' '. $entitie['lastname'].'</a></li>';
+            }
+            $html .= '</ul>';
+        }
+
+        echo $html;
+        exit;
+    }
 
 }
 

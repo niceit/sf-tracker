@@ -7,11 +7,14 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Security\Acl\Exception\Exception;
 use TrackersBundle\Models\Document;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 use TrackersBundle\Entity\Projects_issues_attachments;
 use TrackersBundle\Entity\Projects_issues_comments;
+use TrackersBundle\Entity\Pagination;
+use Symfony\Component\HttpFoundation\Response;
 
 class IssuesCommentsController extends Controller
 {
@@ -124,4 +127,80 @@ class IssuesCommentsController extends Controller
         echo json_encode($arr_comment);
         die();
     }
+    /**
+     * @Route("/ajaxgetcomment", name="_ajaxgetcomment")
+     */
+    public function ajaxgetcommentAction()
+    {
+        $requestData = $this->getRequest()->request;
+        $issueId = $requestData->get('issueId');
+        $page = $requestData->get('page');
+        $arr_comments = array();
+        $repository_comment = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_comments');
+
+        $limit =  $this->container->getParameter( 'limit_comment_issues');
+        $offset = $page*$limit;
+
+        $total = (int)( count($repository_comment->findBy(array( 'issueId' => $issueId ), array('createdAt' => 'DESC'))) / $limit);
+        $count = count($repository_comment->findBy(array( 'issueId' => $issueId ), array('createdAt' => 'DESC')));
+        if($count > $limit &&  $count  % $limit != 0){
+            $total = $total + 1;
+        }
+
+
+
+        $pagination = new Pagination();
+        $paginations = $pagination->render($page,$total,'loadcomments');
+
+
+        $comments = $repository_comment->findBy( array( 'issueId' => $issueId ), array('createdAt' => 'DESC'),$limit,$offset );
+
+        $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+        foreach($comments as $comment){
+        $repository_attachments = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
+        $attachments = $repository_attachments->findBy( array( 'commentId' => $comment->getId() ), array('createdAt' => 'ASC') );
+
+
+        $users_comment = $repository_user->findBy(array('user_id'=>$comment->getCreatedBy()));
+
+        $is_update = false;
+        if($comment->getCreatedBy()==$this->getUser()->getId())
+        {
+        $is_update = true;
+        }
+            $arr_comments[] = array(
+                'fullname'  => $users_comment[0]->getFirstname()." ".$users_comment[0]->getLastname(),
+                'created_at' => $comment->getCreatedAt(),
+                'comment' => $comment->getComment(),
+                'id'    => $comment->getId(),
+                'attachments' => $attachments,
+                'id_update' => $is_update
+            );
+        }
+        $template =  $this->render('TrackersBundle:Comments:ajax_getcomment.html.twig', array( 'comments' => $arr_comments , 'paginations' => $paginations , 'page' => $page));
+        return new Response($template->getContent());
+        exit();
+    }
+    /**
+     * @Route("/ajaxromovecomment", name="_ajaxromovecomment")
+     */
+    public function ajax_romove_commentAction()
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $id = $requestData->get('id');
+
+
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_comments');
+            $comments = $repository->find($id);
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($comments);
+            $em->flush();
+            echo 1;
+            exit;
+        }
+        echo 0;
+        exit;
+    }
+
 }

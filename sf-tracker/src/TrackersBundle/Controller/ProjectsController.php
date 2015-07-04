@@ -47,8 +47,12 @@ class ProjectsController extends Controller
 
         $limit = $this->container->getParameter( 'limit_project');
         $offset = $page*$limit;
-        $total = (int)round( count($repository->findAll()) / $limit);
 
+        $total = (int)round( count($repository->findAll()) / $limit);
+        $count = count($repository->findAll());
+        if($count > $limit &&  $count  % $limit != 0){
+            $total = $total + 1;
+        }
         $pagination = new Pagination();
         $paginations = $pagination->render($page,$total,'list_projects');
         $projects = $repository->findBy(array(),array('created' => 'ASC'),$limit,$offset);
@@ -239,7 +243,7 @@ class ProjectsController extends Controller
 
     }
     /**
-     * @Route("/project/delete", name="_delete_ajax_Projects")
+     * @Route("/projectdelete", name="_delete_ajax_Projects")
      */
     public function deleteajaxAction()
     {

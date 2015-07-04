@@ -11,25 +11,22 @@
     <div class="wrapper">
 
         <div class="widget">
-            <ul class="partners">
+            <ul id="partners" class="partners">
                 <li>
                     <a href="#" title="" class="floatL"><img src="{% if user.getAvatar() == '' %} {{ asset('assets/images/user.png') }} {% else %} {{ asset('upload/'.user.getAvatar()) }}  {% endif %}" alt=""></a>
                     <div class="pInfo">
-                        <a href="#" title=""><strong> {{ user.getFirstname() }} {{ user.getLastname() }} opened this issue </strong> {{ issue.getCreated |date('Y-m-d h:i:s') }}</a>
+                        <a href="#" title=""><strong> {{ user.getFirstname() }} {{ user.getLastname() }} opened this issue </strong> {{ issue.getCreated() |date('Y-m-d h:i:s') }}</a>
                         <i>{{ issue.getDescription()| raw }}</i>
-                    </div>
-
-                    <div class="pLinks">
-                        <a href="#" class="tipW" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
-                        <a href="#" class="tipW" original-title="Update"><img src="{{ asset('assets/images/icons/edit.png') }}" alt=""></a>
                     </div>
                     <div class="clear"></div>
                 </li>
-
             </ul>
+            <div id="comment_content">
+
+            </div>
         </div>
 
-
+        <div class="message"></div>
 
         <!-- WYSIWYG editor -->
         <div class="widget">
@@ -75,18 +72,49 @@
                 }
             });
         }
+        function loadcomments(page){
+            $("#comment_content").append("<img src='{{ asset('assets/images/loaders/loader12.gif') }}'>");
+            var URL = '{{ path('_ajaxgetcomment') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'page':page, 'issueId' : {{ issue.getId() }} },
+                dataType : "html",
+                success : function(data){
+                    jQuery('#comment_content').html(data);
+                }
+            });
+
+        }
+        function romove_comment(id){
+            var URL = '{{ path('_ajaxromovecomment') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'id':id},
+                dataType : "html",
+                success : function(data){
+                    if(data = 1)
+                    $('.row-comment'+id).hide();
+                }
+            });
+        }
         $(function(){
-
-
+            loadcomments(0);
             load_fileloader();
 
             $('#btn-comment').click(function(){
+                if($('.plupload_buttons') != 'none'){
+                    $('.plupload_start').trigger('click');
 
+                    setTimeout(function(){  }, 3000);
+                }
                 var file_id = $("input[id='comment']")
                         .map(function(){return $(this).val();}).get();
                 var  editor = $('#editor').cleditor()[0];
                 var comment = editor.$area.val();
-                if(comment.trim==''){
+                if(comment.length==0){
+                    $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
                     return false;
                 }
                 var URL = '{{ path('_savecomment') }}';
@@ -103,6 +131,9 @@
                     success: function (data) {
                         load_fileloader();
                         $('#editor').cleditor()[0].clear();
+                        $('.message').html('<div class="nNote nSuccess hideit"> <p><strong>SUCCESS: </strong>Success comment!</p>  </div>');
+                        loadcomments(0);
+                        setTimeout(function(){ $('.message').hide(); }, 3000);
 
                     }
                 });

@@ -1,7 +1,7 @@
 {% for issue in issues %}
     <tr class="row-{{ issue.id }}">
         <td align="center">#{{ issue.id }}</td>
-        <td><h4><a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': project_id }) }}">{{ issue.title }}</a></h4>
+        <td><h4><a href="">{{ issue.title }}</a></h4>
             {% for user in issue.users %}
                 {{ user.firstname }} {{ user.lastname }}
             {% endfor %}

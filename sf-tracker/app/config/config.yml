@@ -9,6 +9,7 @@ parameters:
     locale: en
     limit_project: 10
     limit_open_issues: 10
+    limit_comment_issues: 5
 
 framework:
     #esi:             ~

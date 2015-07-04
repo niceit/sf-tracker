@@ -12,7 +12,7 @@ class Pagination {
         $temp ="";
         if($pagept!=null){
             if($pageht==0)
-                $temp = $temp."<li class='prev'><a href='javascript:void(0);'> &lt; </a></li>";
+                $temp = $temp."";//"<li class='prev'><a href='javascript:void(0);'> &lt; </a></li>";
             else
                 $temp = $temp."<li class='prev'><a href='javascript:void(0);' onclick='".$function."(".($pageht-1).");' >&lt;</a><li>";
 
@@ -70,7 +70,7 @@ class Pagination {
             }
 
             if($pageht==($pagept-1))
-                $temp = $temp.'<li class="next"><a href="javascript:void(0);">&gt;</a></li>';
+                $temp = $temp.''; //<li class="next"><a href="javascript:void(0);">&gt;</a></li>';
             else
                 $temp = $temp."<li class='next'><a href='javascript:void(0);' onclick='".$function."(".($pageht+1).");' > &gt; </a></li>";
 

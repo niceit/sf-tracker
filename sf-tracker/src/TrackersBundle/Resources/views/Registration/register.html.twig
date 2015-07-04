@@ -173,7 +173,7 @@
                         }
 
                         if(data['ok']){
-                            window.location.href = '{{ asset('/login') }}';
+                            window.location.href = '{{ path('fos_user_security_login') }}';
                         }
                         $('.send-loading').hide();
                     }
