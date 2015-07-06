@@ -66,6 +66,7 @@
                 {
                     $tile_issue =  '';
                 }
+                
                if($activity->getActionId() != ''){
                    $comment = $repository_issues_comments->find($activity->getActionId())->getComment();
                }else $comment = '';
