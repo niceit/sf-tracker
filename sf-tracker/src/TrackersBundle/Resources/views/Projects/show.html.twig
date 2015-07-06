@@ -26,135 +26,139 @@
     <div class="wrapper">
         <div class="widget">
             <ul class="tabs">
-                <li class="activeTab"><a href="#tab1">Activity</a></li>
-                <li class=""><a href="#tab2">2 Open Issues</a></li>
-                <li class=""><a href="#tab3">2 Closed Issues</a></li>
-                <li class=""><a href="#tab4">2 Issues Assigned To You</a></li>
+                <li class="activeTab"><a href="#tab1">{{ number_activity }} Activity</a></li>
+                <li class=""><a href="#tab2">{{ number_open }} Open Issues</a></li>
+                <li class=""><a href="#tab3">{{ number_close }} Closed Issues</a></li>
+                <li class=""><a href="#tab4">{{ number_assigned }} Issues Assigned To You</a></li>
             </ul>
 
             <div class="tab_container">
                 <div id="tab1" class="tab_content" style="display: block;">
-                    <div class="widget">
-                        <table cellpadding="0" cellspacing="0" width="100%" class="sTable">
-                            <tbody class="content_activity">
-
-                            </tbody>
-                        </table>
+                    <div class="widget content_activity" >
                     </div>
                 </div>
                 <div id="tab2" class="tab_content" style="display: none;">
-                    <div class="widget">
-                        <table cellpadding="0" cellspacing="0" width="100%" class="sTable withCheck" id="checkAll">
-                            <thead>
-                            <tr>
-                                <td><img src="{{ asset('assets/images/icons/tableArrows.png') }}" alt=""></td>
-                                <td width="30">ID</td>
-                                <td>Tile</td>
-                            </tr>
-                            </thead>
-                            <tbody class="content_open">
+                    <div class="widget content_open">
 
-                            </tbody>
-                        </table>
                     </div>
                 </div>
                 <div id="tab3" class="tab_content" style="display: none;">
-                    <div class="widget">
-                        <table cellpadding="0" cellspacing="0" width="100%" class="sTable withCheck" id="checkAll">
-                            <thead>
-                            <tr>
-                                <td>ID</td>
-                                <td>Tile</td>
-                            </tr>
-                            </thead>
-                            <tbody class="content_close">
+                    <div class="widget content_close">
 
-                            </tbody>
-                        </table>
                     </div>
                 </div>
                 <div id="tab4" class="tab_content" style="display: none;">
-                    <div class="widget">
-                        <table cellpadding="0" cellspacing="0" width="100%" class="sTable withCheck" id="checkAll">
-                            <thead>
-                            <tr>
-                                <td>ID</td>
-                                <td>Tile</td>
-                            </tr>
-                            </thead>
-                            <tbody class="content_assigned">
+                    <div class="widget content_assigned">
 
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
             <div class="clear"></div>
         </div>
 
+
+
+        <div class="clear"></div>
+
         <div class="widget">
-            <div class="title"><img src="{{ asset('assets/images/icons/dark/transfer.png') }}" alt="" class="titleIcon">
-                <h6>Assigned Users</h6>
-                <div style="float: right; width:300px">
+            <div class="title"><img src="{{ asset('assets/images/icons/dark/transfer.png') }}" alt="" class="titleIcon"><h6>Assigned user</h6>
+                <div class="div_assigned" >
                     <input type="text" value="" onchange="changeuser(this.value)" class="assigned_user" >
                     <div id="content_assigned_user">
                     </div>
                 </div>
-
             </div>
-            <div class="scroll">
-                <ul class="partners">
-                    <li>
-                        <a href="#" title="" class="floatL"><img src="images/user.png" alt=""></a>
-                        <div class="pInfo">
-                            <a href="#" title=""><strong>Dave Armstrong</strong></a>
-                            <i>Creative director at Google Inc. Zurich</i>
-                        </div>
-                        <div class="pLinks">
-                            <a href="#" class="tipW" original-title="Direct call"><img src="images/icons/pSkype.png" alt=""></a>
-                            <a href="#" class="tipW" original-title="Send an email"><img src="images/icons/pEmail.png" alt=""></a>
-                        </div>
-                        <div class="clear"></div>
-                    </li>
+            <div id="load_user_assigned" class="scroll">
 
-                </ul>
             </div>
         </div>
+
+
 
     </div>
 
     <script type="text/javascript" >
         var project_id = {{ id }};
         $(function(){
-            //load_activity(0);
+            load_activity(0);
             load_open(0);
             load_close(0);
             load_assigned(0);
+            load_user_assigned();
         });
+        function remove_user_project(id){
 
+            var confirmBox = confirm('Are you sure you want to remove this user from the project?');
+            if (!confirmBox) return false;
+
+            $('.loading').show();
+            var URL = '{{ path('_removeUerProject') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'id' : id },
+                dataType : "html",
+                success : function(data){
+                    if( data != 1 ){
+                        $('.row_user_'+data).hide();
+                        $('.loading').hide();
+                    }
+                }
+            });
+        }
+        function fcadd_user(user_id){
+            $('.loading').show();
+            var URL = '{{ path('_addUerProject') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'user_id' : user_id, 'project_id' : {{ id }} },
+                dataType : "html",
+                success : function(data){
+                    load_user_assigned();
+                    $('.row-'+data).hide();
+                    $('.loading').hide();
+                }
+            });
+        }
         function changeuser(user_name){
             var URL = '{{ path('_ajaxSearch_user') }}';
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'user_name':user_name},
+                data:{'user_name':user_name, 'project_id' : {{ id }} },
                 dataType : "html",
                 success : function(data){
                     $('#content_assigned_user').html(data);
+
                 }
             });
 
         }
-
-        function load_activity(page){
-            var URL = '{{ path('_ajaxlistProjects') }}';
+        function load_user_assigned(){
+            var URL = '{{ path('_Add_UserProjects') }}';
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'page':page},
+                data:{'project_id' : {{ id }} },
+                dataType : "html",
+                success : function(data){
+                    $('#load_user_assigned').html(data);
+                }
+            });
+        }
+
+        function load_activity(page){
+            $('.loading').show();
+            var URL = '{{ path('_ajaxListActivityIssues') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'page':page, 'project_id': {{ id }} },
                 dataType : "html",
                 success : function(data){
                     jQuery('.content_activity').html(data);
+                    $('.loading').hide();
                 }
             });
         }

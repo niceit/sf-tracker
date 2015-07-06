@@ -1,22 +1,36 @@
-{% for issue in issues %}
-    <tr class="row-{{ issue.id }}">
-        <td align="center">#{{ issue.id }}</td>
-        <td><h4><a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': project_id }) }}">{{ issue.title }}</a></h4>
-            {% for user in issue.users %}
-                {{ user.firstname }} {{ user.lastname }}
-            {% endfor %}
-            {{ time_diff(issue.created) }}
+{% if issues %}
+    <table cellpadding="0" cellspacing="0" width="100%" class="sTable withCheck" id="checkAll">
+        <thead>
+        <tr>
+            <td>ID</td>
+            <td>Tile</td>
+        </tr>
+        </thead>
+        <tbody >
+        {% for issue in issues %}
+            <tr class="row-{{ issue.id }}">
+                <td align="center">#{{ issue.id }}</td>
+                <td><h4><a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': project_id }) }}">{{ issue.title }}</a></h4>
+                    {% for user in issue.users %}
+                        {{ user.firstname }} {{ user.lastname }}
+                    {% endfor %}
+                    {{ time_diff(issue.created) }}
 
-        </td>
-    </tr>
-{% endfor %}
-<tr>
-    <td colspan="2">
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="2">
 
-        <div class="pagination">
-            <ul class="pages">
-               {{ paginations| raw }}
-            </ul>
-        </div>
-    </td>
-</tr>
+                <div class="pagination">
+                    <ul class="pages">
+                       {{ paginations| raw }}
+                    </ul>
+                </div>
+            </td>
+        </tr>
+     </tbody>
+   </table>
+{% else %}
+    <p>No content....</p>
+{% endif %}

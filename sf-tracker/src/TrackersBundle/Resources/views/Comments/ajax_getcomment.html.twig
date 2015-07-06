@@ -3,7 +3,7 @@
         <li class="row-comment{{ comment.id }}">
             <div class="pInfo">
                 <a href="#" title=""><strong> {{ comment.fullname  }} </strong> Commented {{ comment.created_at |date('Y-m-d h:i:s') }}</a>
-                <i>{{ comment.comment }} </i>
+                <i>{{ comment.comment | raw}} </i>
                 {% if comment.attachments %}
                     <ul>
                         {% for attach in comment.attachments %}
@@ -29,3 +29,19 @@
         </ul>
     </div>
 {% endif %}
+
+<!--
+
+<textarea class="editor1" rows="8" cols="" name="growingTextarea" class="autoGrow comment" style="height: auto; overflow: hidden; width: 100%"></textarea>
+<script>
+    $(function(){
+        $(".editor1").cleditor({
+            width:"100%",
+            height:"100%",
+            bodyStyle: "margin: 10px; font: 12px Arial,Verdana; cursor:text"
+        });
+    });
+
+</script>
+
+-->

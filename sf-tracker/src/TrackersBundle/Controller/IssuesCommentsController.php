@@ -15,6 +15,9 @@ use TrackersBundle\Entity\Projects_issues_attachments;
 use TrackersBundle\Entity\Projects_issues_comments;
 use TrackersBundle\Entity\Pagination;
 use Symfony\Component\HttpFoundation\Response;
+use TrackersBundle\Entity\Users_activity;
+
+
 
 class IssuesCommentsController extends Controller
 {
@@ -46,7 +49,7 @@ class IssuesCommentsController extends Controller
 
         $projects_issues_attachments = new Projects_issues_attachments();
 
-        $projects_issues_attachments->setIssueId($issue_id);
+        $projects_issues_attachments->setIssueId(0);
         $projects_issues_attachments->setUploadedBy($this->getUser()->getId());
         $projects_issues_attachments->setFilesize($image->getClientSize());
         $projects_issues_attachments->setFilename($image->getClientOriginalName());
@@ -104,6 +107,17 @@ class IssuesCommentsController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->persist($projects_issues_comments);
         $em->flush();
+
+        $users_activity = new Users_activity();
+        $users_activity->setUserId($this->getUser()->getId());
+        $users_activity->setParentId($project_id);
+        $users_activity->setItemId($issue_id);
+        $users_activity->setTypeId(2);
+        $users_activity->setActionId($projects_issues_comments->getId());
+        $users_activity->setCreatedAt(new \DateTime("now"));
+        $em->persist($users_activity);
+        $em->flush();
+
         if(!empty($file_id)){
             foreach($file_id as $file){
                 $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
@@ -135,6 +149,11 @@ class IssuesCommentsController extends Controller
         $requestData = $this->getRequest()->request;
         $issueId = $requestData->get('issueId');
         $page = $requestData->get('page');
+
+        $repository_project_issues = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+
+        $issue = $repository_project_issues->find($issueId);
+
         $arr_comments = array();
         $repository_comment = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_comments');
 
@@ -168,6 +187,11 @@ class IssuesCommentsController extends Controller
         {
         $is_update = true;
         }
+
+        if($issue->getStatus() == 'CLOSED')
+            $is_update = false;
+
+
             $arr_comments[] = array(
                 'fullname'  => $users_comment[0]->getFirstname()." ".$users_comment[0]->getLastname(),
                 'created_at' => $comment->getCreatedAt(),
@@ -177,7 +201,7 @@ class IssuesCommentsController extends Controller
                 'id_update' => $is_update
             );
         }
-        $template =  $this->render('TrackersBundle:Comments:ajax_getcomment.html.twig', array( 'comments' => $arr_comments , 'paginations' => $paginations , 'page' => $page));
+        $template =  $this->render('TrackersBundle:Comments:ajax_getcomment.html.twig', array( 'comments' => $arr_comments , 'paginations' => $paginations , 'page' => $page, 'status_issue' => $issue->getStatus()));
         return new Response($template->getContent());
         exit();
     }

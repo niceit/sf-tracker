@@ -57,6 +57,14 @@ class Project_issues
     private $createdBy;
 
     /**
+     * @var integer
+     *
+     * @ORM\Column(name="assigned_to", type="integer")
+     */
+    private $assignedTo;
+
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="created", type="datetime")
@@ -195,6 +203,33 @@ class Project_issues
     {
         return $this->createdBy;
     }
+
+
+
+    /**
+     * Set assignedTo
+     *
+     * @param integer $createdBy
+     * @return ProjectIssues
+     */
+    public function setAssignedTo($assignedTo)
+    {
+        $this->assignedTo = $assignedTo;
+
+        return $this;
+    }
+
+    /**
+     * Get assignedTo
+     *
+     * @return integer
+     */
+    public function getassignedTo()
+    {
+        return $this->assignedTo;
+    }
+
+
 
     /**
      * Set created

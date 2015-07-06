@@ -1,0 +1,40 @@
+<div class="updates">
+    {% for activity in activitys %}
+        {% if( activity.type_id == 1) %}
+            <div class="newUpdate">
+                <div class="uDone">
+                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong>Created</strong> - {{ activity.issue }} </a> was created by <b>{{ activity.users }}</b>
+                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                </div>
+                <div class="clear"></div>
+            </div>
+        {% elseif activity.type_id == 2 %}
+            <div class="newUpdate">
+                <div class="uNotice">
+                   <strong>Comment</strong> "{{ activity.comment | raw }}" {{ activity.users }} on issue -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a> 
+                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                </div>
+                <div class="clear"></div>
+            </div>
+        {% elseif activity.type_id == 3 %}
+            <div class="newUpdate">
+                <div class="uAlert">
+                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong>Closed</strong> </a> {{ activity.issue }} was closed by {{ activity.users }}
+                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                </div>
+                <div class="clear"></div>
+            </div>
+        {% elseif activity.type_id == 4 %}
+
+        {% endif %}
+
+    {% endfor %}
+</div>
+
+
+<div class="clear"></div>
+<div class="pagination">
+    <ul class="pages">
+       {{ paginations| raw }}
+    </ul>
+</div>

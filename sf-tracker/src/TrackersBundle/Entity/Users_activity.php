@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Users_activity
  *
- * @ORM\Table()
+ * @ORM\Table(name="project_users_activity")
  * @ORM\Entity
  */
 class Users_activity

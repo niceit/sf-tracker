@@ -8,6 +8,8 @@
 
 {% block body %}
 
+
+
     <div class="wrapper">
     {{ form_errors(form)  }}
     {% for flashMessage in app.session.flashbag.get('notice') %}
@@ -16,7 +18,7 @@
         </div>
     {% endfor %}
 
-        {{ form_start(form) }}
+        {{ form_start(form,  {'attr': {'id': 'from_add'}}) }}
         <div class="form">
             <fieldset>
                 <div class="widget">
@@ -26,10 +28,21 @@
                         <div class="formRight">{{ form_widget(form.title) }}</div>
                         {{ form_errors(form.title) }}
                         <div class="clear"></div>
+                        <div style="float: right"><span style="color:red;" class="errorW error_title"></span></div>
+
                     </div>
                     <div class="formRow">
                         <label>{{ form_label(form.description) }}</label>
                         <div class="formRight">{{ form_widget(form.description) }}</div>
+                        <div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>{{ form_label(form.assigned_to) }}</label>
+                        <div class="formRight">
+                            {{ form_widget(form.assigned_to) }}
+                        </div>
+                        {{ form_errors(form.assigned_to) }}
                         <div class="clear"></div>
                     </div>
 
@@ -41,12 +54,68 @@
                         {{ form_errors(form.status) }}
                         <div class="clear"></div>
                     </div>
-                    <div class="formSubmit"><input type="submit" value="submit" class="redB"></div>
+                    <h3 style="margin-left: 10px;margin-top: 10px">Attachments</h3>
+                    <div id="uploaders"></div>
+                    <div id="arr_file"></div>
+                    <div class="formSubmit"><input type="button" value="submit" id="btn_addissue" class="redB"></div>
                     <div class="clear"></div>
                 </div>
+
+
+
+
             </fieldset>
         </div>
         {{ form_end(form) }}
 
+
+    <script type="text/javascript">
+        function load_fileloader(){
+            var uploader = $("#uploaders").pluploadQueue({
+                runtimes : 'html5,html4',
+                url : '{{ path('_uploadfile' ,{ 'id': project_id , 'issue_id': 0 }) }}',
+                max_file_size : '1mb',
+                unique_names : true,
+                filters : [
+                    {title : "Image files", extensions : "jpg,gif,png"},
+                    {title : "Zip files", extensions : "zip"}
+                ],
+
+                init : {
+                    UploadComplete: function(up, files) {
+                        var URL = '{{ path('_getuploadfile') }}';
+                        jQuery.ajax({
+                            type: "post",
+                            url : URL,
+                            data:{},
+                            dataType : "json",
+                            success : function(data){
+                                for( var i=0 ; i < data.length ; i++ ){
+                                    $('#arr_file').append('<input value="'+data[i]+'" type="hidden" id="attachments" name="attachments[]" />');
+                                }
+
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    $(function(){
+        load_fileloader();
+        $('#btn_addissue').click(function(){
+            $('.errorW').html('');
+            if($('#form_title').val().trim() == ''){
+                $('.error_title').html('Please enter title');
+                return false;
+            }
+            if($('.plupload_droptext').html()==null && $('.plupload_done').html()  ==null){
+                alert('Please click upload to attachments file!')
+            }else{
+                $('#from_add').submit();
+            }
+
+        });
+    });
+    </script>
     </div>
 {% endblock %}

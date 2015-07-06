@@ -32,7 +32,14 @@
                         <div class="formRight">{{ form_widget(form.description) }}</div>
                         <div class="clear"></div>
                     </div>
-
+                    <div class="formRow">
+                        <label>{{ form_label(form.assigned_to) }}</label>
+                        <div class="formRight">
+                            {{ form_widget(form.assigned_to) }}
+                        </div>
+                        {{ form_errors(form.assigned_to) }}
+                        <div class="clear"></div>
+                    </div>
                     <div class="formRow">
                         <label>{{ form_label(form.status) }}</label>
                         <div class="formRight">

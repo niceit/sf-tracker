@@ -838,13 +838,15 @@ html ul.tabs li.activeTab a { color: #2E6B9B; }
 .partners {  }
 .partners img { margin-right: 12px; }
 .partners li { border-top: 1px solid #cdcdcd; padding: 12px 12px 8px 12px; }
-
+div#comment_content{
+    border-top: 1px solid #cdcdcd;
+}
 .partners li:first-child { border-top: none; }
 .pInfo { float: left; }
 .pLinks { float: right; width: 12px; margin-left: 5px; }
 .pInfo i { display: block; }
 .pLinks a { margin-top: 10px; display: block; }
-.pLinks a:first-child { margin-top: 3px; }.
+.pLinks a:first-child { margin-top: 3px; }
 
 
 /* New updates widget */
@@ -1031,9 +1033,12 @@ table thead td.headerSortDown span { background: url(../images/icons/sortDown.pn
 .formRow .checker, .formRow .radio { margin-right: 12px; margin-top: 4px; }
 .formRow .formRight { display: block; float: right; width: 80%; margin-right: 18px; }
 
-.form input[type=text], .form input[type=password], .form textarea { font-size: 11px; padding: 7px 6px; background: white; border: 1px solid #DDD; width: 100%; font-family: Arial, Helvetica, sans-serif; box-shadow: 0 0 0 2px #f4f4f4; -webkit-box-shadow: 0 0 0 2px #f4f4f4; -moz-box-shadow: 0 0 0 2px #f4f4f4; color: #656565; } 
-.form input[type=text]:hover, .form input[type=password]:hover, .form textarea:hover { border-color: #d5d9dc; background: #fdfdfd; }
-.form input[type=text]:focus, .form input[type=password]:focus, .form textarea:focus { border-color: #d5d9dc; background: #fff; -webkit-box-shadow: 0 0 0 2px #f4f4f4; box-shadow: 0 0 0 2px #f4f4f4; -moz-box-shadow: 0 0 0 2px #f4f4f4; }
+.form input[type=text], .form input[type=password], .form textarea, .assigned_user { font-size: 11px; padding: 7px 6px; background: white; border: 1px solid #DDD; width: 100%; font-family: Arial, Helvetica, sans-serif; box-shadow: 0 0 0 2px #f4f4f4; -webkit-box-shadow: 0 0 0 2px #f4f4f4; -moz-box-shadow: 0 0 0 2px #f4f4f4; color: #656565; }
+
+
+
+.form input[type=text]:hover,.assigned_user:hover .form input[type=password]:hover, .form textarea:hover { border-color: #d5d9dc; background: #fdfdfd; }
+.form input[type=text]:focus, .assigned_user:focus .form input[type=password]:focus, .form textarea:focus { border-color: #d5d9dc; background: #fff; -webkit-box-shadow: 0 0 0 2px #f4f4f4; box-shadow: 0 0 0 2px #f4f4f4; -moz-box-shadow: 0 0 0 2px #f4f4f4; }
 input[readonly], input[disabled] { background: #FCFCFC; border: 1px solid #DADADA; color: #D1D1D1; }
 
 .multiple { width: 100%; padding: 5px; }
@@ -1830,5 +1835,50 @@ color: #656565;
     height: 50px;
     width: 50px;
     margin: 0 auto;
+}
+.div_assigned{
+    float: left; width:300px;
+    margin-top: 4px;
+    position: relative;
+    margin-right: 8px;
+}
+.assigned_user{
+    padding: 6px 0px;
+}
+div#content_assigned_user {
+    position: absolute;
+    top: 28px;
+    width: 100%;
+    overflow: auto;
+    max-height: 186px;
+}
+
+div#content_assigned_user li {
+    line-height: 28px;
+    border-bottom: 1px #ccc dotted;
+    padding-left: 13px;
+    background-color: #F3F3F3;
+}
+div#content_assigned_user li:hover {
+    background: #fff;
+}
+.main{
+    position: relative;
+}
+.loading{
+    position: absolute;
+    width: 100%;
+    top:0px;
+    height: 100%;
+    display: none;
+    background: url("../images/loaders/loader8.gif");
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+.widget.content_activity{
+    margin-top: 0px;
+}
+.tab_content .widget{
+    margin-top: 0px;
 }
 /**/

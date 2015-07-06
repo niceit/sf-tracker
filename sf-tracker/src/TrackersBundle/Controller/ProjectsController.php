@@ -12,8 +12,10 @@ use TrackersBundle\Entity\Projects;
 use TrackersBundle\Entity\User_projects;
 use TrackersBundle\Models\Document;
 use TrackersBundle\Entity\Pagination;
+use Symfony\Component\HttpFoundation\Response;
 
 use TrackersBundle\Entity\Project_issuesRepository;
+use TrackersBundle\Entity\Users_activity;
 
 class ProjectsController extends Controller
 {
@@ -32,8 +34,15 @@ class ProjectsController extends Controller
      */
     public function showAction($id)
     {
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Users_activity');
+        $number_activity = count($repository->findBy(array ('parentId' => $id)));
 
-        return array('id'=>$id);
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+        $number_open = count($repository->findBy(array ('projectId' => $id, 'status' => 'OPEN')));
+
+        $number_close = count($repository->findBy(array ('projectId' => $id, 'status' => 'CLOSED')));
+        $number_assigned = count($repository->findBy(array ('projectId' => $id, 'status' => 'OPEN', 'assignedTo' => $this->getUser()->getId())));
+        return array('id'=>$id, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned );
     }
 
     /**
@@ -110,6 +119,7 @@ class ProjectsController extends Controller
                     $em = $this->getDoctrine()->getManager();
                     $em->persist($project);
                     $em->flush();
+
                     $this->get('session')->getFlashBag()->add('notice', 'More successful project!');
                     return $this->redirectToRoute('_addProjects');
                 }
@@ -131,7 +141,7 @@ class ProjectsController extends Controller
     /**
      * @Route("/adduserproject", name="_addUerProject")
      */
-    public function add_user_projectAction($id,Request $request)
+    public function add_user_projectAction()
     {
         $requestData = $this->getRequest()->request;
         $project_id = $requestData->get('project_id');
@@ -144,6 +154,9 @@ class ProjectsController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->persist($user_projects);
         $em->flush();
+
+        echo $requestData->get('user_id');
+        die();
 
     }
     /**
@@ -231,6 +244,25 @@ class ProjectsController extends Controller
     }
 
     /**
+     * @Route("/add_userprojects", name="_Add_UserProjects")
+     */
+    public function add_userAction()
+    {
+        $requestData = $this->getRequest()->request;
+        $project_id = $requestData->get('project_id');
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $query = $em->createQuery("SELECT n.firstname , n.lastname , u.id FROM TrackersBundle:UserDetail n, TrackersBundle:User_projects u WHERE  u.userId = n.user_id AND u.projectId = :project_id")
+            ->setParameter('project_id', $project_id);
+
+        $entities = $query->getResult();
+
+        $template = $this->render('TrackersBundle:Projects:ajax_assigned_user.html.twig', array( 'user_projects' => $entities  ));
+        return new Response($template->getContent());
+        die();
+    }
+
+    /**
      * @Route("/project/delete/{id}", name="_deleteProjects")
      */
     public function deleteAction($id)
@@ -270,4 +302,29 @@ class ProjectsController extends Controller
         echo 0;
         exit;
     }
+
+
+    /**
+     * @Route("/removeUerProject", name="_removeUerProject")
+     */
+    public function removeUerProjectAction()
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $id = $requestData->get('id');
+
+
+            $repository_pro = $this->getDoctrine()->getRepository('TrackersBundle:User_projects');
+
+            $em = $this->getDoctrine()->getManager();
+            $user_projects = $repository_pro->find($id);
+            $em->remove($user_projects);
+            $em->flush();
+            echo $id;
+            exit;
+        }
+        echo 0;
+        exit;
+    }
+
 }

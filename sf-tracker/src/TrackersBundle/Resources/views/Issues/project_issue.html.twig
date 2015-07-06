@@ -16,7 +16,16 @@
                     <a href="#" title="" class="floatL"><img src="{% if user.getAvatar() == '' %} {{ asset('assets/images/user.png') }} {% else %} {{ asset('upload/'.user.getAvatar()) }}  {% endif %}" alt=""></a>
                     <div class="pInfo">
                         <a href="#" title=""><strong> {{ user.getFirstname() }} {{ user.getLastname() }} opened this issue </strong> {{ issue.getCreated() |date('Y-m-d h:i:s') }}</a>
-                        <i>{{ issue.getDescription()| raw }}</i>
+                        <i>{{ issue.getDescription()| raw }}</i>'
+                        {% if attachments %}
+                        <p>
+                            <ul>
+                            {% for attach in attachments %}
+                                <li><a href="">{{ attach.getFilename }}</a> - {{ attach.getFilesize }} kb</li>
+                            {% endfor %}
+                            </ul>
+                        </p>
+                        {% endif %}
                     </div>
                     <div class="clear"></div>
                 </li>
@@ -26,22 +35,29 @@
             </div>
         </div>
 
-        <div class="message"></div>
 
-        <!-- WYSIWYG editor -->
-        <div class="widget">
-            <div class="title"><img src="{{ asset('assets/images/icons/dark/pencil.png') }}" alt="" class="titleIcon" /><h6>Comment on this issue:</h6></div>
-            <textarea id="editor" rows="8" cols="" name="growingTextarea" class="autoGrow comment" style="height: auto; overflow: hidden; width: 100%"></textarea>
-            <div id="uploaders"></div>
-            <div id="arr_file"></div>
-            <a href="javasrcipt:void(0);" id="btn-comment" title="" class="wButton bluewB ml15 m10"><span>Comment</span></a>
-        </div>
+        {% if issue.getStatus() != 'CLOSED' %}
+            <div  class="form_comment">
+                <a href="javascript:void(0);" onclick="fc_close()" title="" class="button greenB" style="margin: 5px;"><span> Close Issue</span></a>
+                <div class="message"></div>
+
+                <!-- WYSIWYG editor -->
+                <div class="widget ">
+                    <div class="title"><img src="{{ asset('assets/images/icons/dark/pencil.png') }}" alt="" class="titleIcon" /><h6>Comment on this issue:</h6></div>
+                    <textarea id="editor" rows="8" cols="" name="growingTextarea" class="autoGrow comment" style="height: auto; overflow: hidden; width: 100%"></textarea>
+                    <div id="uploaders"></div>
+                    <div id="arr_file"></div>
+                    <a href="javasrcipt:void(0);" id="btn-comment" title="" class="wButton bluewB ml15 m10"><span>Comment</span></a>
+                </div>
+            </div>
+        {% endif %}
 
     </div>
 
 
 
     <script type="text/javascript">
+
         function load_fileloader(){
             var uploader = $("#uploaders").pluploadQueue({
                 runtimes : 'html5,html4',
@@ -72,8 +88,24 @@
                 }
             });
         }
+        function fc_close(issue_id){
+            $('.loading').show();
+            var URL = '{{ path('_ajaxcloseissues') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'issueId' : {{ issue.getId() }} , 'project_id': {{ project.getId() }}},
+                dataType : "html",
+                success : function(data){
+                    $('.form_comment').hide();
+                    loadcomments(0);
+                    $('.loading').hide();
+                }
+            });
+        }
         function loadcomments(page){
-            $("#comment_content").append("<img src='{{ asset('assets/images/loaders/loader12.gif') }}'>");
+            $('.loading').show();
+            $("#comment_content").append("<img style='margin:0 auto;' src='{{ asset('assets/images/loaders/loader5.gif') }}'>");
             var URL = '{{ path('_ajaxgetcomment') }}';
             jQuery.ajax({
                 type: "post",
@@ -82,11 +114,13 @@
                 dataType : "html",
                 success : function(data){
                     jQuery('#comment_content').html(data);
+                    $('.loading').hide();
                 }
             });
 
         }
         function romove_comment(id){
+            $('.loading').show();
             var URL = '{{ path('_ajaxromovecomment') }}';
             jQuery.ajax({
                 type: "post",
@@ -96,6 +130,7 @@
                 success : function(data){
                     if(data = 1)
                     $('.row-comment'+id).hide();
+                    $('.loading').hide();
                 }
             });
         }
@@ -104,40 +139,52 @@
             load_fileloader();
 
             $('#btn-comment').click(function(){
-                if($('.plupload_buttons') != 'none'){
-                    $('.plupload_start').trigger('click');
 
-                    setTimeout(function(){  }, 3000);
-                }
-                var file_id = $("input[id='comment']")
-                        .map(function(){return $(this).val();}).get();
-                var  editor = $('#editor').cleditor()[0];
-                var comment = editor.$area.val();
-                if(comment.length==0){
-                    $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
+                if($('.plupload_droptext').html()==null && $('.plupload_done').html()  ==null){
+                    alert('Please click upload to attachments file!');
                     return false;
-                }
-                var URL = '{{ path('_savecomment') }}';
-                jQuery.ajax({
-                    type: "post",
-                    url: URL,
-                    data: {
-                        'file_id':file_id,
-                        'comment' : comment,
-                        'issue_id' : {{ issue.getId() }},
-                        'project_id' : {{ project.getId() }}
-                    },
-                    dataType: "json",
-                    success: function (data) {
-                        load_fileloader();
-                        $('#editor').cleditor()[0].clear();
-                        $('.message').html('<div class="nNote nSuccess hideit"> <p><strong>SUCCESS: </strong>Success comment!</p>  </div>');
-                        loadcomments(0);
-                        setTimeout(function(){ $('.message').hide(); }, 3000);
+                }else {
+                    $('.loading').show();
 
+                    /*  if($('.plupload_buttons') != 'none'){
+                     $('.plupload_start').trigger('click');
+
+                     setTimeout(function(){  }, 3000);
+                     } */
+                    var file_id = $("input[id='comment']")
+                            .map(function () {
+                                return $(this).val();
+                            }).get();
+                    var editor = $('#editor').cleditor()[0];
+                    var comment = editor.$area.val();
+                    if (comment.length == 0) {
+                        $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
+                        return false;
                     }
-                });
+                    var URL = '{{ path('_savecomment') }}';
+                    jQuery.ajax({
+                        type: "post",
+                        url: URL,
+                        data: {
+                            'file_id': file_id,
+                            'comment': comment,
+                            'issue_id': {{ issue.getId() }},
+                            'project_id': {{ project.getId() }}
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            load_fileloader();
+                            $('#editor').cleditor()[0].clear();
+                            $('.message').html('<div class="nNote nSuccess hideit"> <p><strong>SUCCESS: </strong>Success comment!</p>  </div>');
+                            loadcomments(0);
+                            $('.loading').hide();
+                            setTimeout(function () {
+                                $('.message').hide();
+                            }, 3000);
 
+                        }
+                    });
+                }
             });
 
 
