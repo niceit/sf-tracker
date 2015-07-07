@@ -1188,7 +1188,7 @@ label.error { color: #A73939; font-size: 11px; display: block; width: 100%; whit
 /* ===== WYSUWYG editor ===== */
 
 .cleditorMain {  background-color:white}
-.cleditorMain iframe {border:none; margin:0; padding:0}
+.cleditorMain iframe {border:none; margin:0; padding:0; width: 100% !important;}
 .cleditorMain textarea { border:none!important; margin:0; padding:0!important; font:10pt Arial,Verdana; resize:none; outline:none; height: 127px; box-shadow: none!important; /* webkit grip focus */}
 .cleditorToolbar {background: url('../images/wysiwyg/toolbar.gif') repeat}
 .cleditorGroup {float:left; height:26px}

@@ -5,6 +5,7 @@
     use Symfony\Bundle\FrameworkBundle\Controller\Controller;
     use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
     use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+    use Symfony\Component\Config\Definition\Exception\Exception;
     use TrackersBundle\Entity\Project_issues;
     use TrackersBundle\Entity\Project_issue_assignments;
     use TrackersBundle\Entity\Projects;
@@ -66,10 +67,13 @@
                 {
                     $tile_issue =  '';
                 }
-                
-               if($activity->getActionId() != ''){
-                   $comment = $repository_issues_comments->find($activity->getActionId())->getComment();
-               }else $comment = '';
+                if($activity->getActionId()!=''){
+                    $comments = $repository_issues_comments->find($activity->getActionId());
+                    if(!empty($comments)){
+                        $comment = $comments->getComment();
+                    }else $comment = '';
+                }else $comment = '';
+
 
                 $arr[] = array (
                                 'id' => $activity->getId(),
@@ -166,7 +170,7 @@
             $limit = $this->container->getParameter('limit_open_issues');
             $offset = $page * $limit;
 
-            $total = (int)(count($repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN', 'assignedTo' => $this->getUser()->getId()))) / $limit);
+            $total = (int)(count($repository->findBy(array ('projectId' => $project_id,  'assignedTo' => $this->getUser()->getId()))) / $limit);
             $count = count($repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN', 'assignedTo' => $this->getUser()->getId()))) / $limit;
             if($count > $limit &&  $count  % $limit != 0){
                 $total = $total + 1;
@@ -174,7 +178,7 @@
 
             $pagination = new Pagination();
             $paginations = $pagination->render($page, $total, 'load_assigned');
-            $issues = $repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN','assignedTo' => $this->getUser()->getId() ), array ('created' => 'ASC'), $limit, $offset);
+            $issues = $repository->findBy(array ('projectId' => $project_id,'assignedTo' => $this->getUser()->getId() ), array ('created' => 'ASC'), $limit, $offset);
             $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
             $arr = array ();
             foreach ($issues as $issue) {
@@ -217,6 +221,35 @@
             die();
         }
         /**
+         * @Route("/ajaxopenissues", name="_ajaxopenissues")
+         */
+        public function ajaxopenissuesAction () {
+            if ($this->getRequest()->getMethod() == 'POST') {
+                $requestData = $this->getRequest()->request;
+                $issueId = $requestData->get('issueId');
+                $project_id = $requestData->get('project_id');
+                $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+                $issue = $repository->find($issueId);
+                $issue->setStatus('OPEN');
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($issue);
+                $em->flush();
+
+                $users_activity = new Users_activity();
+                $users_activity->setUserId($this->getUser()->getId());
+                $users_activity->setParentId($project_id);
+                $users_activity->setItemId($issue->getId());
+                $users_activity->setTypeId(4);
+                $users_activity->setCreatedAt(new \DateTime("now"));
+                $em->persist($users_activity);
+                $em->flush();
+
+            }
+            echo 1;
+            die();
+        }
+
+        /**
          * @Route("/issues/{id}/{project_id}", name="_project_issues")
          * @Template("TrackersBundle:Issues:project_issue.html.twig")
          */
@@ -231,8 +264,12 @@
             $repository_file = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
             $attachments = $repository_file->findBy(array ('issueId' => $id));
 
+            if($this->getUser()->getId() == $issue->getassignedTo())
+                $is_ssues = true;
+            else
+                $is_ssues = false;
 
-            return array ('issue' => $issue, 'project' => $project, 'user' => $user, 'attachments' => $attachments);
+            return array ('issue' => $issue, 'project' => $project, 'user' => $user, 'attachments' => $attachments, 'is_ssues' => $is_ssues );
 
         }
 
@@ -309,6 +346,8 @@
             if ($this->getRequest()->getMethod() == 'POST') {
                 $requestData = $this->getRequest()->request;
                 $form = $requestData->get('form');
+                $assignedToOld = $requestData->get('assignedToOld');
+
                 $issue = $repository->find($id);
                 $issue->setTitle($form['title']);
                 $issue->setDescription($form['description']);
@@ -321,6 +360,17 @@
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($issue);
                 $em->flush();
+                if($form['assigned_to'] != $assignedToOld){
+                    $users_activity = new Users_activity();
+                    $users_activity->setUserId($this->getUser()->getId());
+                    $users_activity->setParentId($project_id);
+                    $users_activity->setItemId($issue->getId());
+                    $users_activity->setTypeId(5);
+                    $users_activity->setCreatedAt(new \DateTime("now"));
+                    $em->persist($users_activity);
+                    $em->flush();
+                }
+
                 $this->get('session')->getFlashBag()->add('notice', 'More update Issues!');
             }
             $em = $this->getDoctrine()->getEntityManager();
@@ -331,13 +381,20 @@
                 $arr[$post['user_id']] = $post['firstname'] . " " . $post['lastname'];
             }
             $issues_id = $repository->find($id);
+            $assignedToOld = $issues_id->getassignedTo();
+
             $issue->setTitle($issues_id->getTitle());
             $issue->setDescription($issues_id->getDescription());
             $issue->setStatus($issues_id->getStatus());
             $issue->setAssignedTo($issues_id->getassignedTo());
-            $form = $this->createFormBuilder($issue)->add('title', 'text', array ('label' => 'Tile', 'required' => true))->add('description', 'textarea', array ('required' => false, 'label' => 'Description', 'attr' => array ('class' => 'editor', 'id' => 'editor')))->add('assigned_to', 'choice', array ('choices' => $arr, 'required' => false, 'empty_value' => '--select--', 'label' => 'Assigned To', 'preferred_choices' => array ($issues_id->getassignedTo()), 'empty_data' => null))->add('status', 'choice', array ('choices' => array ('OPEN' => 'OPEN', 'HOLD' => 'HOLD', 'INPROGRESS' => 'INPROGRESS', 'CLOSED' => 'CLOSED', 'FINISHED' => 'FINISHED'), 'preferred_choices' => array ($issues_id->getStatus()), 'label' => 'Status'))->getForm();
+            $form = $this->createFormBuilder($issue)
+                ->add('title', 'text', array ('label' => 'Tile', 'required' => true))
+                ->add('description', 'textarea', array ('required' => false, 'label' => 'Description', 'attr' => array ('class' => 'editor', 'id' => 'editor')))
+                ->add('assigned_to', 'choice', array ('choices' => $arr, 'required' => false, 'empty_value' => '--select--', 'label' => 'Assigned To', 'preferred_choices' => array ($issues_id->getassignedTo()), 'empty_data' => null))
+                ->add('status', 'choice', array ('choices' => array ('OPEN' => 'OPEN', 'HOLD' => 'HOLD', 'INPROGRESS' => 'INPROGRESS', 'CLOSED' => 'CLOSED', 'FINISHED' => 'FINISHED'), 'preferred_choices' => array ($issues_id->getStatus()), 'label' => 'Status'))
+                ->getForm();
 
-            return array ('form' => $form->createView(), array ('project_id' => $id));
+            return array ('form' => $form->createView(), array ('project_id' => $id),'assignedTo' => $assignedToOld);
         }
 
     }

@@ -11,6 +11,16 @@
     <div class="wrapper">
 
         <div class="widget">
+
+            {% if is_ssues %}
+                <div style="text-align: right">
+                    <a {% if issue.getStatus() == 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);" onclick="fc_close()" title="" class="button greenB close_issue  " style="margin: 5px;"><span> Close Issue</span></a>
+
+                    <a {% if issue.getStatus() != 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);" onclick="fc_open()" title="" class="button greenB open_issue" style="margin: 5px;"><span> Open </span></a>
+                </div>
+            {% endif %}
+
+
             <ul id="partners" class="partners">
                 <li>
                     <a href="#" title="" class="floatL"><img src="{% if user.getAvatar() == '' %} {{ asset('assets/images/user.png') }} {% else %} {{ asset('upload/'.user.getAvatar()) }}  {% endif %}" alt=""></a>
@@ -21,7 +31,7 @@
                         <p>
                             <ul>
                             {% for attach in attachments %}
-                                <li><a href="">{{ attach.getFilename }}</a> - {{ attach.getFilesize }} kb</li>
+                                <li><a href="{{ path('download_file', { 'id': attach.getId  }) }}">{{ attach.getFilename }}</a> - {{ attach.getFilesize | number_format }} kb</li>
                             {% endfor %}
                             </ul>
                         </p>
@@ -36,11 +46,10 @@
         </div>
 
 
-        {% if issue.getStatus() != 'CLOSED' %}
-            <div  class="form_comment">
-                <a href="javascript:void(0);" onclick="fc_close()" title="" class="button greenB" style="margin: 5px;"><span> Close Issue</span></a>
-                <div class="message"></div>
 
+
+            <div  {% if issue.getStatus() == 'CLOSED' %} style="display: none" {% endif %} class="form_comment">
+                <div class="message"></div>
                 <!-- WYSIWYG editor -->
                 <div class="widget ">
                     <div class="title"><img src="{{ asset('assets/images/icons/dark/pencil.png') }}" alt="" class="titleIcon" /><h6>Comment on this issue:</h6></div>
@@ -50,7 +59,8 @@
                     <a href="javasrcipt:void(0);" id="btn-comment" title="" class="wButton bluewB ml15 m10"><span>Comment</span></a>
                 </div>
             </div>
-        {% endif %}
+
+
 
     </div>
 
@@ -62,11 +72,15 @@
             var uploader = $("#uploaders").pluploadQueue({
                 runtimes : 'html5,html4',
                 url : '{{ path('_uploadfile' ,{ 'id': project.getId(), 'issue_id': issue.getId() }) }}',
-                max_file_size : '1mb',
+                max_file_size : '10mb',
                 unique_names : true,
                 filters : [
                     {title : "Image files", extensions : "jpg,gif,png"},
-                    {title : "Zip files", extensions : "zip"}
+                    {title : "Zip files", extensions : "zip"},
+                    {title : "php files", extensions : "php"},
+                    {title : "xml files", extensions : "xml"},
+                    {title : "css files", extensions : "css"},
+                    {title : "js files", extensions : "js"}
                 ],
 
                 init : {
@@ -88,7 +102,7 @@
                 }
             });
         }
-        function fc_close(issue_id){
+        function fc_close(){
             $('.loading').show();
             var URL = '{{ path('_ajaxcloseissues') }}';
             jQuery.ajax({
@@ -98,7 +112,25 @@
                 dataType : "html",
                 success : function(data){
                     $('.form_comment').hide();
+                    $('.close_issue').hide();
+                    $('.open_issue').show();
                     loadcomments(0);
+                    $('.loading').hide();
+                }
+            });
+        }
+        function fc_open(){
+            $('.loading').show();
+            var URL = '{{ path('_ajaxopenissues') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'issueId' : {{ issue.getId() }} , 'project_id': {{ project.getId() }}},
+                dataType : "html",
+                success : function(data){
+                    $('.form_comment').slideDown( "slow" );
+                    $('.close_issue').show();
+                    $('.open_issue').hide();
                     $('.loading').hide();
                 }
             });
@@ -134,6 +166,32 @@
                 }
             });
         }
+        function edit_comment(id){
+            $('.edit-'+id).slideToggle( "slow" );
+        }
+        function save_comment_detail(id,page){
+            $('.loading').show();
+            var editor = $('.editor-'+id).cleditor()[0];
+            var comment = editor.$area.val();
+
+            if (comment.length == 0) {
+                $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
+                return false;
+            }
+
+            var URL = '{{ path('_ajaxupdatecomment') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'id':id, 'page' : page, 'comment' : comment},
+                dataType : "html",
+                success : function(data){
+                    $('.edit-'+id).slideUp( "slow" );
+                    loadcomments(data);
+                    $('.loading').hide();
+                }
+            });
+        }
         $(function(){
             loadcomments(0);
             load_fileloader();
@@ -144,7 +202,7 @@
                     alert('Please click upload to attachments file!');
                     return false;
                 }else {
-                    $('.loading').show();
+
 
                     /*  if($('.plupload_buttons') != 'none'){
                      $('.plupload_start').trigger('click');
@@ -161,6 +219,7 @@
                         $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
                         return false;
                     }
+                    $('.loading').show();
                     var URL = '{{ path('_savecomment') }}';
                     jQuery.ajax({
                         type: "post",

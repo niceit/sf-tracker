@@ -3,8 +3,8 @@
 {% block title %}Issuse{% endblock %}
 
 {% block Breadcrumb %}
-    <h5>Projects manager</h5>
-    <span>Do your layouts deserve better than Lorem Ipsum.</span>
+    <h5>{{ project.getName }}</h5>
+
 {% endblock %}
 
 {% block body %}
@@ -85,7 +85,21 @@
             load_close(0);
             load_assigned(0);
             load_user_assigned();
+
         });
+
+
+        (function($)
+        {
+            $(document).ready(function()
+            {
+                var refreshId = setInterval(function()
+                {
+                    load_activity(0);
+                }, 20000);
+            });
+        })(jQuery);
+
         function remove_user_project(id){
 
             var confirmBox = confirm('Are you sure you want to remove this user from the project?');

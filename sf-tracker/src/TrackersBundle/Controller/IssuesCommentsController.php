@@ -43,7 +43,7 @@ class IssuesCommentsController extends Controller
         $document->setFile($image);
         $document->setSubDirectory($dir);
         $document->setNameFile( $name_file );
-        $document->setTypeFile($file_type);
+        $document->setTypeFile(strtolower($file_type));
         $document->processFile();
         $name_image = $document->getSubDirectory() . "/" . $name_file. "." . $file_type;
 
@@ -220,11 +220,46 @@ class IssuesCommentsController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->remove($comments);
             $em->flush();
+
+
+
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Users_activity');
+            $comments = $repository->findBy(array('actionId'=>$id));
+
+            $comment = $repository->find($comments[0]->getId());
+            $em = $this->getDoctrine()->getManager();
+            $em->remove($comment);
+            $em->flush();
+
             echo 1;
             exit;
         }
         echo 0;
         exit;
     }
+    /**
+     * @Route("/ajaxupdatecomment", name="_ajaxupdatecomment")
+     */
+    public function ajaxupdatecommentAction()
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $id = $requestData->get('id');
+            $page = $requestData->get('page');
+            $content= $requestData->get('comment');
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_comments');
+            $comment = $repository->find($id);
+            $comment->setComment($content);
+            $comment->setUpdatedAt(new \DateTime('now'));
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($comment);
+            $em->flush();
+            echo $page;
+            die();
+        }
+        echo 0;
+        die();
+    }
+
 
 }

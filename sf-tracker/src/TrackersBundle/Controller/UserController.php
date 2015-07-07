@@ -5,7 +5,7 @@ namespace TrackersBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
-
+use Symfony\Component\HttpFoundation\Response;
 use TrackersBundle\Entity\UserDetail;
 use TrackersBundle\Entity\User_projects;
 
@@ -102,6 +102,78 @@ class UserController extends Controller
         exit;
     }
 
+
+    /**
+     * @Route("/profile", name="_Profile")
+     * @Template("TrackersBundle:User:profile.html.twig")
+     */
+    public function profileAction()
+    {
+        $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $account = $requestData->get('account');
+            $user_detail = $requestData->get('user_detail');
+            $userManager = $this->container->get('fos_user.user_manager');
+            $user = $this->getUser();
+            $user->setEmail($account['email']);
+           // $user->setPlainPassword($password);
+            $userManager->updateUser($user);
+
+            $userS = $repository_user->find($user_detail);
+            $userS->setFirstname($account['firstName']);
+            $userS->setLastname($account['lastName']);
+            $userS->setSituation($account['situation']);
+            $userS->setStreet1($account['street_1']);
+            $userS->setStreet2($account['street_2']);
+            $userS->setState($account['state']);
+            $userS->setPhone($account['phone']);
+            $userS->setCountry($account['country']);
+            $userS->setCity($account['city']);
+            $userS->setModified(new \DateTime("now"));
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($userS);
+            $em->flush();
+
+
+        }
+
+
+
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Country');
+        $countrys = $repository->findAll();
+
+
+        $users = $repository_user->findBy(array ('user_id' => $this->getUser()->getId()));
+        $UserDetail = $repository_user->find($users[0]->getId());
+
+
+        return array( 'users' => $this->getUser() , 'UserDetail' => $UserDetail, 'countrys' => $countrys , 'user_detail' => $users[0]->getId() );
+    }
+
+    /**
+     * @Route("/ajaxgetcity", name="_ajaxGetCity")
+     */
+    public function ajaxgetcityAction()
+    {
+        $citys = array();
+
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $id = $requestData->get('id');
+            $city_id = $requestData->get('city');
+
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:City');
+            $citys = $repository->findBy(array ('countryId' => $id));
+        }
+
+
+        $template = $this->render('TrackersBundle:City:ajax_getcity.html.twig', array ('citys' => $citys , 'city_id' => $city_id));
+        return new Response($template->getContent());
+        die();
+    }
 }
 
 

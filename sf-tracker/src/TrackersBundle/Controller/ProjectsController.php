@@ -34,6 +34,11 @@ class ProjectsController extends Controller
      */
     public function showAction($id)
     {
+
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
+        $project = $repository->find($id);
+
+
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Users_activity');
         $number_activity = count($repository->findBy(array ('parentId' => $id)));
 
@@ -41,8 +46,8 @@ class ProjectsController extends Controller
         $number_open = count($repository->findBy(array ('projectId' => $id, 'status' => 'OPEN')));
 
         $number_close = count($repository->findBy(array ('projectId' => $id, 'status' => 'CLOSED')));
-        $number_assigned = count($repository->findBy(array ('projectId' => $id, 'status' => 'OPEN', 'assignedTo' => $this->getUser()->getId())));
-        return array('id'=>$id, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned );
+        $number_assigned = count($repository->findBy(array ('projectId' => $id, 'assignedTo' => $this->getUser()->getId())));
+        return array('id'=>$id, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned, 'project' => $project );
     }
 
     /**
@@ -52,19 +57,36 @@ class ProjectsController extends Controller
     {
         $requestData = $this->getRequest()->request;
         $page = $requestData->get('page');
-        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
+
+        $em = $this->getDoctrine()->getEntityManager();
 
         $limit = $this->container->getParameter( 'limit_project');
         $offset = $page*$limit;
 
-        $total = (int)round( count($repository->findAll()) / $limit);
-        $count = count($repository->findAll());
+
+        $query = $em->createQuery("SELECT p FROM TrackersBundle:Projects p WHERE  p.owner_id = :user_id OR p.id IN ( SELECT up.projectId FROM TrackersBundle:Project_issues up WHERE up.assignedTo = :assigned_to ) ORDER BY p.created ")
+            ->setParameter('user_id', $this->getUser()->getId())
+            ->setParameter('assigned_to', $this->getUser()->getId());
+
+        $total = (int)round( count($query->getResult()) / $limit);
+        $count = count($query->getResult());
         if($count > $limit &&  $count  % $limit != 0){
             $total = $total + 1;
         }
+
+
+        $query = $em->createQuery("SELECT p FROM TrackersBundle:Projects p WHERE  p.owner_id = :user_id OR p.id IN ( SELECT up.projectId FROM TrackersBundle:Project_issues up WHERE up.assignedTo = :assigned_to)  ORDER BY p.created")
+            ->setParameter('user_id', $this->getUser()->getId())
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->setParameter('assigned_to', $this->getUser()->getId());
+
+
+        $projects = $query->getResult();
+
         $pagination = new Pagination();
         $paginations = $pagination->render($page,$total,'list_projects');
-        $projects = $repository->findBy(array(),array('created' => 'ASC'),$limit,$offset);
+
         echo $this->render('TrackersBundle:Projects:ajax_list.html.twig', array( 'projects' => $projects , 'paginations'=>$paginations ));
         die();
     }

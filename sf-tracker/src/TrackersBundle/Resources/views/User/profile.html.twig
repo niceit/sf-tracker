@@ -1,0 +1,195 @@
+{% extends '::layoutmain.html.twig' %}
+
+{% block title %}Profile{% endblock %}
+
+{% block Breadcrumb %}
+    <h5>Profile</h5>
+{% endblock %}
+
+
+ {% block stylesheets %}
+     <link href="{{ asset('assets/css/bootstrap-fileupload.css') }}" rel="stylesheet" type="text/css" />
+ {% endblock %}
+{% block javascripts %}
+    <script type="text/javascript" src="{{ asset('assets/js/bootstrap-fileupload.min.js') }}"></script>
+{% endblock %}
+
+
+{% block body %}
+    <div class="wrapper">
+        <form id="usualValidate" class="form from-addUser" method="post" action="" novalidate="novalidate">
+            <input type="hidden" name="user_detail" value="{{ user_detail }}" />
+            <fieldset>
+                <div class="widget">
+                    <div class="title"><img src="{{ asset('assets/images/icons/dark/list.png') }}" alt="" class="titleIcon"><h6>Profile</h6></div>
+                    <div class="formRow">
+                        <label>First name:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" value="{{ UserDetail.getFirstname() }}" class="required error" name="account[firstName]" id="firstName">
+                        </div><div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>Last name:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" value="{{ UserDetail.getLastname() }}" class="required error" name="account[lastName]" id="lastName">
+                        </div><div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>Avatar:</label>
+                        <div class="formRight">
+                            <div class="fileupload fileupload-new" data-provides="fileupload">
+                                <div class="fileupload-new img-thumbnail" style="width: 200px; height: 150px;">
+                                    {% if UserDetail.getAvatar() != '' %}
+                                        <img src="http://{{ app.request.getHost() }}/upload/{{ UserDetail.getAvatar() }}" style="max-height: 150px" alt="" />
+                                    {% else %}
+                                        <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" />
+                                    {% endif %}
+                                </div>
+
+                                <div class="fileupload-preview fileupload-exists img-thumbnail" style="max-width: 200px; max-height: 150px; line-height: 20px;"></div>
+                                <div>
+                                               <span class="btn btn-default btn-file"><span class="fileupload-new">Select image</span>
+                                               <span class="fileupload-exists">Change</span>
+                                               <input type="file" class="file-input" name="image"/>
+                                               </span>
+                                    <a href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">Remove</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>Situation:<span class="req">*</span></label>
+                        <div class="formRight">
+                            <select name="account[situation]"  >
+                                <option {% if UserDetail.getSituation() ==  'Mr' %} selected="selected" {% endif %} value="Mr">Mr</option>
+                                <option {% if UserDetail.getSituation() ==  'Mrs' %} selected="selected" {% endif %}  value="Mrs">Mrs</option>
+                                <option {% if UserDetail.getSituation() ==  'Ms' %} selected="selected" {% endif %}  value="Ms">Ms</option>
+                                <option  {% if UserDetail.getSituation() ==  'N/A' %} selected="selected" {% endif %}  value="N/A" >N/A</option>
+                            </select>
+                        </div><div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>Street 1:</label>
+                        <div class="formRight"><input type="text" value="{{ UserDetail.getStreet1() }}" class=" error" name="account[street_1]" id="street_1">
+                        </div><div class="clear"></div>
+                    </div>
+
+                     <div class="formRow">
+                        <label>Street 2:</label>
+                        <div class="formRight"><input type="text" value="{{ UserDetail.getStreet2() }}" class=" error" name="account[street_2]" id="street_2">
+                        </div><div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>State :</label>
+                        <div class="formRight"><input type="text" value="{{ UserDetail.getState() }}" class="error" name="account[state]" id="state">
+                        </div><div class="clear"></div>
+                    </div>
+                     <div class="formRow">
+                        <label>Phone :</label>
+                        <div class="formRight"><input type="text" value="{{ UserDetail.getPhone() }}" class="error" name="account[phone]" id="phone">
+                        </div><div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>Country :</label>
+                        <div class="formRight">
+                            <select  onchange="CountryFunction(this.value)" id="country_id" name="account[country]">
+                                {% for country in countrys %}
+                                    <option value="{{ country.getId() }}">{{ country.getName() }}</option>
+                                {% endfor %}
+                            </select>
+
+                        </div><div class="clear"></div>
+                    </div>
+
+
+                    <div class="formRow">
+                        <label>City :</label>
+                        <div class="formRight" id="city_id" >
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+
+
+
+                    <div class="formRow">
+                        <label>Password:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" class="required error" name="account[password]" id="password">
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+                    <div class="formRow">
+                        <label>Repeat password:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" class="required error" name="account[repeatPassword]" id="repeatPassword">
+                        </div>
+                        <div class="clear"></div>
+                    </div>
+
+                    <div class="formRow">
+                        <label>Email:<span class="req">*</span></label>
+                        <div class="formRight"><input type="text" value="{{ users.getEmail() }}" class="required error" name="account[email]" id="email">
+                        </div><div class="clear"></div>
+                    </div>
+                    <div class="formSubmit"><input id="button-addUser" type="submit" value="submit" class="redB"></div>
+                    <div class="clear"></div>
+                </div>
+
+
+            </fieldset>
+        </form>
+    </div>
+
+    <script type="text/javascript" >
+        function CountryFunction(id){
+            var URL = '{{ path('_ajaxGetCity') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'id' : id , 'city' : '{{ UserDetail.getCity() }}' },
+                dataType : "html",
+                success : function(data){
+                    $('#city_id').html(data);
+                }
+            });
+
+        }
+
+
+        $(function(){
+            var country_id = $('#country_id').val();
+            CountryFunction(country_id);
+
+
+            $('#username').keypress(function(){
+                var URL = 'isusername';
+                var username = $('#username').val();
+                $.ajax({
+                    type: "post",
+                    url : URL,
+                    data:{'username':username},
+                    dataType : "html",
+                    success : function(data){
+                        if(data==1){
+                            $('.is-username').append('<lable>User name exist!</lable>');
+                        }
+                    }
+                });
+            });
+
+            $('#button-addUserx').click(function(){
+                var URL = 'isusername';
+                var username = $('#username').val();
+                $.ajax({
+                    type: "post",
+                    url : URL,
+                    data:{'username':username},
+                    dataType : "html",
+                    success : function(data){
+                        alert(data);
+                    }
+                });
+               // $('.from-addUser').submit();
+            });
+        });
+    </script>
+{% endblock %}

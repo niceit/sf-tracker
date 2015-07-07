@@ -1,0 +1,7 @@
+<div  class="selector">
+    <select  style="background: #F9F9F9; border: 1px solid #ddd" class="valids" name="account[city]">
+    {% for city in citys %}
+        <option {% if city_id == city.getId() %}  selected="selected" {% endif %}  value="{{ city.getId() }}">{{ city.getName() }}</option>
+    {% endfor %}
+</select>
+</div>

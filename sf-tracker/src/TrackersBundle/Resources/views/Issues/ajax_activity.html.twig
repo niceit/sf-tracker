@@ -25,6 +25,22 @@
                 <div class="clear"></div>
             </div>
         {% elseif activity.type_id == 4 %}
+            <div class="newUpdate">
+                <div class="uDone">
+                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}</a> Reopened was created by <b>{{ activity.users }}</b>
+                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                </div>
+                <div class="clear"></div>
+            </div>
+        {% elseif activity.type_id == 5 %}
+            <div class="newUpdate">
+                <div class="uNotice">
+                   <strong>Reassigned</strong> on issue {{ activity.users }} -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a>
+                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                </div>
+                <div class="clear"></div>
+            </div>
+
 
         {% endif %}
 

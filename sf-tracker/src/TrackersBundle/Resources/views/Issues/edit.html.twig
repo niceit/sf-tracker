@@ -17,6 +17,8 @@
     {% endfor %}
 
         {{ form_start(form) }}
+
+        <input type="hidden" value="{{ assignedTo }}" name="assignedToOld">
         <div class="form">
             <fieldset>
                 <div class="widget">
