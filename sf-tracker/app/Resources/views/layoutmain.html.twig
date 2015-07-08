@@ -5,11 +5,80 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
     <title>{% block title %}{% endblock %}</title>
-    {% block stylesheets %}
-    {% endblock %}
-        <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet" type="text/css" />
+
 
     <script type="text/javascript" src="{{ asset('assets/js/jquery.min.js') }}"></script>
+
+
+    {% block stylesheets %}
+    {% endblock %}
+    <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet" type="text/css" />
+
+    {% block javascripts %}
+    {% endblock %}
+    {% block javascript_ui %}
+        <script type="text/javascript" src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/ui.spinner.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/jquery.mousewheel.js') }}"></script>
+
+
+
+
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/excanvas.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.orderBars.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.pie.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.resize.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.sparkline.min.js') }}"></script>
+
+
+
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/uniform.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.cleditor.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.validationEngine-en.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.validationEngine.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.tagsinput.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/autogrowtextarea.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.maskedinput.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.dualListBox.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.inputlimiter.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/chosen.jquery.min.js') }}"></script>
+
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.form.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.validate.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.form.wizard.js') }}"></script>
+
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.html5.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.html4.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/jquery.plupload.queue.js') }}"></script>
+
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/tables/datatable.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/tables/tablesort.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/tables/resizable.min.js') }}"></script>
+
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.tipsy.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.collapsible.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.prettyPhoto.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.progress.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.timeentry.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.colorpicker.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.jgrowl.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.breadcrumbs.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.sourcerer.js') }}"></script>
+
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/calendar.min.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/js/plugins/elfinder.min.js') }}"></script>
+
+        <script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/core/main.js') }}"></script>
+        <script type="text/javascript" src="{{ asset('assets/core/ajax-request.js') }}"></script>
+
+
+
+    {% endblock %}
+
+
     <!-- Shared on MafiaShare.net  --><!-- Shared on MafiaShare.net  -->
 </head>
 <body>
@@ -20,38 +89,15 @@
 
     <div class="sidebarSep mt0"></div>
 
-    <!-- Search widget -->
-    <form action="" class="sidebarSearch">
-        <input type="text" name="search" placeholder="search..." id="ac" />
-        <input type="submit" value="" />
-    </form>
 
-    <div class="sidebarSep"></div>
 
-    <!-- General balance widget -->
-    <div class="genBalance">
-        <a href="#" title="" class="amount">
-            <span>General balance:</span>
-            <span class="balanceAmount">$10,900.36</span>
-        </a>
-        <a href="#" title="" class="amChanges">
-            <strong class="sPositive">+0.6%</strong>
-        </a>
+    <div id="menu" class="nav">
+        <h3 class="projecth3">Project <a href="{{ path('_addProjects' ) }}" data-url=""  title="" class="smallButton  ajax-request-btn" style="float: right;"><img src="{{ asset('assets/images/icons/color/plus.png') }}" alt=""></a></h3>
+             {{ knp_menu_render('TrackersBundle:Builder:mainMenu') }}
     </div>
 
-    <!-- Next update progress widget -->
-    <div class="nextUpdate">
-        <ul>
-            <li>Next update in:</li>
-            <li>23 hrs 14 min</li>
-        </ul>
-        <div class="pWrapper"><div class="progressG" title="78%"></div></div>
-    </div>
 
-    <div class="sidebarSep"></div>
 
-    <!-- Left navigation -->
-    {% include'TrackersBundle:Components:menu.twig.html'%}
 
 </div>
 
@@ -66,7 +112,7 @@
             <div class="userNav">
                 <ul>
                     {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
-                        <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>Profile</span></a></li>
+                        <li><a href="{{ path('_Profile') }}" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>Profile</span></a></li>
                     {% endif %}
 
                     <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/tasks.png') }}" alt="" /><span>Tasks</span></a></li>
@@ -177,65 +223,6 @@
 
 
 <div class="clear"></div>
-{% block javascripts %}
-{% endblock %}
-
-<script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/ui.spinner.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/jquery.mousewheel.js') }}"></script>
-
-<script type="text/javascript" src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
-
-<!--
-<script type="text/javascript" src="{{ asset('assets/js/plugins/charts/excanvas.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.orderBars.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.pie.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.flot.resize.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.sparkline.min.js') }}"></script>
--->
-
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/uniform.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.cleditor.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.validationEngine-en.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.validationEngine.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.tagsinput.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/autogrowtextarea.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.maskedinput.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.dualListBox.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.inputlimiter.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/chosen.jquery.min.js') }}"></script>
-
-<script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.form.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.validate.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.form.wizard.js') }}"></script>
-
-<script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.html5.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.html4.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/jquery.plupload.queue.js') }}"></script>
-
-<script type="text/javascript" src="{{ asset('assets/js/plugins/tables/datatable.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/tables/tablesort.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/tables/resizable.min.js') }}"></script>
-
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.tipsy.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.collapsible.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.prettyPhoto.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.progress.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.timeentry.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.colorpicker.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.jgrowl.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.breadcrumbs.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.sourcerer.js') }}"></script>
-
-<script type="text/javascript" src="{{ asset('assets/js/plugins/calendar.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/elfinder.min.js') }}"></script>
-
-<script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/core/main.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/core/ajax-request.js') }}"></script>
-
-
 
 
 

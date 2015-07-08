@@ -7,17 +7,27 @@
 {% endblock %}
 
 
- {% block stylesheets %}
-     <link href="{{ asset('assets/css/bootstrap-fileupload.css') }}" rel="stylesheet" type="text/css" />
- {% endblock %}
-{% block javascripts %}
-    <script type="text/javascript" src="{{ asset('assets/js/bootstrap-fileupload.min.js') }}"></script>
+
+{% block javascript_ui %}
+  <script type="text/javascript" src="{{ asset('assets/js/jquery-ui.js') }}"></script>
 {% endblock %}
+
+{% block stylesheets %}
+
+
+    <link href="{{ asset('assets/css/bootstrap-theme.min.css') }}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/jquery.picture.cut.js') }}"></script>
+
+{% endblock %}
+
+
+
 
 
 {% block body %}
     <div class="wrapper">
-        <form id="usualValidate" class="form from-addUser" method="post" action="" novalidate="novalidate">
+        <form  class="form from-addUser" method="post" action="" novalidate="novalidate">
             <input type="hidden" name="user_detail" value="{{ user_detail }}" />
             <fieldset>
                 <div class="widget">
@@ -25,46 +35,45 @@
                     <div class="formRow">
                         <label>First name:<span class="req">*</span></label>
                         <div class="formRight"><input type="text" value="{{ UserDetail.getFirstname() }}" class="required error" name="account[firstName]" id="firstName">
+                        <span style="color: red" class="error-first_name"></span>
                         </div><div class="clear"></div>
                     </div>
                     <div class="formRow">
                         <label>Last name:<span class="req">*</span></label>
                         <div class="formRight"><input type="text" value="{{ UserDetail.getLastname() }}" class="required error" name="account[lastName]" id="lastName">
+                        <span style="color: red" class="error-last_name"></span>
                         </div><div class="clear"></div>
                     </div>
                     <div class="formRow">
                         <label>Avatar:</label>
                         <div class="formRight">
-                            <div class="fileupload fileupload-new" data-provides="fileupload">
-                                <div class="fileupload-new img-thumbnail" style="width: 200px; height: 150px;">
-                                    {% if UserDetail.getAvatar() != '' %}
-                                        <img src="http://{{ app.request.getHost() }}/upload/{{ UserDetail.getAvatar() }}" style="max-height: 150px" alt="" />
-                                    {% else %}
-                                        <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" />
-                                    {% endif %}
-                                </div>
+                            <input type="hidden" name="account[avatar_old]" value="{{ UserDetail.getAvatar() }}" />
+                               <div id="container_image"></div>
+                               <script >
+                                  $("#container_image").PictureCut({
+                                      InputOfImageDirectory       : "image",
+                                      PluginFolderOnServer        : "/jQuery/",
+                                      FolderOnServer              : "/upload/avatar/",
+                                      EnableCrop                  : true,
+                                      CropWindowStyle             : "Bootstrap"
+                                  });
+                               </script>
 
-                                <div class="fileupload-preview fileupload-exists img-thumbnail" style="max-width: 200px; max-height: 150px; line-height: 20px;"></div>
-                                <div>
-                                               <span class="btn btn-default btn-file"><span class="fileupload-new">Select image</span>
-                                               <span class="fileupload-exists">Change</span>
-                                               <input type="file" class="file-input" name="image"/>
-                                               </span>
-                                    <a href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">Remove</a>
-                                </div>
-                            </div>
                         </div>
                         <div class="clear"></div>
                     </div>
                     <div class="formRow">
                         <label>Situation:<span class="req">*</span></label>
                         <div class="formRight">
-                            <select name="account[situation]"  >
-                                <option {% if UserDetail.getSituation() ==  'Mr' %} selected="selected" {% endif %} value="Mr">Mr</option>
-                                <option {% if UserDetail.getSituation() ==  'Mrs' %} selected="selected" {% endif %}  value="Mrs">Mrs</option>
-                                <option {% if UserDetail.getSituation() ==  'Ms' %} selected="selected" {% endif %}  value="Ms">Ms</option>
-                                <option  {% if UserDetail.getSituation() ==  'N/A' %} selected="selected" {% endif %}  value="N/A" >N/A</option>
-                            </select>
+                            <div class="selector">
+                                <select class="select-box" name="account[situation]"  >
+                                    <option {% if UserDetail.getSituation() ==  'Mr' %} selected="selected" {% endif %} value="Mr">Mr</option>
+                                    <option {% if UserDetail.getSituation() ==  'Mrs' %} selected="selected" {% endif %}  value="Mrs">Mrs</option>
+                                    <option {% if UserDetail.getSituation() ==  'Ms' %} selected="selected" {% endif %}  value="Ms">Ms</option>
+                                    <option  {% if UserDetail.getSituation() ==  'N/A' %} selected="selected" {% endif %}  value="N/A" >N/A</option>
+                                </select>
+                            </div>
+
                         </div><div class="clear"></div>
                     </div>
 
@@ -93,12 +102,13 @@
                     <div class="formRow">
                         <label>Country :</label>
                         <div class="formRight">
-                            <select  onchange="CountryFunction(this.value)" id="country_id" name="account[country]">
-                                {% for country in countrys %}
-                                    <option value="{{ country.getId() }}">{{ country.getName() }}</option>
-                                {% endfor %}
-                            </select>
-
+                             <div class="selector">
+                                <select class="select-box"  onchange="CountryFunction(this.value)" id="country_id" name="account[country]">
+                                    {% for country in countrys %}
+                                        <option value="{{ country.getId() }}">{{ country.getName() }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div><div class="clear"></div>
                     </div>
 
@@ -114,15 +124,18 @@
 
                     <div class="formRow">
                         <label>Password:<span class="req">*</span></label>
-                        <div class="formRight"><input type="text" class="required error" name="account[password]" id="password">
+                        <div class="formRight"><input type="password" class=" error" name="account[password]" id="password">
                         </div>
                         <div class="clear"></div>
                     </div>
                     <div class="formRow">
-                        <label>Repeat password:<span class="req">*</span></label>
-                        <div class="formRight"><input type="text" class="required error" name="account[repeatPassword]" id="repeatPassword">
+                        <label>Confirmation password:<span class="req">*</span></label>
+                        <div class="formRight"><input type="password" class=" error" name="account[repeatPassword]" id="repeatPassword">
+
+                        <span style="color: red" class="red error-repeatPassword"></span>
                         </div>
                         <div class="clear"></div>
+
                     </div>
 
                     <div class="formRow">
@@ -130,7 +143,7 @@
                         <div class="formRight"><input type="text" value="{{ users.getEmail() }}" class="required error" name="account[email]" id="email">
                         </div><div class="clear"></div>
                     </div>
-                    <div class="formSubmit"><input id="button-addUser" type="submit" value="submit" class="redB"></div>
+                    <div class="formSubmit"><input id="button-addUser" type="button" value="submit" class="redB"></div>
                     <div class="clear"></div>
                 </div>
 
@@ -156,6 +169,9 @@
 
 
         $(function(){
+            {% if UserDetail.getAvatar() != ''  %}
+            $('.picture-element-image').attr("src", "{{ asset(UserDetail.getAvatar()) }} ");
+            {% endif  %}
             var country_id = $('#country_id').val();
             CountryFunction(country_id);
 
@@ -176,20 +192,32 @@
                 });
             });
 
-            $('#button-addUserx').click(function(){
-                var URL = 'isusername';
-                var username = $('#username').val();
-                $.ajax({
-                    type: "post",
-                    url : URL,
-                    data:{'username':username},
-                    dataType : "html",
-                    success : function(data){
-                        alert(data);
-                    }
-                });
-               // $('.from-addUser').submit();
+            $('#button-addUser').click(function(){
+                $('.error-repeatPassword').html('');
+                $('.error-first_name').html('');
+                $('.error-last_name').html('');
+
+                if($('#password').val().trim() != $('#repeatPassword').val().trim() ){
+                    $('.error-repeatPassword').html('Password confirmation does not match password!');
+                    return false;
+                }
+                if($('#firstName').val().trim() == '')
+                {
+                    $('.error-first_name').html('First name required!');
+                    return false;
+                }
+                if($('#lastName').val().trim() == '')
+                {
+                    $('.error-last_name').html('Last name required!');
+                    return false;
+                }
+
+
+
+                $('.from-addUser').submit();
             });
         });
+
     </script>
+
 {% endblock %}

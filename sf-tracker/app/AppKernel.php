@@ -20,6 +20,7 @@ class AppKernel extends Kernel
             new TrackersBundle\TrackersBundle(),
             new FOS\UserBundle\FOSUserBundle(),
             new Knp\Bundle\TimeBundle\KnpTimeBundle(),
+            new Knp\Bundle\MenuBundle\KnpMenuBundle(),
            // new Elendev\ImageBundle\ElendevImageBundle(),
         );
 

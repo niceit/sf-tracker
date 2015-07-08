@@ -8,28 +8,27 @@
 {% endblock %}
 
 {% block body %}
-    <div class="wrapper">
-        <div class="invButtons">
 
-            <a style="margin: 0" href="{{ path('_addIssues' , { 'id': id }) }}" title="" class="sButton sBlue"><img src="{{ asset('assets/images/icons/sPlus.png') }}" alt=""><span>Add new issues</span></a>
-             <div class="clear"></div>
+    {% if is_add %}
+        <div class="wrapper">
+            <div class="invButtons">
+
+                <a style="margin: 0; float: left;  padding-left: 10px;" href="{{ path('_addIssues' , { 'id': id }) }}" title="" class="button blueB ajax-request-btn"><img src="{{ asset('assets/images/icons/sPlus.png') }}" alt=""><span>Add new issues</span></a>
+                <a style="float:right " href="{{ path('_editProjects', { 'id': id }) }}" title="" class="button greyishB ajax-request-btn" style="margin: 5px;"><img src="{{ asset('assets/images/icons/light/create.png') }}" alt="" class="icon"><span>Edit project</span></a>
+                 <div class="clear"></div>
+            </div>
+            <br>
         </div>
-        <br>
-    </div>
-    <div class="line"></div>
-
-
-
-
-
+        <div class="line"></div>
+    {% endif %}
 
     <div class="wrapper">
         <div class="widget">
             <ul class="tabs">
-                <li class="activeTab"><a href="#tab1">{{ number_activity }} Activity</a></li>
-                <li class=""><a href="#tab2">{{ number_open }} Open Issues</a></li>
-                <li class=""><a href="#tab3">{{ number_close }} Closed Issues</a></li>
-                <li class=""><a href="#tab4">{{ number_assigned }} Issues Assigned To You</a></li>
+                <li class="activeTab"><a href="#tab1"><span class="number_activity">{{ number_activity }}</span> Activity</a></li>
+                <li class=""><a href="#tab2"><span class="number_open">{{ number_open }}</span> Open Issues</a></li>
+                <li class=""><a href="#tab3"><span class="number_close">{{ number_close }}</span> Closed Issues</a></li>
+                <li class=""><a href="#tab4"><span class="number_assigned">{{ number_assigned }}</span> Issues Assigned To You</a></li>
             </ul>
 
             <div class="tab_container">
@@ -57,22 +56,22 @@
         </div>
 
 
+        {% if is_add %}
+            <div class="clear"></div>
 
-        <div class="clear"></div>
-
-        <div class="widget">
-            <div class="title"><img src="{{ asset('assets/images/icons/dark/transfer.png') }}" alt="" class="titleIcon"><h6>Assigned user</h6>
-                <div class="div_assigned" >
-                    <input type="text" value="" onchange="changeuser(this.value)" class="assigned_user" >
-                    <div id="content_assigned_user">
+            <div class="widget">
+                <div class="title"><img src="{{ asset('assets/images/icons/dark/transfer.png') }}" alt="" class="titleIcon"><h6>Assigned user</h6>
+                    <div class="div_assigned" >
+                        <input type="text" value="" onchange="changeuser(this.value)" class="assigned_user" >
+                        <div id="content_assigned_user">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div id="load_user_assigned" class="scroll">
+                <div id="load_user_assigned" class="scroll">
 
+                </div>
             </div>
-        </div>
-
+        {% endif %}
 
 
     </div>
@@ -96,7 +95,7 @@
                 var refreshId = setInterval(function()
                 {
                     load_activity(0);
-                }, 20000);
+                }, 200000);
             });
         })(jQuery);
 
@@ -209,6 +208,30 @@
                 dataType : "html",
                 success : function(data){
                     jQuery('.content_assigned').html(data);
+                }
+            });
+        }
+        function closeissue(id){
+            $('.loading').show();
+            var status = '';
+            if($("#close_issue"+id).is(':checked')==true){
+                status = 'CLOSED';
+                $(".row-"+id+" td").css('text-decoration','line-through');
+            }else{
+                status = 'OPEN';
+                $(".row-"+id+" td").css('text-decoration','none');
+            }
+            var URL = '{{ path('_ajaxUpdateStatusIssue' ,{'project_id' :  id  }) }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{ 'id' : id , 'status' : status },
+                dataType : "json",
+                success : function(data){
+                    $('.loading').hide();
+                    load_close(0);
+                    $('.number_open').html(data['number_open']);
+                    $('.number_close').html(data['number_close']);
                 }
             });
         }

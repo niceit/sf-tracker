@@ -54,3 +54,9 @@
        {{ paginations| raw }}
     </ul>
 </div>
+
+<script type="text/javascript">
+    $(function(){
+        $('.number_activity').html({{ count }});
+    });
+</script>

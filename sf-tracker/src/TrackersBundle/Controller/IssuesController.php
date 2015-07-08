@@ -88,7 +88,7 @@
                 );
             }
 
-            $template = $this->render('TrackersBundle:Issues:ajax_activity.html.twig', array ('activitys' => $arr, 'paginations' => $paginations));
+            $template = $this->render('TrackersBundle:Issues:ajax_activity.html.twig', array ('activitys' => $arr, 'paginations' => $paginations , 'count' => $count));
 
             return new Response($template->getContent());
             die();
@@ -118,9 +118,15 @@
             $arr = array ();
             foreach ($issues as $issue) {
                 $user = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
-                $arr[] = array ('id' => $issue->getId(), 'title' => $issue->getTitle(), 'created' => $issue->getCreated(), 'users' => $user);
+                $arr[] = array (
+                    'id' => $issue->getId(),
+                    'title' => $issue->getTitle(),
+                    'created' => $issue->getCreated(),
+                    'CreatedBy' => $issue->getCreatedBy(),
+                    'users' => $user
+                );
             }
-            $template = $this->render('TrackersBundle:Issues:ajax_open.html.twig', array ('issues' => $arr, 'paginations' => $paginations, 'project_id' => $project_id));
+            $template = $this->render('TrackersBundle:Issues:ajax_open.html.twig', array ('issues' => $arr, 'paginations' => $paginations, 'project_id' => $project_id, 'user_id' => $this->getUser()->getId()));
 
             return new Response($template->getContent());
             die();
@@ -341,6 +347,7 @@
          * @Template("TrackersBundle:Issues:edit.html.twig")
          */
         public function editAction ($id, $project_id) {
+
             $issue = new Project_issues();
             $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
             if ($this->getRequest()->getMethod() == 'POST') {
@@ -353,9 +360,8 @@
                 $issue->setDescription($form['description']);
                 $issue->setAssignedTo($form['assigned_to']);
                 $issue->setStatus($form['status']);
-                $issue->setCreated(new \DateTime("now"));
                 $issue->setModified(new \DateTime("now"));
-                $issue->setProjectId($id);
+                $issue->setProjectId($project_id);
                 $issue->setCreatedBy($this->getUser()->getId());
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($issue);
@@ -394,7 +400,32 @@
                 ->add('status', 'choice', array ('choices' => array ('OPEN' => 'OPEN', 'HOLD' => 'HOLD', 'INPROGRESS' => 'INPROGRESS', 'CLOSED' => 'CLOSED', 'FINISHED' => 'FINISHED'), 'preferred_choices' => array ($issues_id->getStatus()), 'label' => 'Status'))
                 ->getForm();
 
-            return array ('form' => $form->createView(), array ('project_id' => $id),'assignedTo' => $assignedToOld);
+            return array ('form' => $form->createView(),'project_id' => $project_id,'assignedTo' => $assignedToOld);
+        }
+
+        /**
+         * @Route("/ajaxUpdateStatusIssue/{project_id}", name="_ajaxUpdateStatusIssue")
+         */
+        public function ajaxUpdateStatusIssueAction ($project_id) {
+            if ($this->getRequest()->getMethod() == 'POST') {
+                $requestData = $this->getRequest()->request;
+                $id = $requestData->get('id');
+                $status = $requestData->get('status');
+                $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+                $issue = $repository->find($id);
+                $issue->setStatus($status);
+
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($issue);
+                $em->flush();
+            }
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+            $number_open = count($repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN')));
+            $number_close = count($repository->findBy(array ('projectId' => $project_id, 'status' => 'CLOSED')));
+            $data['number_open'] = $number_open;
+            $data['number_close'] = $number_close;
+            echo json_encode($data);
+            die();
         }
 
     }

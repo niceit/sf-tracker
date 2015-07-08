@@ -38,6 +38,9 @@ class ProjectsController extends Controller
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
         $project = $repository->find($id);
 
+        if($project->getOwnerId() == $this->getUser()->getId()){
+            $is_add = true;
+        }else $is_add = false;
 
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Users_activity');
         $number_activity = count($repository->findBy(array ('parentId' => $id)));
@@ -47,7 +50,7 @@ class ProjectsController extends Controller
 
         $number_close = count($repository->findBy(array ('projectId' => $id, 'status' => 'CLOSED')));
         $number_assigned = count($repository->findBy(array ('projectId' => $id, 'assignedTo' => $this->getUser()->getId())));
-        return array('id'=>$id, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned, 'project' => $project );
+        return array('id'=>$id, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned, 'project' => $project , 'is_add' => $is_add );
     }
 
     /**
@@ -87,7 +90,7 @@ class ProjectsController extends Controller
         $pagination = new Pagination();
         $paginations = $pagination->render($page,$total,'list_projects');
 
-        echo $this->render('TrackersBundle:Projects:ajax_list.html.twig', array( 'projects' => $projects , 'paginations'=>$paginations ));
+        echo $this->render('TrackersBundle:Projects:ajax_list.html.twig', array( 'projects' => $projects , 'paginations'=>$paginations ,'user_id' => $this->getUser()->getId()));
         die();
     }
 
@@ -262,7 +265,7 @@ class ProjectsController extends Controller
             ))
             ->getForm();
 
-        return array('form' => $form->createView(),'err'=>$arr_err,'image_old'=>$project_id->getImage());
+        return array('form' => $form->createView(),'err'=>$arr_err,'image_old'=>$project_id->getImage(),'id'=>$id);
     }
 
     /**
@@ -274,7 +277,7 @@ class ProjectsController extends Controller
         $project_id = $requestData->get('project_id');
         $em = $this->getDoctrine()->getEntityManager();
 
-        $query = $em->createQuery("SELECT n.firstname , n.lastname , u.id FROM TrackersBundle:UserDetail n, TrackersBundle:User_projects u WHERE  u.userId = n.user_id AND u.projectId = :project_id")
+        $query = $em->createQuery("SELECT n.firstname , n.lastname , u.id, n.avatar FROM TrackersBundle:UserDetail n, TrackersBundle:User_projects u WHERE  u.userId = n.user_id AND u.projectId = :project_id")
             ->setParameter('project_id', $project_id);
 
         $entities = $query->getResult();

@@ -115,12 +115,22 @@ class UserController extends Controller
             $requestData = $this->getRequest()->request;
             $account = $requestData->get('account');
             $user_detail = $requestData->get('user_detail');
+            $image = $requestData->get('image');
+            $image_name = $account['avatar_old'];
+            // avatar-----------------------------
+            if($image != '')
+                $image_name = $image;
+
+            //---- Update user
             $userManager = $this->container->get('fos_user.user_manager');
             $user = $this->getUser();
             $user->setEmail($account['email']);
-           // $user->setPlainPassword($password);
+            if( $account['password'] != '' )
+             $user->setPlainPassword($account['password']);
             $userManager->updateUser($user);
 
+
+            //---- Update user_detail
             $userS = $repository_user->find($user_detail);
             $userS->setFirstname($account['firstName']);
             $userS->setLastname($account['lastName']);
@@ -128,6 +138,7 @@ class UserController extends Controller
             $userS->setStreet1($account['street_1']);
             $userS->setStreet2($account['street_2']);
             $userS->setState($account['state']);
+            $userS->setAvatar($image_name);
             $userS->setPhone($account['phone']);
             $userS->setCountry($account['country']);
             $userS->setCity($account['city']);
@@ -136,7 +147,6 @@ class UserController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($userS);
             $em->flush();
-
 
         }
 
@@ -173,6 +183,175 @@ class UserController extends Controller
         $template = $this->render('TrackersBundle:City:ajax_getcity.html.twig', array ('citys' => $citys , 'city_id' => $city_id));
         return new Response($template->getContent());
         die();
+    }
+   public function url($str)
+    {
+        $VMAP = array(
+            'ế' => 'e',
+            'ề' => 'e',
+            'ể' => 'e',
+            'ễ' => 'e',
+            'ệ' => 'e',
+            #---------------------------------E^
+            'Ế' => 'e',
+            'Ề' => 'e',
+            'Ể' => 'e',
+            'Ễ' => 'e',
+            'Ệ' => 'e',
+            #---------------------------------e
+            'é' => 'e',
+            'è' => 'e',
+            'ẻ' => 'e',
+            'ẽ' => 'e',
+            'ẹ' => 'e',
+            'ê' => 'e',
+            #---------------------------------E
+            'É' => 'e',
+            'È' => 'e',
+            'Ẻ' => 'e',
+            'Ẽ' => 'e',
+            'Ẹ' => 'e',
+            'Ê' => 'e',
+            #---------------------------------i
+            'í' => 'i',
+            'ì' => 'i',
+            'ỉ' => 'i',
+            'ĩ' => 'i',
+            'ị' => 'i',
+            #---------------------------------I
+            'Í' => 'i',
+            'Ì' => 'i',
+            'Ỉ' => 'i',
+            'Ĩ' => 'i',
+            'Ị' => 'i',
+            #---------------------------------o^
+            'ố' => 'o',
+            'ồ' => 'o',
+            'ổ' => 'o',
+            'ỗ' => 'o',
+            'ộ' => 'o',
+            #---------------------------------O^
+            'Ố' => 'o',
+            'Ồ' => 'o',
+            'Ổ' => 'o',
+            'Ô' => 'o',
+            'Ộ' => 'o',
+            #---------------------------------o*
+            'ớ' => 'o',
+            'ờ' => 'o',
+            'ở' => 'o',
+            'ỡ' => 'o',
+            'ợ' => 'o',
+            #---------------------------------O*
+            'Ớ' => 'o',
+            'Ờ' => 'o',
+            'Ở' => 'o',
+            'Ỡ' => 'o',
+            'Ợ' => 'o',
+            #---------------------------------u*
+            'ứ' => 'u',
+            'ừ' => 'u',
+            'ử' => 'u',
+            'ữ' => 'u',
+            'ự' => 'u',
+            #---------------------------------U*
+            'Ứ' => 'u',
+            'Ừ' => 'u',
+            'Ử' => 'u',
+            'Ữ' => 'u',
+            'Ự' => 'u',
+            #---------------------------------y
+            'ý' => 'y',
+            'ỳ' => 'y',
+            'ỷ' => 'y',
+            'ỹ' => 'y',
+            'ỵ' => 'y',
+            #---------------------------------Y
+            'Ý' => 'y',
+            'Ỳ' => 'y',
+            'Ỷ' => 'y',
+            'Ỹ' => 'y',
+            'Ỵ' => 'y',
+            #---------------------------------DD
+            'Đ' => 'd',
+            'đ' => 'd',
+            #---------------------------------o
+            'ó' => 'o',
+            'ò' => 'o',
+            'ỏ' => 'o',
+            'õ' => 'o',
+            'ọ' => 'o',
+            'ô' => 'o',
+            'ơ' => 'o',
+            #---------------------------------O
+            'Ó' => 'o',
+            'Ò' => 'o',
+            'Ỏ' => 'o',
+            'Õ' => 'o',
+            'Ọ' => 'o',
+            'Ô' => 'o',
+            'Ơ' => 'o',
+            #---------------------------------u
+            'ú' => 'u',
+            'ù' => 'u',
+            'ủ' => 'u',
+            'ũ' => 'u',
+            'ụ' => 'u',
+            'ư' => 'u',
+            #---------------------------------U
+            'Ú' => 'u',
+            'Ù' => 'u',
+            'Ủ' => 'u',
+            'Ũ' => 'u',
+            'Ụ' => 'u',
+            'Ư' => 'u',
+
+            #---------------------------------a^
+            'ấ' => 'a',
+            'ầ' => 'a',
+            'ẩ' => 'a',
+            'ẫ' => 'a',
+            'ậ' => 'a',
+            #---------------------------------A^
+            'Ấ' => 'a',
+            'Ầ' => 'a',
+            'Ẩ' => 'a',
+            'Ẫ' => 'a',
+            'Ậ' => 'a',
+            #---------------------------------a(
+            'ắ' => 'a',
+            'ằ' => 'a',
+            'ẳ' => 'a',
+            'ẵ' => 'a',
+            'ặ' => 'a',
+            #---------------------------------A(
+            'Ắ' => 'a',
+            'Ằ' => 'a',
+            'Ẳ' => 'a',
+            'Ẵ' => 'a',
+            'Ặ' => 'a',
+            #---------------------------------A
+            'Á' => 'a',
+            'À' => 'a',
+            'Ả' => 'a',
+            'Ã' => 'a',
+            'Ạ' => 'a',
+            'Â' => 'a',
+            'Ă' => 'a',
+            #---------------------------------a
+            'ả' => 'a',
+            'ã' => 'a',
+            'ạ' => 'a',
+            'â' => 'a',
+            'ă' => 'a',
+            'à' => 'a',
+            'á' => 'a'
+        );
+        $str=strtr($str, $VMAP);
+        $str=strtr($str, array(
+            ' '=>'-','/'=>'-',"'"=>'','"'=>'','“'=>'','”'=>'','’'=>'',
+            ':'=>'','.'=>'',','=>'','®'=>'(R)','©'=>'(C)'));
+        return strtolower($str);
     }
 }
 

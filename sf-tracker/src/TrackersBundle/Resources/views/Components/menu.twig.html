@@ -2,7 +2,7 @@
 
 <ul id="menu" class="nav">
     <li class="dash"><a href="{{ path('_home') }}" title="" {% if app.request.pathinfo == "/" %} class="active" {% endif %} ><span>Dashboard</span></a></li>
-    <li class="charts"><a  href="{{ path('_listProjects') }}" {% if app.request.pathinfo == "/project" %} class="active" {% endif %} title=""><span>Projects</span></a></li>
+    <li class="charts"><a  href="{{ path('_listProjects') }}" {% if app.request.pathinfo == "/project" %} class="active ajax-request-btn" {% else %} class="ajax-request-btn" {% endif %} title=""><span>Projects</span></a></li>
 
    <!-- <li class="charts"><a href="charts.html" title=""><span>Statistics and charts</span></a></li>
     <li class="forms"><a href="#" title="" class="exp"><span>Forms stuff</span><strong>4</strong></a>
@@ -48,3 +48,4 @@
 
     -->
 </ul>
+<!-- Left navigation {% include'TrackersBundle:Components:menu.twig.html'%} -->

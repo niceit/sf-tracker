@@ -3,10 +3,16 @@
     <ul class="partners">
         {% for user_project in user_projects %}
         <li class="row_user_{{ user_project.id }}">
-            <a href="#" title="" class="floatL"><img src="images/user.png" alt=""></a>
+            <div class="floatL">
+                {% if user_project.avatar != '' %}
+                    <img style="height: 25px" src="{{ asset(user_project.avatar) }}" alt="">
+                {% else %}
+                    <img style="height: 25px" src="{{ asset('assets/images/user.png') }}" alt="">
+                {% endif %}
+
+            </div>
             <div class="pInfo">
                 <a href="#" title=""><strong>{{ user_project.firstname }} {{ user_project.lastname }} </strong></a>
-                <i>Creative director at Google Inc. Zurich</i>
             </div>
             <a style="float: right" href="javascipt:void(0);" onclick="remove_user_project({{ user_project.id }})" class="tipS" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
             <div class="clear"></div>

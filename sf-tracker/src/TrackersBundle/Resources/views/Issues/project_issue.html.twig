@@ -16,14 +16,14 @@
                 <div style="text-align: right">
                     <a {% if issue.getStatus() == 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);" onclick="fc_close()" title="" class="button greenB close_issue  " style="margin: 5px;"><span> Close Issue</span></a>
 
-                    <a {% if issue.getStatus() != 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);" onclick="fc_open()" title="" class="button greenB open_issue" style="margin: 5px;"><span> Open </span></a>
+                    <a {% if issue.getStatus() != 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);" onclick="fc_open()" title="" class="button greenB open_issue" style="margin: 5px;"><span> Reopened </span></a>
                 </div>
             {% endif %}
 
 
             <ul id="partners" class="partners">
                 <li>
-                    <a href="#" title="" class="floatL"><img src="{% if user.getAvatar() == '' %} {{ asset('assets/images/user.png') }} {% else %} {{ asset('upload/'.user.getAvatar()) }}  {% endif %}" alt=""></a>
+                    <a href="#" title="" class="floatL"><img height="30px" src="{% if user.getAvatar() == '' %} {{ asset('assets/images/user.png') }} {% else %} {{ asset(user.getAvatar()) }}  {% endif %}" alt=""></a>
                     <div class="pInfo">
                         <a href="#" title=""><strong> {{ user.getFirstname() }} {{ user.getLastname() }} opened this issue </strong> {{ issue.getCreated() |date('Y-m-d h:i:s') }}</a>
                         <i>{{ issue.getDescription()| raw }}</i>'
@@ -46,7 +46,7 @@
         </div>
 
 
-
+        {% if is_ssues %}
 
             <div  {% if issue.getStatus() == 'CLOSED' %} style="display: none" {% endif %} class="form_comment">
                 <div class="message"></div>
@@ -59,7 +59,7 @@
                     <a href="javasrcipt:void(0);" id="btn-comment" title="" class="wButton bluewB ml15 m10"><span>Comment</span></a>
                 </div>
             </div>
-
+        {% endif %}
 
 
     </div>
@@ -192,6 +192,10 @@
                 }
             });
         }
+
+
+
+
         $(function(){
             loadcomments(0);
             load_fileloader();

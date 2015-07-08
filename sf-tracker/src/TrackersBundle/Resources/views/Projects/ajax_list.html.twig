@@ -10,8 +10,11 @@
         </td>
         <td align="center">{{ project.created|date('Y-m-d') }}</td>
         <td class="actBtns">
+            {% if user_id == project.getOwnerId %}
             <a  href="{{ path('_editProjects', { 'id': project.id }) }}" class="tipS " original-title="Update"><img src="{{ asset('assets/images/icons/edit.png') }}" alt=""></a>
             <a href="javascript:void(0);" onclick="delete_project({{ project.id }})" class="tipS" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a></td>
+            {% endif %}
+
     </tr>
 {% endfor %}
 <tr>
