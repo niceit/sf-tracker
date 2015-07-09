@@ -16,6 +16,7 @@ use TrackersBundle\Entity\Projects_issues_comments;
 use TrackersBundle\Entity\Pagination;
 use Symfony\Component\HttpFoundation\Response;
 use TrackersBundle\Entity\Users_activity;
+use TrackersBundle\Entity\Notifications;
 
 
 
@@ -128,6 +129,30 @@ class IssuesCommentsController extends Controller
             }
         }
 
+
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+        $users = $repository->findBy(array('user_id' => $this->getUser()->getId()));
+        $user = $users[0];
+
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
+        $project = $repository->find($project_id);
+
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+        $issue = $repository->find($issue_id);
+
+            $notifications = new Notifications();
+            if($this->getUser()->getId() != $project->getOwnerId()){
+                $notifications->setUserId($project->getOwnerId());
+            }else{
+                $notifications->setUserId($issue->getassignedTo());
+            }
+            $notifications->setIssueId($issue_id);
+            $notifications->setProjectId($project_id);
+            $notifications->setCreated(new \DateTime("now"));
+            $notifications->setIsRead(false);
+            $notifications->setText($user->getFirstname().' '.$user->getLastname()." is comment issue with content ".$comment);
+            $em->persist($notifications);
+            $em->flush();
 
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
         $users = $repository->findBy(array('user_id'=>$this->getUser()->getId()));

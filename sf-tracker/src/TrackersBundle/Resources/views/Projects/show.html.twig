@@ -235,6 +235,23 @@
                 }
             });
         }
+        function romoveissue(id){
+            var confirmBox = confirm('Are you sure?');
+            if (!confirmBox) return false;
+            $('.loading').show();
+            var URL = '{{ path('_removeIssue') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{ 'id' : id },
+                dataType : "html",
+                success : function(data){
+                    if( data != 0 )
+                    $('.row-'+id).hide();
+                    $('.loading').hide();
+                }
+            });
+        }
     </script>
 
 {% endblock %}

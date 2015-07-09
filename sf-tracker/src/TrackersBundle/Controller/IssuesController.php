@@ -17,6 +17,7 @@
     use Symfony\Component\HttpFoundation\Response;
     use TrackersBundle\Entity\Project_activity;
     use TrackersBundle\Entity\Projects_issues_comments;
+    use TrackersBundle\Entity\Notifications;
 
     class IssuesController extends Controller {
         /**
@@ -113,9 +114,17 @@
 
             $pagination = new Pagination();
             $paginations = $pagination->render($page, $total, 'load_open');
-            $issues = $repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN'), array ('created' => 'ASC'), $limit, $offset);
+            $issues = $repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN'), array ('created' => 'DESC'), $limit, $offset);
             $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
             $arr = array ();
+
+            $repository_pro = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
+            $project = $repository_pro->find($project_id);
+            if( $project->getOwnerId() == $this->getUser()->getId() )
+                $is_close = true;
+            else
+                $is_close = false;
+
             foreach ($issues as $issue) {
                 $user = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
                 $arr[] = array (
@@ -126,7 +135,7 @@
                     'users' => $user
                 );
             }
-            $template = $this->render('TrackersBundle:Issues:ajax_open.html.twig', array ('issues' => $arr, 'paginations' => $paginations, 'project_id' => $project_id, 'user_id' => $this->getUser()->getId()));
+            $template = $this->render('TrackersBundle:Issues:ajax_open.html.twig', array ('issues' => $arr, 'paginations' => $paginations, 'project_id' => $project_id,'is_close' => $is_close, 'user_id' => $this->getUser()->getId()));
 
             return new Response($template->getContent());
             die();
@@ -152,7 +161,7 @@
 
             $pagination = new Pagination();
             $paginations = $pagination->render($page, $total, 'load_close');
-            $issues = $repository->findBy(array ('projectId' => $project_id, 'status' => 'CLOSED'), array ('created' => 'ASC'), $limit, $offset);
+            $issues = $repository->findBy(array ('projectId' => $project_id, 'status' => 'CLOSED'), array ('created' => 'DESC'), $limit, $offset);
             $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
             $arr = array ();
             foreach ($issues as $issue) {
@@ -184,7 +193,7 @@
 
             $pagination = new Pagination();
             $paginations = $pagination->render($page, $total, 'load_assigned');
-            $issues = $repository->findBy(array ('projectId' => $project_id,'assignedTo' => $this->getUser()->getId() ), array ('created' => 'ASC'), $limit, $offset);
+            $issues = $repository->findBy(array ('projectId' => $project_id,'assignedTo' => $this->getUser()->getId() ), array ('created' => 'DESC'), $limit, $offset);
             $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
             $arr = array ();
             foreach ($issues as $issue) {
@@ -222,6 +231,30 @@
                 $em->persist($users_activity);
                 $em->flush();
 
+
+                $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
+                $project = $repository->find($project_id);
+                if(!empty($project)){
+                    $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+                    $users = $repository->findBy(array('user_id' => $this->getUser()));
+                    $user = $users[0];
+                    $notifications = new Notifications();
+
+                    if($this->getUser()->getId() != $project->getOwnerId()){
+                        $notifications->setUserId($project->getOwnerId());
+                    }else{
+                        $notifications->setUserId($issue->getassignedTo());
+                    }
+
+                    $notifications->setIssueId($issue->getId());
+                    $notifications->setProjectId($project_id);
+                    $notifications->setCreated(new \DateTime("now"));
+                    $notifications->setIsRead(false);
+                    $notifications->setText($user->getFirstname().' '.$user->getLastname()." closed issue ".$project->getName());
+                    $em->persist($notifications);
+                    $em->flush();
+                }
+
             }
             echo 1;
             die();
@@ -250,6 +283,29 @@
                 $em->persist($users_activity);
                 $em->flush();
 
+                $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
+
+                $project = $repository->find($project_id);
+                if(!empty($project)){
+                    $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+                    $users = $repository->findBy(array('user_id' => $this->getUser()));
+                    $user = $users[0];
+                    $notifications = new Notifications();
+                    if($this->getUser()->getId() != $project->getOwnerId()){
+                        $notifications->setUserId($project->getOwnerId());
+                    }else{
+                        $notifications->setUserId($issue->getassignedTo());
+                    }
+                    $notifications->setIssueId($issue->getId());
+                    $notifications->setProjectId($project_id);
+                    $notifications->setCreated(new \DateTime("now"));
+                    $notifications->setIsRead(false);
+                    $notifications->setText($user->getFirstname().' '.$user->getLastname()."  Reopened issue ".$project->getName());
+                    $em->persist($notifications);
+                    $em->flush();
+                }
+
+
             }
             echo 1;
             die();
@@ -260,20 +316,47 @@
          * @Template("TrackersBundle:Issues:project_issue.html.twig")
          */
         public function project_issuesAction ($id, $project_id) {
+
+
+
+
             $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
             $issue = $repository->find($id);
             $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
             $project = $repository->find($project_id);
+
+
+
             $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
             $users = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
             $user = $repository_user->find($users[0]->getId());
+
+
             $repository_file = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
             $attachments = $repository_file->findBy(array ('issueId' => $id));
 
-            if($this->getUser()->getId() == $issue->getassignedTo())
+            if($this->getUser()->getId() == $issue->getassignedTo() || $this->getUser()->getId() == $issue->getCreatedBy() )
                 $is_ssues = true;
             else
                 $is_ssues = false;
+
+
+            $repository_notifications = $this->getDoctrine()->getRepository('TrackersBundle:Notifications');
+            $notification = $repository_notifications->findBy(array('userId' => $this->getUser()->getId(), 'issueId' => $id, 'projectId' => $project_id ));
+            if(!empty($notification)){
+
+                foreach($notification as $notific ){
+                    $notifications = $notific; //$repository_notifications->find($notification[0]->getId());
+                    $notifications->setModified(new \DateTime("now"));
+                    $notifications->setIsRead(true);
+
+                    $em = $this->getDoctrine()->getManager();
+                    $em->persist($notifications);
+                    $em->flush();
+                }
+
+            }
+
 
             return array ('issue' => $issue, 'project' => $project, 'user' => $user, 'attachments' => $attachments, 'is_ssues' => $is_ssues );
 
@@ -324,6 +407,24 @@
                 $users_activity->setCreatedAt(new \DateTime("now"));
                 $em->persist($users_activity);
                 $em->flush();
+
+                if($form['assigned_to'] != ''){
+                    $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+                    $users = $repository->findBy(array('user_id' => $this->getUser()->getId()));
+                    $user = $users[0];
+                    $notifications = new Notifications();
+                    $notifications->setUserId($form['assigned_to']);
+                    $notifications->setIssueId($issue->getId());
+                    $notifications->setProjectId($id);
+                    $notifications->setCreated(new \DateTime("now"));
+                    $notifications->setIsRead(false);
+                    $notifications->setText('You have assign issue with title '.$form['title'].' from '.$user->getFirstname().' '.$user->getLastname());
+                    $em->persist($notifications);
+                    $em->flush();
+                }
+
+
+
                 $this->get('session')->getFlashBag()->add('notice', 'More successful Issues!');
 
                 return $this->redirectToRoute('_addIssues', array ('id' => $id));
@@ -375,6 +476,20 @@
                     $users_activity->setCreatedAt(new \DateTime("now"));
                     $em->persist($users_activity);
                     $em->flush();
+
+                    $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+                    $users = $repository->findBy(array('user_id' => $this->getUser()->getId()));
+                    $user = $users[0];
+                    $notifications = new Notifications();
+                    $notifications->setUserId($form['assigned_to']);
+                    $notifications->setIssueId($issue->getId());
+                    $notifications->setProjectId($project_id);
+                    $notifications->setCreated(new \DateTime("now"));
+                    $notifications->setIsRead(false);
+                    $notifications->setText('You have reassign issue with title '.$form['title'].' from '.$user->getFirstname().' '.$user->getLastname());
+                    $em->persist($notifications);
+                    $em->flush();
+
                 }
 
                 $this->get('session')->getFlashBag()->add('notice', 'More update Issues!');
@@ -426,6 +541,29 @@
             $data['number_close'] = $number_close;
             echo json_encode($data);
             die();
+        }
+
+        /**
+         * @Route("/removeIssue", name="_removeIssue")
+         */
+        public function removeUerProjectAction()
+        {
+            if ($this->getRequest()->getMethod() == 'POST') {
+                $requestData = $this->getRequest()->request;
+                $id = $requestData->get('id');
+
+
+                $repository_pro = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+
+                $em = $this->getDoctrine()->getManager();
+                $user_projects = $repository_pro->find($id);
+                $em->remove($user_projects);
+                $em->flush();
+                echo $id;
+                exit;
+            }
+            echo 0;
+            exit;
         }
 
     }

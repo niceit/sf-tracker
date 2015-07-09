@@ -8,6 +8,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 use Symfony\Component\Config\Definition\Exception\Exception;
 use TrackersBundle\Entity\UserDetail;
+use Symfony\Component\HttpFoundation\Request;
 
 class RegisterController extends Controller
 {
@@ -156,4 +157,84 @@ class RegisterController extends Controller
         echo 0;
         exit;
     }
+
+    /**
+     * @Route("/forgotpassword", name="_forgotpassword")
+     * @Template("TrackersBundle:Registration:forgotpassword.html.twig")
+     */
+    public function forgotpasswordAction(Request $request)
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $email = trim($requestData->get('email'));
+            $userManager = $this->container->get('fos_user.user_manager');
+            $user = $userManager->findUserByEmail($email);
+            if(empty($user)){
+                $this->get('session')->getFlashBag()->add('error', 'Email does not exist!');
+            }else{
+                $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+                $userS = $repository_user->findBy(array('user_id'=>$user->getId()));
+                $user = $userS[0];
+
+
+                $user->setForgotPasswordToken(md5($userS[0]->getUser_id().rand(0,1000000)));
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($user);
+                $em->flush();
+                $this->get('session')->getFlashBag()->add('notice', 'Please check the mail we have sent you a confirmation link.');
+
+            }
+        }
+
+         $request->getHost().$this->generateUrl('_changepassword',array('token'=>'sssss','username'=>'sssss'));
+
+        return array();
+    }
+
+    /**
+     * @Route("/changepassword/{token}/{username}", name="_changepassword")
+     * @Template("TrackersBundle:Registration:changepassword.html.twig")
+     */
+    public function changepasswordAction($token ,$username )
+    {
+        $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+        $userS = $repository_user->findBy(array('forgotpassword_token'=>$token));
+
+        if(empty($userS) || $token == ''){
+            return $this->redirectToRoute('fos_user_security_login');
+        }
+
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $Password = trim($requestData->get('Password'));
+            $ConfirmPassword = trim($requestData->get('ConfirmPassword'));
+            if(trim( $Password ) == trim( $ConfirmPassword ) && trim($Password) != '' )
+            {
+                $repository = $this->getDoctrine()->getRepository('TrackersBundle:User');
+
+                $userManager = $this->container->get('fos_user.user_manager');
+                $user =  $project = $repository->find($userS[0]->getUser_id());
+                $user->setPlainPassword($Password);
+                $userManager->updateUser($user);
+
+                $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+                $users = $repository_user->findBy(array('user_id'=>$user->getId()));
+                $user_detail = $users[0];
+                $user_detail->setForgotPasswordToken(md5($userS[0]->getUser_id().rand(0,1000000)));
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($user_detail);
+                $em->flush();
+                $this->get('session')->getFlashBag()->add('notice', 'Change password successful.');
+                return $this->redirectToRoute('fos_user_security_login');
+
+            }else{
+                $this->get('session')->getFlashBag()->add('error', 'Incorrect password confirmation!');
+            }
+
+        }
+
+
+        return array();
+    }
+
 }

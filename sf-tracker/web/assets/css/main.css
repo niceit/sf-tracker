@@ -198,13 +198,13 @@ text-shadow: 0 1px 0 #ccc,
 .userNav ul li span { display: block; padding: 4px 15px 4px 8px; float: left; }
 .userNav ul li img { float: left; display: block; margin: 9px 2px 0px 14px; }
 
-ul.userDropdown { position: absolute; left: -9px; display: none; top: 35px; background: url(../images/subArrow.png) no-repeat 50% 0; padding: 0 1px 1px 1px; z-index: 100; border: none; }
-ul.userDropdown li { display: block; float: none; border-bottom: 1px solid #1c252b; border-top: 1px solid #404950; background: url(../images/backgrounds/navBg.jpg); }
-ul.userDropdown li:hover { border-top: 1px solid #374047; }
-ul.userDropdown li:first-child { margin-top: 6px; border-top: none; -webkit-border-top-right-radius: 2px; -webkit-border-top-left-radius: 2px; -moz-border-radius-topright: 2px; -moz-border-radius-topleft: 2px; }
-ul.userDropdown li:last-child { -webkit-border-bottom-right-radius: 2px; -webkit-border-bottom-left-radius: 2px; -moz-border-radius-bottomright: 2px; -moz-border-radius-bottomleft: 2px; }
-ul.userDropdown li a { width: 100px; padding: 6px 10px 7px 32px; font-size: 11px; text-transform: none; font-weight: normal; float: none; border: none; }
-ul.userDropdown li a:hover { border-right: none; border-left: none; }
+ul.userDropdown ,.userDropdown { position: absolute; left: -9px; display: none; top: 35px; background: url(../images/subArrow.png) no-repeat 50% 0; padding: 0 1px 1px 1px; z-index: 100; border: none; }
+ul.userDropdown li ,.userDropdown li { display: block; float: none; border-bottom: 1px solid #1c252b; border-top: 1px solid #404950; background: url(../images/backgrounds/navBg.jpg); }
+ul.userDropdown li:hover ,.userDropdown li:hover { border-top: 1px solid #374047; }
+ul.userDropdown li:first-child  ,.userDropdown  li:first-child{ margin-top: 6px; border-top: none; -webkit-border-top-right-radius: 2px; -webkit-border-top-left-radius: 2px; -moz-border-radius-topright: 2px; -moz-border-radius-topleft: 2px; }
+ul.userDropdown li:last-child ,.userDropdown li:last-child { -webkit-border-bottom-right-radius: 2px; -webkit-border-bottom-left-radius: 2px; -moz-border-radius-bottomright: 2px; -moz-border-radius-bottomleft: 2px; }
+ul.userDropdown li a ,.userDropdown li a{ width: 100px; padding: 6px 10px 7px 32px; font-size: 11px; text-transform: none; font-weight: normal; float: none; border: none; }
+ul.userDropdown li a:hover ,.userDropdown li a:hover  { border-right: none; border-left: none; }
 
 .sAdd { background: url(../images/icons/topnav/subAdd.png) no-repeat 11px; }
 .sInbox { background: url(../images/icons/topnav/subInbox.png) no-repeat 11px; }

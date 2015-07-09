@@ -99,6 +99,15 @@ class UserDetail
     private $country;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="forgotpassword_token", type="string", length=250)
+     */
+    private $forgotpassword_token;
+
+
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="modified", type="datetime")
@@ -366,6 +375,31 @@ class UserDetail
     {
         return $this->country;
     }
+
+    /**
+     * Set forgotpassword_token
+     *
+     * @param string $forgotpassword_token
+     * @return UserDetail
+     */
+    public function setForgotPasswordToken($forgotpassword_token)
+    {
+        $this->forgotpassword_token = $forgotpassword_token;
+
+        return $this;
+    }
+
+    /**
+     * Get forgotpassword_token
+     *
+     * @return string
+     */
+    public function getForgotPasswordToken()
+    {
+        return $this->forgotpassword_token;
+    }
+
+
     /**
      * Set modified
      *

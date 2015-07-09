@@ -1,0 +1,7 @@
+{% if notifications %}
+    <ul>
+        {% for notification in notifications %}
+            <li><a class="ajax-request-btn" href="{{ path('_project_issues', { 'id': notification.getIssueId() , 'project_id': notification.getProjectId() }) }}">{{ notification.getText() }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}

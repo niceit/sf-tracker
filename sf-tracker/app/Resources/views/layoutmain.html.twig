@@ -79,6 +79,60 @@
     {% endblock %}
 
 
+    <script type="text/javascript">
+         (function($)
+         {
+             $(document).ready(function()
+             {
+                 var refreshId = setInterval(function()
+                 {
+                     numberNotifications(0);
+                 }, 10000);
+             });
+         })(jQuery);
+
+
+         (function($)
+         {
+             $(document).ready(function()
+             {
+                 var refreshId = setInterval(function()
+                 {
+                     numberNotifications();
+                     LoadNotifications();
+                 }, 10000);
+             });
+         })(jQuery);
+
+        $(function(){
+            numberNotifications();
+            LoadNotifications();
+        });
+        function numberNotifications(){
+            var URL = '{{ path('_numberNotifications') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                dataType : "html",
+                success : function(data){
+                    jQuery('.numberTop').html(data);
+                }
+            });
+        }
+         function LoadNotifications(){
+             var URL = '{{ path('_Notifications') }}';
+             jQuery.ajax({
+                 type: "post",
+                 url : URL,
+                 dataType : "html",
+                 success : function(data){
+                     jQuery('#notifications_content').html(data);
+                 }
+             });
+         }
+
+    </script>
+
     <!-- Shared on MafiaShare.net  --><!-- Shared on MafiaShare.net  -->
 </head>
 <body>
@@ -95,6 +149,7 @@
         <h3 class="projecth3">Project <a href="{{ path('_addProjects' ) }}" data-url=""  title="" class="smallButton  ajax-request-btn" style="float: right;"><img src="{{ asset('assets/images/icons/color/plus.png') }}" alt=""></a></h3>
              {{ knp_menu_render('TrackersBundle:Builder:mainMenu') }}
     </div>
+
 
 
 
@@ -116,13 +171,11 @@
                     {% endif %}
 
                     <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/tasks.png') }}" alt="" /><span>Tasks</span></a></li>
-                    <li class="dd"><a title=""><img src="{{ asset('assets/images/icons/topnav/messages.png') }}" alt="" /><span>Messages</span><span class="numberTop">8</span></a>
-                        <ul class="userDropdown">
-                            <li><a href="#" title="" class="sAdd">new message</a></li>
-                            <li><a href="#" title="" class="sInbox">inbox</a></li>
-                            <li><a href="#" title="" class="sOutbox">outbox</a></li>
-                            <li><a href="#" title="" class="sTrash">trash</a></li>
-                        </ul>
+                    <li class="dd"><a onclick="LoadNotifications();" href="javascript:void(0);" id="messages" title=""><img src="{{ asset('assets/images/icons/topnav/messages.png') }}" alt="" /><span>Messages</span><span class="numberTop"></span></a>
+                        <div id="notifications_content" class="userDropdown">
+                        </div>
+
+
                     </li>
                     <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/settings.png') }}" alt="" /><span>Settings</span></a></li>
 

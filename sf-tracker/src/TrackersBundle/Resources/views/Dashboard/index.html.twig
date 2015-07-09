@@ -1,5 +1,73 @@
 {% extends '::layoutmain.html.twig' %}
 {% block title %}Dashboard{% endblock %}
-  {% block body %}
 
+{% block Breadcrumb %}
+    <h5>Dashboard</h5>
+{% endblock %}
+
+  {% block body %}
+      <div class="wrapper">
+          <div class="toggle acc">
+            {% for project_issue in project_issues %}
+                <div class="title" style="color: rgb(64, 64, 64);"><img src="{{ asset('assets/images/icons/dark/tags.png') }}" alt="" class="titleIcon"><h6>{{ project_issue.name }}</h6></div>
+                <div class="menu_body" style="display: none; color: rgb(64, 64, 64);">
+                    {% if project_issue.activitys %}
+                        {% for activity in project_issue.activitys %}
+                            {% if( activity.type_id == 1) %}
+                                <div class="newUpdate">
+                                        <div class="uDone">
+                                            <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong>Created</strong> - {{ activity.issue }} </a> was created by <b>{{ activity.users }}</b>
+                                            <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                                        </div>
+                                        <div class="clear"></div>
+                                    </div>
+                                {% elseif activity.type_id == 2 %}
+                                                    <div class="newUpdate">
+                                        <div class="uNotice">
+                                           <strong>Comment</strong> "{{ activity.comment | raw }}" {{ activity.users }} on issue -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a>
+                                            <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                                        </div>
+                                        <div class="clear"></div>
+                                    </div>
+                                                {% elseif activity.type_id == 3 %}
+                                                    <div class="newUpdate">
+                                        <div class="uAlert">
+                                            <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong>Closed</strong> </a> {{ activity.issue }} was closed by {{ activity.users }}
+                                            <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                                        </div>
+                                        <div class="clear"></div>
+                                    </div>
+                                                {% elseif activity.type_id == 4 %}
+                                                    <div class="newUpdate">
+                                        <div class="uDone">
+                                            <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}</a> Reopened was created by <b>{{ activity.users }}</b>
+                                            <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                                        </div>
+                                        <div class="clear"></div>
+                                    </div>
+                                                {% elseif activity.type_id == 5 %}
+                                                    <div class="newUpdate">
+                                        <div class="uNotice">
+                                           <strong>Reassigned</strong> on issue {{ activity.users }} -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a>
+                                            <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                                        </div>
+                                        <div class="clear"></div>
+                                    </div>
+
+
+                            {% endif %}
+
+                        {% endfor %}
+                        <a href="{{ path('_detailProjects', { 'id': project_issue.id }) }}" style="float: right" > > {{ project_issue.name }}</a>
+                        <div class="clear"></div>
+                     {% else %}
+                        <p>No activity..</p>
+                    {% endif %}
+
+
+
+                </div>
+            {% endfor %}
+          </div>
+     </div>
   {% endblock %}

@@ -2,7 +2,9 @@
     <table cellpadding="0" cellspacing="0" width="100%" class="sTable withCheck" id="checkAll">
         <thead>
         <tr>
+            {% if is_close %}
             <td><img src="{{ asset('assets/images/icons/tableArrows.png') }}" alt=""></td>
+                {% endif %}
             <td width="30">ID</td>
             <td>Tile</td>
             <td></td>
@@ -11,7 +13,9 @@
         <tbody>
         {% for issue in issues %}
             <tr class="row-{{ issue.id }} ">
+                {% if is_close %}
                 <td><div  class="checker" id="uniform-titleCheck2"><span><input onclick="closeissue({{ issue.id }});" value="{{ issue.id }}" type="checkbox" id="close_issue{{ issue.id }}" name="checkRow" style="opacity:1;"></span></div></td>
+                {% endif %}
                 <td align="center">#{{ issue.id }}</td>
                 <td><h5><a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': project_id }) }}">{{ issue.title }}</a></h5>
                     {% for user in issue.users %}
@@ -23,7 +27,7 @@
                 <td align="center">
                     {% if user_id == issue.CreatedBy %}
                         <a  href="{{ path('_editIssues', { 'id': issue.id , 'project_id': project_id }) }}" class="tipS ajax-request-btn" original-title="Update"><img src="{{ asset('assets/images/icons/edit.png') }}"  style="margin-right:10px" alt=""></a>
-                        <a href="javascript:void(0);" onclick="delete_project({{ issue.id }})" class="tipS" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a></td>
+                        <a href="javascript:void(0);" onclick="romoveissue({{ issue.id }})" class="tipS" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a></td>
                     {% endif %}
 
                 </td>
