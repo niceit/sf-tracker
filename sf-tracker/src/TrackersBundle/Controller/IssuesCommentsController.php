@@ -140,19 +140,47 @@ class IssuesCommentsController extends Controller
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
         $issue = $repository->find($issue_id);
 
-            $notifications = new Notifications();
-            if($this->getUser()->getId() != $project->getOwnerId()){
-                $notifications->setUserId($project->getOwnerId());
-            }else{
-                $notifications->setUserId($issue->getassignedTo());
-            }
-            $notifications->setIssueId($issue_id);
+
+
+
+        // Get user detail
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+        $users = $repository->findBy(array('user_id' => $this->getUser()));
+        $user = $users[0];
+
+        $repository_attachments = $this->getDoctrine()->getRepository('TrackersBundle:Project_issue_assignments');
+        $attachments = $repository_attachments->findBy(array ('issueId' => $issue->getId()));
+        // notifiaction user attachment
+        $notifications = new Notifications();
+        $text = $user->getFirstname().' '.$user->getLastname()." is comment issue with content ".$comment;
+
+        // send user create project----
+        if($this->getUser()->getId() != $project->getOwnerId()){
+            $notifications->setUserId($project->getOwnerId());
+            $notifications->setIssueId($issue->getId());
             $notifications->setProjectId($project_id);
             $notifications->setCreated(new \DateTime("now"));
             $notifications->setIsRead(false);
-            $notifications->setText($user->getFirstname().' '.$user->getLastname()." is comment issue with content ".$comment);
+            $notifications->setText($text);
             $em->persist($notifications);
             $em->flush();
+        }
+        // send user do issues----
+        if(!empty($attachments)){
+            foreach($attachments as $attachment){
+                if($this->getUser()->getId() != $attachment->getUserId()){
+                    $notifications->setUserId($attachment->getUserId());
+                    $notifications->setIssueId($issue->getId());
+                    $notifications->setProjectId($project_id);
+                    $notifications->setCreated(new \DateTime("now"));
+                    $notifications->setIsRead(false);
+                    $notifications->setText($text);
+                    $em->persist($notifications);
+                    $em->flush();
+                }
+
+            }
+        }
 
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
         $users = $repository->findBy(array('user_id'=>$this->getUser()->getId()));

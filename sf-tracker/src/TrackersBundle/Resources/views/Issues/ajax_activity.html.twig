@@ -3,7 +3,7 @@
         {% if( activity.type_id == 1) %}
             <div class="newUpdate">
                 <div class="uDone">
-                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong>Created</strong> - {{ activity.issue }} </a> was created by <b>{{ activity.users }}</b>
+                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong><b>Created</b></strong> - {{ activity.issue }} </a> was created by <b>{{ activity.users }}</b>
                     <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
                 </div>
                 <div class="clear"></div>
@@ -11,7 +11,7 @@
         {% elseif activity.type_id == 2 %}
             <div class="newUpdate">
                 <div class="uNotice">
-                   <strong>Comment</strong> "{{ activity.comment | raw }}" {{ activity.users }} on issue -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a> 
+                   <strong><b>Comment</b></strong> "{{ activity.comment | raw }}" {{ activity.users }} on issue -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a>
                     <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
                 </div>
                 <div class="clear"></div>
@@ -19,7 +19,7 @@
         {% elseif activity.type_id == 3 %}
             <div class="newUpdate">
                 <div class="uAlert">
-                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong>Closed</strong> </a> {{ activity.issue }} was closed by {{ activity.users }}
+                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong><b>Closed</b></strong> </a> {{ activity.issue }} was <b>closed</b> by <b>{{ activity.users }}</b>
                     <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
                 </div>
                 <div class="clear"></div>
@@ -27,7 +27,7 @@
         {% elseif activity.type_id == 4 %}
             <div class="newUpdate">
                 <div class="uDone">
-                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}</a> Reopened was created by <b>{{ activity.users }}</b>
+                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}</a> <b>Reopened</b> was created by <b>{{ activity.users }}</b>
                     <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
                 </div>
                 <div class="clear"></div>
@@ -35,13 +35,19 @@
         {% elseif activity.type_id == 5 %}
             <div class="newUpdate">
                 <div class="uNotice">
-                   <strong>Reassigned</strong> on issue {{ activity.users }} -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a>
+                   <strong><b>Reassigned</b></strong> on issue {{ activity.users }} -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a>
                     <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
                 </div>
                 <div class="clear"></div>
             </div>
-
-
+        {% elseif activity.type_id == 6 %}
+            <div class="newUpdate complete">
+                <div class="uDone">
+                    <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}</a> <b>Completed</b> was created by <b>{{ activity.users }}</b>
+                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                </div>
+                <div class="clear"></div>
+            </div>
         {% endif %}
 
     {% endfor %}

@@ -492,7 +492,7 @@ $(function() {
 	$('.timepicker').timeEntry({
 		show24Hours: true, // 24 hours format
 		showSeconds: true, // Show seconds?
-		spinnerImage: 'images/forms/spinnerUpDown.png', // Arrows image
+		spinnerImage: '/assets/images/forms/spinnerUpDown.png', // Arrows image
 		spinnerSize: [19, 30, 0], // Image size
 		spinnerIncDecOnly: true // Only up and down arrows
 	});
@@ -503,8 +503,8 @@ $(function() {
 	$( ".datepicker" ).datepicker({ 
 		defaultDate: +7,
 		autoSize: true,
-		appendText: '(dd-mm-yyyy)',
-		dateFormat: 'dd-mm-yy',
+	//	appendText: '(yyyy-mm-dd)',
+		dateFormat: 'yy-mm-dd'
 	});	
 	
 	$( ".datepickerInline" ).datepicker({ 
@@ -801,21 +801,7 @@ $(function() {
 	
 	
 	//===== UI dialog =====//
-	
-	$( "#dialog-message" ).dialog({
-		autoOpen: false,
-		modal: true,
-		buttons: {
-			Ok: function() {
-				$( this ).dialog( "close" );
-			}
-		}
-	});
-	
-	$( "#opener" ).click(function() {
-		$( "#dialog-message" ).dialog( "open" );
-		return false;
-	});	
+
 		
 	
 	

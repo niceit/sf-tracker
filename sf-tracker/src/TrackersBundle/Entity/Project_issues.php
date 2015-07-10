@@ -63,6 +63,12 @@ class Project_issues
      */
     private $assignedTo;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="endtime", type="datetime")
+     */
+    private $endTime;
 
     /**
      * @var \DateTime
@@ -209,7 +215,7 @@ class Project_issues
     /**
      * Set assignedTo
      *
-     * @param integer $createdBy
+     * @param integer $assignedTo
      * @return ProjectIssues
      */
     public function setAssignedTo($assignedTo)
@@ -253,6 +259,32 @@ class Project_issues
     {
         return $this->created;
     }
+
+
+
+    /**
+     * Set endTime
+     *
+     * @param \DateTime $endTime
+     * @return ProjectIssues
+     */
+    public function setEndTime($endTime)
+    {
+        $this->endTime = $endTime;
+
+        return $this;
+    }
+
+    /**
+     * Get endTime
+     *
+     * @return \DateTime
+     */
+    public function getEndTime()
+    {
+        return $this->endTime;
+    }
+
 
     /**
      * Set modified

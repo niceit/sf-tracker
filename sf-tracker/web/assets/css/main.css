@@ -1954,4 +1954,8 @@ li.detail-projects a {
     color: #fff;
     text-transform: capitalize;
 }
+.complete a{
+    text-decoration: line-through;
+    font-weight: bold;
+}
 /**/

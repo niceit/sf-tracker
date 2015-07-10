@@ -35,11 +35,22 @@
                         <div class="clear"></div>
                     </div>
                     <div class="formRow">
-                        <label>{{ form_label(form.assigned_to) }}</label>
+                        <label>Assigned To</label>
                         <div class="formRight">
-                            {{ form_widget(form.assigned_to) }}
+                           <select class="chzn-select" name="assigned_to[]" multiple="multiple">
+                                 {% for assigned in assignedtos %}
+                                     <option {% if assigned.selected  %} selected="selected" {% endif %} value="{{ assigned.id }}">{{ assigned.fullName }}</option>
+                                 {% endfor %}
+                           </select>
                         </div>
-                        {{ form_errors(form.assigned_to) }}
+                        <div class="clear"></div>
+                    </div>
+                     <div class="formRow">
+                        <label>Date picker:</label>
+                        <div class="formRight">
+                            <input name="date" type="text" value="{{ date }}"  class="datepicker" />
+                            <input name="time" type="text" value="{{ time }}" class="timepicker" size="10" />
+                        </div>
                         <div class="clear"></div>
                     </div>
                     <div class="formRow">

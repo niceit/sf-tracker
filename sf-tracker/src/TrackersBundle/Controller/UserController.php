@@ -82,7 +82,7 @@ class UserController extends Controller
         $html = '';
         $em = $this->getDoctrine()->getEntityManager();
 
-        $query = $em->createQuery("SELECT n.firstname , n.lastname , u.id FROM TrackersBundle:UserDetail n, TrackersBundle:User u WHERE  u.id = n.user_id AND ( n.firstname LIKE  :firstname OR n.lastname LIKE  :lastname OR u.username LIKE  :username  OR u.email LIKE  :email) AND up.userId != :user_id AND u.id NOT IN ( SELECT up.userId FROM TrackersBundle:User_projects up WHERE up.projectId = :projectid) ")
+        $query = $em->createQuery("SELECT n.firstname , n.lastname , u.id FROM TrackersBundle:UserDetail n, TrackersBundle:User u WHERE  u.id = n.user_id AND ( n.firstname LIKE  :firstname OR n.lastname LIKE  :lastname OR u.username LIKE  :username  OR u.email LIKE  :email) AND n.user_id != :user_id AND u.id NOT IN ( SELECT up.userId FROM TrackersBundle:User_projects up WHERE up.projectId = :projectid) ")
             ->setParameter('firstname', '%'.$user_name.'%')
             ->setParameter('lastname', '%'.$user_name.'%')
             ->setParameter('username', '%'.$user_name.'%')

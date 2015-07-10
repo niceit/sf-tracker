@@ -5,12 +5,12 @@ namespace TrackersBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * project_issue_assignments
+ * Project_Closed_Issues
  *
- * @ORM\Table(name="project_issue_assignments")
+ * @ORM\Table(name="project_closed_issues")
  * @ORM\Entity
  */
-class Project_issue_assignments
+class Project_Closed_Issues
 {
     /**
      * @var integer
@@ -24,23 +24,30 @@ class Project_issue_assignments
     /**
      * @var integer
      *
-     * @ORM\Column(name="issue_id", type="integer")
-     */
-    private $issueId;
-
-    /**
-     * @var integer
-     *
      * @ORM\Column(name="user_id", type="integer")
      */
     private $userId;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="status", type="string", length=100)
+     * @ORM\Column(name="issue_id", type="integer")
      */
-    private $status;
+    private $issueId;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="start_date", type="datetime")
+     */
+    private $startDate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="end_date", type="datetime")
+     */
+    private $endDate;
 
     /**
      * @var \DateTime
@@ -48,7 +55,6 @@ class Project_issue_assignments
      * @ORM\Column(name="created", type="datetime")
      */
     private $created;
-
 
 
     /**
@@ -62,33 +68,10 @@ class Project_issue_assignments
     }
 
     /**
-     * Set issueId
-     *
-     * @param integer $issueId
-     * @return Project_issue_assignments
-     */
-    public function setIssueId($issueId)
-    {
-        $this->issueId = $issueId;
-
-        return $this;
-    }
-
-    /**
-     * Get issueId
-     *
-     * @return integer 
-     */
-    public function getIssueId()
-    {
-        return $this->issueId;
-    }
-
-    /**
      * Set userId
      *
      * @param integer $userId
-     * @return Project_issue_assignments
+     * @return Project_Closed_Issues
      */
     public function setUserId($userId)
     {
@@ -108,33 +91,79 @@ class Project_issue_assignments
     }
 
     /**
-     * Set status
+     * Set issueId
      *
-     * @param string $status
-     * @return Project_issue_assignments
+     * @param integer $issueId
+     * @return Project_Closed_Issues
      */
-    public function setStatus($status)
+    public function setIssueId($issueId)
     {
-        $this->status = $status;
+        $this->issueId = $issueId;
 
         return $this;
     }
 
     /**
-     * Get status
+     * Get issueId
      *
-     * @return string
+     * @return integer 
      */
-    public function getStatus()
+    public function getIssueId()
     {
-        return $this->status;
+        return $this->issueId;
+    }
+
+    /**
+     * Set startDate
+     *
+     * @param \DateTime $startDate
+     * @return Project_Closed_Issues
+     */
+    public function setStartDate($startDate)
+    {
+        $this->startDate = $startDate;
+
+        return $this;
+    }
+
+    /**
+     * Get startDate
+     *
+     * @return \DateTime 
+     */
+    public function getStartDate()
+    {
+        return $this->startDate;
+    }
+
+    /**
+     * Set endDate
+     *
+     * @param \DateTime $endDate
+     * @return Project_Closed_Issues
+     */
+    public function setEndDate($endDate)
+    {
+        $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    /**
+     * Get endDate
+     *
+     * @return \DateTime 
+     */
+    public function getEndDate()
+    {
+        return $this->endDate;
     }
 
     /**
      * Set created
      *
      * @param \DateTime $created
-     * @return Project_issue_assignments
+     * @return Project_Closed_Issues
      */
     public function setCreated($created)
     {
@@ -146,13 +175,10 @@ class Project_issue_assignments
     /**
      * Get created
      *
-     * @return \DateTime
+     * @return \DateTime 
      */
     public function getCreated()
     {
         return $this->created;
     }
-
-
-
 }
