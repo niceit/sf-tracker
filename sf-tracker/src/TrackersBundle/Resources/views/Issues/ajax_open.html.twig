@@ -23,6 +23,23 @@
                     {% endfor %}
                     {{ time_diff(issue.created) }}
 
+                    <span class="show-time">
+
+                        {% if issue.unis_endtime <= now %}
+                            {% if issue.unis_endtime == now %}
+                                  <span class="tb-red">Today</span>
+                            {% else %}
+                                <span class="tb-red"> Late {{ issue.EndTime | date("d/m/Y h:i:s A") }}</span>
+                            {% endif %}
+                        {% else %}
+                            {% if  issue.unis_endtime == tomorrow %}
+                                <span class="tb-yellow" > Tomorrow </span>
+                            {% else %}
+                                <span class="tb-bue">{{ issue.EndTime | date("d/m/Y h:i:s A") }}</span>
+                            {% endif %}
+                        {% endif %}
+
+                        </span>
                 </td>
                 <td align="center">
                     {% if user_id == issue.CreatedBy %}

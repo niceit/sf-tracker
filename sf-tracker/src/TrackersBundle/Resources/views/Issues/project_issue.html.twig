@@ -43,6 +43,10 @@
             <div id="comment_content">
 
             </div>
+            {% for complete in completes %}
+                <p><b>{{ complete.full_name }}</b> start <b>from</b> {{ complete.start_date | date('Y-m-y h:i:s') }} <b>to</b> {{ complete.end_date | date('Y-m-y h:i:s') }} : <b>{{ complete.total_time }}</b></p>
+            {% endfor %}
+
         </div>
 
 
@@ -64,50 +68,36 @@
 
     </div>
 
-
-
-
-
-
-    <div class="body textC">
-        <div class="uDialog">
-            <div id="dialog-message" title="Closed issue">
-
-                <fieldset>
-                    <table width="100%">
-                        <tr>
-                            <td>Start date:</td>
-                            <td><input id="start_date" name="start_date" type="text" value=""  class="datepicker" /></td>
-                            <td> <input id="start_time" name="start_time" type="text" value="" class="timepicker" size="10" /></td>
-                        </tr>
-                        <tr>
-                            <td><label for="pass">End date:</label></td>
-                            <td><input id="end_date" name="end_date" type="text" value=""  class="datepicker" /></td>
-                            <td><input id="end_time" name="end_time" type="text" value="" class="timepicker" size="10" /></td>
-                        </tr>
-                    </table>
-
-                </fieldset>
-            </div>
+    <div id="dialog-messages" style="display: none" title="Closed issue">
+        <div class="formRow">
+            <label>Start date: <span class="req">*</span> </label>
+            <div class="formRight row-date">
+                <input id="start_date" name="start_date" type="text" value=""  class="datepicker" />
+                <input id="start_time" name="start_time" type="text" value="" class="timepicker" size="10" />
+                <span class="error error-start"></span>
+            </div><div class="clear"></div>
         </div>
+
+        <div class="formRow">
+            <label>End date: <span class="req">*</span> </label>
+            <div class="formRight row-date">
+                <input id="end_date" name="end_date" type="text" value=""  class="datepicker" />
+                <input id="end_time" name="end_time" type="text" value="" class="timepicker" size="10" />
+                <span class="error error-end"></span>
+            </div><div class="clear"></div>
+        </div>
+        <div class="formRow-submit">
+             <a href="javascript:void(0);" onclick="fc_close();" title="" class="button blueB" style="margin: 5px;"><span>OK</span></a>
+            </div>
+
     </div>
 
     <script type="text/javascript">
 
-	$( "#dialog-message" ).dialog({
-        autoOpen: false,
-        modal: true,
-        buttons: {
-            Ok: function() {
-                fc_close();
-                $( this ).dialog( "close" );
-            }
-        }
-    });
 
     $( "#opener" ).click(function() {
-        $( "#dialog-message").dialog({modal: true, height: 340, width: 450 });
-        $( "#dialog-message" ).dialog( "open" );
+        $( "#dialog-messages").dialog({modal: true, height: 270, width: 300 });
+        $( "#dialog-messages" ).dialog( "open" );
         return false;
     });
 
@@ -147,16 +137,17 @@
             });
         }
         function fc_close(){
+            $('.error').html('');
             var start_date = $("#start_date").val();
             var start_time = $("#start_time").val();
             var end_date = $("#end_date").val();
             var end_time = $("#end_time").val();
-            if(start_date.length ==0 ){
-                alert();
+            if(start_date.length ==0 || start_time.length == 0){
+                $('.error-start').html('Please enter the start time!');
                 return false;
             }
-            if(end_date.length ==0 ){
-                alert();
+            if(end_date.length ==0 || end_time.length == 0 ){
+                $('.error-end').html('Please enter the end time!');
                 return false;
             }
             var confirmBox = confirm('Are you sure you want to close this issue?');
@@ -167,7 +158,14 @@
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'issueId' : {{ issue.getId() }} , 'project_id': {{ project.getId() }}},
+                data:{
+                    'issueId' : {{ issue.getId() }} ,
+                    'project_id': {{ project.getId() }} ,
+                    'start_date' : start_date,
+                    'start_time' : start_time,
+                    'end_date' : end_date,
+                    'end_time' : end_time
+                },
                 dataType : "html",
                 success : function(data){
                     $('.form_comment').hide();
@@ -175,6 +173,8 @@
                     $('.open_issue').show();
                     loadcomments(0);
                     $('.loading').hide();
+
+                    $( '#dialog-messages' ).dialog( "close" );
                 }
             });
         }

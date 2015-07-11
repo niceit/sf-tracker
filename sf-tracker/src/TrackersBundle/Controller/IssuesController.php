@@ -6,6 +6,7 @@
     use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
     use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
     use Symfony\Component\Config\Definition\Exception\Exception;
+    use Symfony\Component\Validator\Constraints\DateTime;
     use TrackersBundle\Entity\Project_issues;
     use TrackersBundle\Entity\Project_issue_assignments;
     use TrackersBundle\Entity\Projects;
@@ -18,6 +19,7 @@
     use TrackersBundle\Entity\Project_activity;
     use TrackersBundle\Entity\Projects_issues_comments;
     use TrackersBundle\Entity\Notifications;
+    use TrackersBundle\Entity\Project_Closed_Issues;
 
     class IssuesController extends Controller {
         /**
@@ -127,15 +129,21 @@
 
             foreach ($issues as $issue) {
                 $user = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
+                $endtime = $issue->getEndTime()->format('Y-m-d');
+                $now = date('Y-m-d');
+                $tomorrow = date('Y-m-d',strtotime('+1 day'));
+
                 $arr[] = array (
                     'id' => $issue->getId(),
                     'title' => $issue->getTitle(),
                     'created' => $issue->getCreated(),
                     'CreatedBy' => $issue->getCreatedBy(),
+                    'EndTime' => $issue->getEndTime(),
+                    'unis_endtime' => strtotime($endtime),
                     'users' => $user
                 );
             }
-            $template = $this->render('TrackersBundle:Issues:ajax_open.html.twig', array ('issues' => $arr, 'paginations' => $paginations, 'project_id' => $project_id,'is_close' => $is_close, 'user_id' => $this->getUser()->getId()));
+            $template = $this->render('TrackersBundle:Issues:ajax_open.html.twig', array ('issues' => $arr, 'now' => strtotime($now) ,'tomorrow' => strtotime($tomorrow), 'paginations' => $paginations, 'project_id' => $project_id,'is_close' => $is_close, 'user_id' => $this->getUser()->getId()));
 
             return new Response($template->getContent());
             die();
@@ -215,12 +223,49 @@
                 $requestData = $this->getRequest()->request;
                 $issueId = $requestData->get('issueId');
                 $project_id = $requestData->get('project_id');
+
+                $start_date = $requestData->get('start_date');
+                $start_time = $requestData->get('start_time');
+                $end_date = $requestData->get('end_date');
+                $end_time = $requestData->get('end_time');
+
+
                 $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
                 $issue = $repository->find($issueId);
                 $issue->setStatus('CLOSED');
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($issue);
                 $em->flush();
+
+                $Closed_Issues = new Project_Closed_Issues();
+
+                // date start time
+                $arr_start_date = explode('-',$start_date);
+                $arr_start_time = explode(':',$start_time);
+
+                $date_start = new \DateTime();
+                $date_start->setDate($arr_start_date[0],$arr_start_date[1],$arr_start_date[2]);
+                if($arr_start_time)
+                $date_start->setTime($arr_start_time[0],$arr_start_time[1],$arr_start_time[2]);
+
+                // date end time
+                $arr_end_date = explode('-',$end_date);
+                $arr_end_time = explode(':',$end_time);
+
+                $date_end = new \DateTime();
+                $date_end->setDate($arr_end_date[0],$arr_end_date[1],$arr_end_date[2]);
+                if($arr_end_time)
+                $date_end->setTime($arr_end_time[0],$arr_end_time[1],$arr_end_time[2]);
+
+                $Closed_Issues->setIssueId($issueId);
+                $Closed_Issues->setUserId($this->getUser()->getId());
+                $Closed_Issues->setStartDate($date_start);
+                $Closed_Issues->setEndDate($date_end);
+                $Closed_Issues->setCreated(new \DateTime("now"));
+                $em->persist($Closed_Issues);
+                $em->flush();
+
+
                 // add activity close
                 $users_activity = new Users_activity();
                 $users_activity->setUserId($this->getUser()->getId());
@@ -432,9 +477,56 @@
 
             }
 
+            $repository_Closed_Issues = $this->getDoctrine()->getRepository('TrackersBundle:Project_Closed_Issues');
+            $Closed_Issues = $repository_Closed_Issues->findBy(array('userId' => $this->getUser()->getId(), 'issueId' => $id ));
+           $array_date = array();
 
-            return array ('issue' => $issue, 'project' => $project, 'user' => $user, 'attachments' => $attachments, 'is_ssues' => $is_ssues );
+            $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+            foreach($Closed_Issues as $closed){
+               $users = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
 
+                $date1 = $closed->getStartDate();
+                $date2 = $closed->getEndDate();
+                $diff = $date2->diff($date1);
+                if($diff->format('%i') > 0 )
+                    $h = $diff->format('%d')*24 + $diff->format('%h')." hours ".$diff->format('%i')." minute";
+                else
+                    $h = $diff->format('%d')*24 + $diff->format('%h')." hours ";
+                $array_date[] = array(
+                    'full_name' => $users[0]->getFirstname()." ".$users[0]->getLastname(),
+                    'start_date' => $closed->getStartDate(),
+                    'end_date' => $closed->getEndDate(),
+                    'total_time' => $h
+
+                );
+            }
+
+
+            return array ('issue' => $issue, 'project' => $project, 'user' => $user, 'attachments' => $attachments, 'is_ssues' => $is_ssues , 'completes' => $array_date );
+
+        }
+
+        public  function total_time($start_date , $end_date){
+            $h = '';
+            $start = $start_date->getTimestamp();
+            $end = $end_date->getTimestamp();
+            if($end > $start)
+            {
+                $s = $end - $start;
+                if($s % (60 *60) ==0 ) {
+                    $h = int($s / (60 * 60)) . "hours";
+                    return $h;
+                }
+                elseif(int($s / (60 *60)) > 0){
+                    $h = int($s / (60 * 60)) . "hours";
+                    $i = (($s / (60 * 60)) - int($s / (60 * 60)) )*60;
+                    $h .= $i." minute";
+                }else{
+                    $i = (($s / (60 * 60)) - int($s / (60 * 60)) )*60;
+                    $h .= $i." minute";
+                }
+            }
+            return $h;
         }
 
         /**
@@ -676,7 +768,7 @@
                 //->add('assigned_to', 'choice', array ('choices' => $arr, 'multiple' => true, 'required' => false, 'label' => 'Assigned To', 'preferred_choices' => array (), 'empty_data' => null))
                 ->add('status', 'choice', array ('choices' => array ('OPEN' => 'OPEN', 'HOLD' => 'HOLD', 'INPROGRESS' => 'INPROGRESS', 'CLOSED' => 'CLOSED', 'FINISHED' => 'FINISHED'), 'preferred_choices' => array ($issues_id->getStatus()), 'label' => 'Status'))
                 ->getForm();
-            return array ('form' => $form->createView(),'project_id' => $project_id,'assignedTo' => $assignedToOld, 'assignedtos' => $arr, 'date' => $issues_id->getEndTime()->format('Y-m-d'), 'time' => $issues_id->getEndTime()->format('H:i:s') );
+            return array ('form' => $form->createView(),'project_id' => $project_id,'assignedTo' => $assignedToOld, 'assignedtos' => $arr,'endtime'=>$issues_id->getEndTime(), 'date' => $issues_id->getEndTime()->format('Y-m-d'), 'time' => $issues_id->getEndTime()->format('H:i:s') );
         }
 
         /**
