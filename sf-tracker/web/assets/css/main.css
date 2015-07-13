@@ -126,7 +126,7 @@ select[multiple] { border: 1px solid #ddd; box-shadow: 0 0 0 2px #f4f4f4; -webki
 .loginWrapper {}
 .loginWrapper .widget {
     margin: 0 auto;
-    width: 340px; background: #f9f9f9; border: 1px solid #cdcdcd; display: block; height: 236px; }
+    width: 340px; background: #f9f9f9; border: 1px solid #cdcdcd; display: block; }
 .loginLogo { position: absolute; width: 236px; height: 60px; display: block; top: -55px; left: 50%; margin-left: -118px; } 
 .loginControl { border-top: 1px solid #fff; padding: 16px 14px; }
 .logMeIn { float: right; padding: 7px 20px 8px 20px!important; }
@@ -427,7 +427,7 @@ ul.sub li ul li { padding-left: 10px; }
 
 .titleArea { padding-top: 36px; }
 
-.pageTitle { float: left; padding: 35px 0 32px 0; }
+.pageTitle { float: left; padding: 35px 0 32px 0; width: 100% }
 
 .middleNav { float: right; border: 1px solid #cdcdcd; margin: 29px 0; }
 .middleNav ul { }
@@ -2001,5 +2001,92 @@ span.show-time {
 }
 .tb-bue{
     color: #3AE012;
+}
+.formSubmit{
+    width: 98%;
+    margin: 10px auto;
+    float: none;
+
+}
+.formSubmit a{
+    float: left;
+    margin: 0px;
+}
+.formSubmit input{
+    float: right;
+}
+.content-left-assigned ul{
+    margin: 0px;
+    padding: 0px;
+}
+.content-left-assigned li{
+    position: relative;
+}
+.content-left-assigned li a{
+    padding: 10px 0px;
+    padding-left: 10px;
+    color: #fff;
+}
+.remove-assigned{
+    position: absolute;
+    right: 2px;
+    top:7px;
+    background: none !important;
+    border: none !important;
+}
+.left-assigned{
+    color: #fff;
+    padding: 10px 0px;
+}
+.left-assigned h4, p{
+    text-align: center;
+}
+.assigned_user_left{
+    width:98%;
+    height: 30px;
+}
+.left-assigned-ul a{
+    color: #fff;
+}
+.from-profile .formRight{
+    width:50%;
+    margin-right: 30%;
+
+}
+
+div#content-message .nmessages li{
+    margin: 10px 0px;
+    background-repeat: no-repeat;
+    padding-left: 20px;
+    background-position: 0px 6px;
+}
+div#content-message .nmessages .taskProgress{
+    background-image: url(../images/icons/taskProgress.png);
+}
+div#content-message .nmessages .taskDone{
+    background-image: url(../images/icons/taskDone.png);
+}
+div#content-message li a:hover{
+    color: #080808;
+}
+.menu_status li{
+    margin: 10px 0px;
+}
+.status{
+    padding: 2px 10px;
+    color: #fff;
+}
+span.status.status_OPEN{
+    background: #0069D6;
+}
+span.status.status_CLOSED{
+    background: #9f352b;
+}
+.loginLogos{
+    margin-bottom: 20px;
+}
+.left-top{
+    float: left;
+    margin-right: 10px;
 }
 /**/

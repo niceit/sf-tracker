@@ -42,6 +42,11 @@ class ProjectsController extends Controller
             $is_add = true;
         }else $is_add = false;
 
+
+        if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$project->getImage()) ){
+            $is_image = true;
+        }else $is_image = false;
+
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Users_activity');
         $number_activity = count($repository->findBy(array ('parentId' => $id)));
 
@@ -50,7 +55,7 @@ class ProjectsController extends Controller
 
         $number_close = count($repository->findBy(array ('projectId' => $id, 'status' => 'CLOSED')));
         $number_assigned = count($repository->findBy(array ('projectId' => $id, 'assignedTo' => $this->getUser()->getId())));
-        return array('id'=>$id, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned, 'project' => $project , 'is_add' => $is_add );
+        return array('id'=>$id, 'is_image' => $is_image, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned, 'project' => $project , 'is_add' => $is_add );
     }
 
     /**
@@ -105,59 +110,27 @@ class ProjectsController extends Controller
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
                 $form = $requestData->get('form');
+                $image = $requestData->get('image');
 
-                $image = $request->files->get('image');
-                $name_image = '';
-                $is_file = true;
-                if(($image instanceof UploadedFile) && $image->getError()=='0'){
-                    if($image->getSize() < 20000000){
-                        $file_type = $image->getClientOriginalExtension();
-                        $name_array = explode('.', $image->getClientOriginalName());
-
-                        $valid_filetypes = array('jpg', 'jpeg', 'bmp', 'png');
-                        if (in_array(strtolower($file_type), $valid_filetypes)) {
-
-                            $name_file = strtolower($name_array[0] . "-" . md5(rand(0,100)));
-                            $document = new Document();
-                            $document->setFile($image);
-                            $document->setSubDirectory('project');
-                            $document->setNameFile( $name_file );
-                            $document->setTypeFile($file_type);
-                            $document->processFile();
-                            $name_image = $document->getSubDirectory() . "/" . $name_file. "." . $file_type;
-
-                        }else{
-                            $is_file = false;
-                            $arr_err[]= 'Invalid File Type!';
-                        }
-                    }else{
-                        $is_file = false;
-                        $arr_err[]= 'Size exceeds limit!';
-                    }
-                }
                 $project->setName($form['name']);
-                $project->setImage($name_image);
+                $project->setImage($image);
                 $project->setStatus($form['status']);
                 $project->setOwnerId($this->getUser()->getId());
                 $project->setCreated(new \DateTime('now'));
-                if($is_file){
-                    $em = $this->getDoctrine()->getManager();
-                    $em->persist($project);
-                    $em->flush();
 
-                    $this->get('session')->getFlashBag()->add('notice', 'More successful project!');
-                    return $this->redirectToRoute('_addProjects');
-                }
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($project);
+                $em->flush();
 
-
-
+                $this->get('session')->getFlashBag()->add('notice', 'More successful project!');
+                return $this->redirectToRoute('_addProjects');
         }
         $form = $this->createFormBuilder($project)
             ->add('name', 'text', array('label'=>'Name','required'    => true))
             ->add('status', 'choice', array(
                 'choices' => array('1' => 'Open', '0' => 'Archived'),
                 'preferred_choices' => array('0'),
-               // 'attr' =>array('class'=>'selector'),
+                'attr' =>array('class'=>'select-box'),
                 'label'=>'Status'
             ))
             ->getForm();
@@ -171,6 +144,7 @@ class ProjectsController extends Controller
         $requestData = $this->getRequest()->request;
         $project_id = $requestData->get('project_id');
         $user_id = $requestData->get('user_id');
+        $full_name = $requestData->get('full_name');
 
         $user_projects = new User_projects();
         $user_projects->setProjectId($project_id);
@@ -180,10 +154,12 @@ class ProjectsController extends Controller
         $em->persist($user_projects);
         $em->flush();
 
-        echo $requestData->get('user_id');
+        echo json_encode(array('user_id'=> $user_id , 'full_name' => $full_name));
         die();
 
     }
+
+
     /**
      * @Route("/project/edit/{id}", name="_editProjects")
      * @Template("TrackersBundle:Projects:edit.html.twig")
@@ -197,60 +173,22 @@ class ProjectsController extends Controller
             $requestData = $this->getRequest()->request;
             $form = $requestData->get('form');
 
-            $image = $request->files->get('image');
-            $name_image = '';
-            $is_file = true;
-            if(($image instanceof UploadedFile) && $image->getError()=='0'){
-                if($image->getSize() < 20000000){
-                    $file_type = $image->getClientOriginalExtension();
-                    $name_array = explode('.', $image->getClientOriginalName());
+            $image = $requestData->get('image');
 
-                    $valid_filetypes = array('jpg', 'jpeg', 'bmp', 'png');
-                    if (in_array(strtolower($file_type), $valid_filetypes)) {
-
-                        $name_file = strtolower($name_array[0] . "-" . md5(rand(0,100)));
-                        $document = new Document();
-                        $document->setFile($image);
-                        $document->setSubDirectory('project');
-                        $document->setNameFile( $name_file );
-                        $document->setTypeFile($file_type);
-                        $document->processFile();
-                        $name_image = $document->getSubDirectory() . "/" . $name_file. "." . $file_type;
-
-                    }else{
-                        $is_file = false;
-                        $arr_err[]= 'Invalid File Type!';
-                    }
-                }else{
-                    $is_file = false;
-                    $arr_err[]= 'Size exceeds limit!';
-                }
-            }
             $project = $repository->find($id);
             $project->setName($form['name']);
-            if($name_image=='')
+            if($image=='')
                 $project->setImage($requestData->get('old_image'));
             else
-                $project->setImage($name_image);
+                $project->setImage($image);
             $project->setStatus($form['status']);
             $project->setModified(new \DateTime('now'));
-            if($is_file){
-                $em = $this->getDoctrine()->getManager();
-                $em->persist($project);
-                $em->flush();
 
-                /*
-                $repository_pro = $this->getDoctrine()->getRepository('TrackersBundle:User_projects');
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($project);
+            $em->flush();
+            $this->get('session')->getFlashBag()->add('notice', 'More edit successful project!');
 
-                $user_project_s = $repository_pro->findBy(array( 'projectId' => $id ));
-                $user_projects = $repository_pro->find($user_project_s[0]->getId());
-
-                $user_projects->setModified(new \DateTime('now'));
-                $em->persist($user_projects);
-                $em->flush();
-                */
-                $this->get('session')->getFlashBag()->add('notice', 'More edit successful project!');
-            }
 
         }
         $project_id = $repository->find($id);
@@ -265,7 +203,11 @@ class ProjectsController extends Controller
             ))
             ->getForm();
 
-        return array('form' => $form->createView(),'err'=>$arr_err,'image_old'=>$project_id->getImage(),'id'=>$id);
+        if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$project_id->getImage()) ){
+            $is_image = true;
+        }else $is_image = false;
+
+        return array('form' => $form->createView(),'err'=>$arr_err,'image_old'=>$project_id->getImage(), 'id' => $id, 'is_image' => $is_image);
     }
 
     /**
@@ -282,10 +224,28 @@ class ProjectsController extends Controller
 
         $entities = $query->getResult();
 
+        $array = array();
+        foreach($entities as $entiti){
+
+
+            if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$entiti['avatar']) ){
+                $is_avatar = $entiti['avatar'];
+            }else $is_avatar = false;
+            $array[] = array(
+                'avatar' =>$is_avatar,
+                'id' => $entiti['id'],
+                'firstname' => $entiti['firstname'],
+                'lastname' => $entiti['lastname']
+
+
+            );
+        }
+
         $template = $this->render('TrackersBundle:Projects:ajax_assigned_user.html.twig', array( 'user_projects' => $entities  ));
         return new Response($template->getContent());
         die();
     }
+
 
     /**
      * @Route("/project/delete/{id}", name="_deleteProjects")
@@ -351,5 +311,27 @@ class ProjectsController extends Controller
         echo 0;
         exit;
     }
+
+
+    /**
+     * @Route("/list_assigned", name="_list_assigned")
+     */
+    public function listAssignedAction( )
+    {
+        $requestData = $this->getRequest()->request;
+        $project_id = $requestData->get('project_id');
+        $em = $this->getDoctrine()->getEntityManager();
+
+        $query = $em->createQuery("SELECT n.firstname , n.lastname , u.id, n.avatar FROM TrackersBundle:UserDetail n, TrackersBundle:User_projects u WHERE  u.userId = n.user_id AND u.projectId = :project_id")
+            ->setParameter('project_id', $project_id);
+
+        $entities = $query->getResult();
+        $template = $this->render('TrackersBundle:Projects:ajax_left_assigned_user.html.twig', array( 'user_projects' => $entities  ));
+        return new Response($template->getContent());
+        die();
+    }
+
+
+
 
 }

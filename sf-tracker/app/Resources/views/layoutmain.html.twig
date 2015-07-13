@@ -6,24 +6,28 @@
     <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
     <title>{% block title %}{% endblock %}</title>
 
-	{% block stylesheets %}
+
+    <script type="text/javascript" src="{{ asset('assets/js/jquery.min.js') }}"></script>
+
+
+    {% block stylesheets %}
     {% endblock %}
     <link href="{{ asset('assets/css/main.css') }}" rel="stylesheet" type="text/css" />
 
-	<script type="text/javascript" src="{{ asset('assets/js/jquery.min.js') }}"></script>
-
-
 	 {% block javascripts %}
     {% endblock %}
+
     {% block javascript_ui %}
+     <script type="text/javascript" src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
 
-	<script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/ui.spinner.js') }}"></script>
+
+
+<!-- <script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/ui.spinner.js') }}"></script>-->
 	<script type="text/javascript" src="{{ asset('assets/js/plugins/spinner/jquery.mousewheel.js') }}"></script>
-
-	<script type="text/javascript" src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
 
 	<script type="text/javascript" src="{{ asset('assets/js/plugins/charts/excanvas.min.js') }}"></script>
 	 <script type="text/javascript" src="{{ asset('assets/js/plugins/charts/jquery.sparkline.min.js') }}"></script>
+
 
     <script type="text/javascript" src="{{ asset('assets/js/plugins/forms/uniform.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.cleditor.js') }}"></script>
@@ -36,39 +40,41 @@
 	<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/jquery.inputlimiter.min.js') }}"></script>
 	<script type="text/javascript" src="{{ asset('assets/js/plugins/forms/chosen.jquery.min.js') }}"></script>
 
- <script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.form.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.validate.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.form.wizard.js') }}"></script>
+     <script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.form.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.validate.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/wizard/jquery.form.wizard.js') }}"></script>
 
-<script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.html5.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.html4.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/jquery.plupload.queue.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.html5.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/plupload.html4.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/uploader/jquery.plupload.queue.js') }}"></script>
 
- <script type="text/javascript" src="{{ asset('assets/js/plugins/tables/datatable.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/tables/tablesort.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/tables/resizable.min.js') }}"></script>
+     <script type="text/javascript" src="{{ asset('assets/js/plugins/tables/datatable.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/tables/tablesort.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/tables/resizable.min.js') }}"></script>
 
- <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.tipsy.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.collapsible.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.prettyPhoto.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.progress.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.timeentry.min.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.colorpicker.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.jgrowl.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.breadcrumbs.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.sourcerer.js') }}"></script>
 
-<script type="text/javascript" src="/assets/js/plugins/calendar.min.js"></script>
-<script type="text/javascript" src="/assets/js/plugins/elfinder.min.js"></script>
+     <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.tipsy.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.collapsible.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.prettyPhoto.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.progress.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.timeentry.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.colorpicker.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.jgrowl.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.breadcrumbs.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/plugins/ui/jquery.sourcerer.js') }}"></script>
 
-<script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
- <script type="text/javascript" src="{{ asset('assets/core/main.js') }}"></script>
-<script type="text/javascript" src="{{ asset('assets/core/ajax-request.js') }}"></script>
+    <script type="text/javascript" src="/assets/js/plugins/calendar.min.js"></script>
+    <script type="text/javascript" src="/assets/js/plugins/elfinder.min.js"></script>
+
+    <script type="text/javascript" src="{{ asset('assets/js/custom.js') }}"></script>
+     <script type="text/javascript" src="{{ asset('assets/core/main.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/core/ajax-request.js') }}"></script>
+    {% endblock %}
 
 <!-- Shared on MafiaShare.net  --><!-- Shared on MafiaShare.net  -->
 
-    {% endblock %}
+
 
 
     <script type="text/javascript">
@@ -99,6 +105,11 @@
         $(function(){
             numberNotifications();
             LoadNotifications();
+
+            $('.ddd').click(function () {
+                $('.userDropdown').slideToggle(200);
+            });
+
         });
         function numberNotifications(){
             var URL = '{{ path('_numberNotifications') }}';
@@ -138,10 +149,15 @@
 
 
     <div id="menu" class="nav">
-        <h3 class="projecth3">Project <a href="{{ path('_addProjects' ) }}" data-url=""  title="" class="smallButton  ajax-request-btn" style="float: right;"><img src="{{ asset('assets/images/icons/color/plus.png') }}" alt=""></a></h3>
+        <h5 class="projecth3">Add New Project <a href="{{ path('_addProjects' ) }}" data-url=""  title="" class="smallButton  ajax-request-btn" style="float: right;"><img src="{{ asset('assets/images/icons/color/plus.png') }}" alt=""></a></h5>
              {{ knp_menu_render('TrackersBundle:Builder:mainMenu') }}
-    </div>
 
+        {% block assigned_user %}
+
+        {% endblock %}
+
+
+    </div>
 
 
 
@@ -155,25 +171,26 @@
     <!-- Top fixed navigation -->
     <div class="topNav">
         <div class="wrapper">
-            <div class="welcome"><a href="#" title=""><img src="{{ asset('assets/images/userPic.png') }}" alt="" /></a><span>Howdy, {{app.user.username}}!</span></div>
+            <div class="welcome"><a href="#" title=""><img src="{{ asset('assets/images/userPic.png') }}" alt="" /></a><span>Hello, {{app.user.username}}!</span></div>
             <div class="userNav">
                 <ul>
                     {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
                         <li><a href="{{ path('_Profile') }}" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>Profile</span></a></li>
                     {% endif %}
 
-                    <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/tasks.png') }}" alt="" /><span>Tasks</span></a></li>
-                    <li class="dd"><a onclick="LoadNotifications();" href="javascript:void(0);" id="messages" title=""><img src="{{ asset('assets/images/icons/topnav/messages.png') }}" alt="" /><span>Messages</span><span class="numberTop"></span></a>
+                    <li><a href="{{ path('_listtasks') }}" title=""><img src="{{ asset('assets/images/icons/topnav/tasks.png') }}" alt="" /><span>Tasks</span></a></li>
+                    <li class="dd ddd"><a onclick="LoadNotifications();" href="javascript:void(0);" id="messages" title=""><img src="{{ asset('assets/images/icons/topnav/messages.png') }}" alt="" /><span>Messages</span><span class="numberTop"></span></a>
                         <div id="notifications_content" class="userDropdown">
                         </div>
 
 
                     </li>
-                    <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/settings.png') }}" alt="" /><span>Settings</span></a></li>
+                   <!--<li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/settings.png') }}" alt="" /><span>Settings</span></a></li>-->
 
                     {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
                         <li><a href="{{ path('fos_user_security_logout') }}" title=""><img src="{{ asset('assets/images/icons/topnav/logout.png') }}" alt="" /><span>{{ 'layout.logout'|trans({}, 'FOSUserBundle') }}</span></a></li>
                     {% endif %}
+
 
 
                 </ul>
@@ -193,7 +210,7 @@
             <span class="goTo"><img src="{{ asset('assets/images/icons/light/home.png') }}" alt="" />Dashboard</span>
 
             <div id="menu" class="nav smallDropdown">
-                <h3 class="projecth3">Project <a href="{{ path('_addProjects' ) }}" data-url=""  title="" class="smallButton  ajax-request-btn" style="float: right;"><img src="{{ asset('assets/images/icons/color/plus.png') }}" alt=""></a></h3>
+                <h3 class="projecth3">Add New Project <a href="{{ path('_addProjects' ) }}" data-url=""  title="" class="smallButton  ajax-request-btn" style="float: right;"><img src="{{ asset('assets/images/icons/color/plus.png') }}" alt=""></a></h3>
                         {{ knp_menu_render('TrackersBundle:Builder:mainMenu') }}
             </div>
 
@@ -230,7 +247,7 @@
 </div>
 
 <!-- Footer line -->
-{% include'TrackersBundle:Components:footer.twig.html'%}
+{% include'TrackersBundle:Components:footer.html.twig'%}
 
 
 

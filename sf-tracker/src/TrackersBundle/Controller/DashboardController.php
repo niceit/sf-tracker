@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Response;
+use TrackersBundle\Entity\Pagination;
 
 class DashboardController extends Controller
 {
@@ -17,7 +18,7 @@ class DashboardController extends Controller
     {
         $project_issues = array();
         $em = $this->container->get('doctrine')->getManager();
-        $query = $em->createQuery("SELECT p FROM TrackersBundle:Projects p WHERE  p.owner_id = :user_id OR p.id IN ( SELECT up.projectId FROM TrackersBundle:Project_issues up WHERE up.assignedTo = :assigned_to)  ORDER BY p.created DESC ")
+        $query = $em->createQuery("SELECT p FROM TrackersBundle:Projects p WHERE  p.owner_id = :user_id OR p.id IN ( SELECT up.projectId FROM TrackersBundle:User_projects up WHERE up.userId = :assigned_to)  ORDER BY p.created DESC ")
             ->setParameter('user_id', $this->getUser()->getId())
             ->setParameter('assigned_to', $this->getUser()->getId());
 
@@ -101,5 +102,47 @@ class DashboardController extends Controller
         return new Response($template->getContent());
         die();
     }
+
+    /**
+     * @Route("/notifications-view-all", name="_notificationsView_All")
+     * @Template("TrackersBundle:Dashboard:notificationsviewall.html.twig")
+     */
+    public function notificationsviewallAction()
+    {
+        $em = $this->container->get('doctrine')->getManager();
+        $query = $em->createQuery("SELECT p FROM TrackersBundle:Notifications p WHERE  p.userId = :user_id AND p.isRead = 0   ORDER BY p.created DESC ")
+            ->setParameter('user_id', $this->getUser()->getId());
+        return array();
+
+    }
+    /**
+     * @Route("/ajax_message", name="_ajax_message")
+     */
+    public function ajax_messageAction()
+    {
+        $requestData = $this->getRequest()->request;
+        $page = $requestData->get('page');
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Notifications');
+
+        $limit = 50;
+        $offset = $page*$limit;
+
+        $total = (int)( count($repository->findBy(array ('userId' => $this->getUser()->getId()), array('created' => 'DESC'))) / $limit);
+        $count = count($repository->findBy(array ('userId' => $this->getUser()->getId()), array('created' => 'DESC')));
+        if($count > $limit &&  $count  % $limit != 0){
+            $total = $total + 1;
+        }
+
+        $pagination = new Pagination();
+        $paginations = $pagination->render($page, $total, 'loadMessage');
+        $notifications = $repository->findBy(array ('userId' => $this->getUser()->getId()), array('created' => 'DESC', 'isRead' => 'ASC'), $limit, $offset);
+
+
+        $template = $this->render('TrackersBundle:Dashboard:ajax_notifications_page.html.twig', array ('notifications' => $notifications, 'paginations' => $paginations));
+        return new Response($template->getContent());
+        die();
+    }
+
+
 
 }

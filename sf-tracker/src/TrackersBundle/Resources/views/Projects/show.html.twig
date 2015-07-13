@@ -3,7 +3,18 @@
 {% block title %}Issuse{% endblock %}
 
 {% block Breadcrumb %}
-    <h5>{{ project.getName }}</h5>
+    <div class="left-top">
+        {% if is_image %}
+            <img style="width:100px" src="{{ asset(project.getImage()) }}"/>
+        {% else %}
+            <img src="{{ asset('assets/images/Project.png') }}"/>
+        {% endif %}
+    </div>
+    <div class="left-top">
+        <h5>{{ project.getName }}</h5>
+        Date created: <i>{{ project.getCreated() | date('Y-m-d') }}</i>
+    </div>
+    <div class="clear"></div>
 
 {% endblock %}
 
@@ -14,7 +25,7 @@
             <div class="invButtons">
 
                 <a style="margin: 0; float: left;  padding-left: 10px;" href="{{ path('_addIssues' , { 'id': id }) }}" title="" class="button blueB ajax-request-btn"><img src="{{ asset('assets/images/icons/sPlus.png') }}" alt=""><span>Add new issues</span></a>
-                <a style="float:right " href="{{ path('_editProjects', { 'id': id }) }}" title="" class="button greyishB ajax-request-btn" style="margin: 5px;"><img src="{{ asset('assets/images/icons/light/create.png') }}" alt="" class="icon"><span>Edit project</span></a>
+                <a style="float:right " href="{{ path('_editProjects', { 'id': id }) }}" title="" class="button blueB ajax-request-btn" style="margin: 5px;"><img src="{{ asset('assets/images/icons/light/create.png') }}" alt="" class="icon"><span>Edit project</span></a>
                  <div class="clear"></div>
             </div>
             <br>
@@ -119,17 +130,17 @@
                 }
             });
         }
-        function fcadd_user(user_id){
+        function fcadd_user(user_id, full_name){
             $('.loading').show();
             var URL = '{{ path('_addUerProject') }}';
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'user_id' : user_id, 'project_id' : {{ id }} },
-                dataType : "html",
+                data:{'user_id' : user_id, 'project_id' : {{ id }} ,'full_name':full_name },
+                dataType : "json",
                 success : function(data){
                     load_user_assigned();
-                    $('.row-'+data).hide();
+                    $('.row-'+data['user_id']).hide();
                     $('.loading').hide();
                 }
             });

@@ -6,6 +6,12 @@
     <h5>Edit issues</h5>
 {% endblock %}
 
+{% block assigned_user %}
+    {{ include('TrackersBundle:Components:leftAssign.html.twig', { 'project_id': project_id }) }}
+{% endblock %}
+
+
+
 {% block body %}
 
     <div class="wrapper">
@@ -46,10 +52,10 @@
                         <div class="clear"></div>
                     </div>
                      <div class="formRow">
-                        <label>Date picker:</label>
+                        <label>Due date</label>
                         <div class="formRight">
                             <input name="date" type="text" value="{{ date }}"  class="datepicker" />
-                            <input name="time" type="text" value="{{ time }}" class="timepicker" size="10" />
+                            <!--<input name="time" type="hidden" value="{{ time }}" class="timepicker" size="10" />-->
                         </div>
 
                         <div class="clear"></div>
@@ -67,9 +73,13 @@
                         <div class="clear"></div>
                     </div>
 
-                    <a  href="{{ path('_detailProjects', { 'id': project_id }) }}" title="" class="wButton greenwB ml15 m10 ajax-request-btn"><span>Back project</span></a>
 
-                    <div class="formSubmit"><input type="submit" value="submit" class="redB ajax-request-btn"></div>
+                    <div class="formSubmit">
+                         <a  href="{{ path('_detailProjects', { 'id': project_id }) }}" title="" style="float:left;" class="button greenB ml15 m10 ajax-request-btn"><span>Back to Project Detail</span></a>
+
+                        <input type="submit" value="Save" class="button blueB ajax-request-btn">
+                         <div class="clear"></div>
+                    </div>
                     <div class="clear"></div>
                 </div>
             </fieldset>

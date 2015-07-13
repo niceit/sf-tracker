@@ -1,0 +1,10 @@
+
+    <ul>
+        {% for user_project in user_projects %}
+        <li class="row_user_{{ user_project.id }}">
+           <a href="#" title="">{{ user_project.firstname }} {{ user_project.lastname }}</a>
+            <a class="remove-assigned" href="javascipt:void(0);" onclick="remove_user_assigned({{ user_project.id }})" class="tipS" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
+            <div class="clear"></div>
+        </li>
+        {% endfor %}
+    </ul>

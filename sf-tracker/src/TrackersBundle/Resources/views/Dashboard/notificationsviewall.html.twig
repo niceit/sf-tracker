@@ -1,0 +1,33 @@
+{% extends '::layoutmain.html.twig' %}
+{% block title %}Message {% endblock %}
+
+{% block Breadcrumb %}
+    <h5>Message</h5>
+{% endblock %}
+
+  {% block body %}
+      <div class="wrapper">
+          <div id="content-message">
+
+          </div>
+          <script type="text/javascript" >
+              $(function(){
+                  loadMessage(0);
+              });
+            function loadMessage(page){
+                $('.loading').show();
+                var URL = '{{ path('_ajax_message') }}';
+                jQuery.ajax({
+                    type: "post",
+                    url : URL,
+                    data:{'page' : page },
+                    dataType : "html",
+                    success : function(data){
+                        $('#content-message').html(data);
+                        $('.loading').hide();
+                    }
+                });
+            }
+          </script>
+      </div>
+  {% endblock %}

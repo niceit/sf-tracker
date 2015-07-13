@@ -94,7 +94,8 @@ class UserController extends Controller
         if(!empty($entities)){
             $html = '<ul>';
             foreach($entities as $entitie){
-                $html .= '<li class="row-'.$entitie['id'].'"><a onclick="fcadd_user('.$entitie['id'].');" href="javascript:void(0);">'.$entitie['firstname'].' '. $entitie['lastname'].'</a></li>';
+                $full_name = "'".$entitie['firstname'].' '. $entitie['lastname']."'";
+                $html .= '<li class="row-'.$entitie['id'].'"><a onclick="fcadd_user('.$entitie['id'].', '.$full_name.');" href="javascript:void(0);">'.$entitie['firstname'].' '. $entitie['lastname'].'</a></li>';
             }
             $html .= '</ul>';
         }
@@ -160,8 +161,13 @@ class UserController extends Controller
         $users = $repository_user->findBy(array ('user_id' => $this->getUser()->getId()));
         $UserDetail = $repository_user->find($users[0]->getId());
 
+        if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$UserDetail->getAvatar()) ){
+           $is_avatar = true;
+        }else $is_avatar = false;
 
-        return array( 'users' => $this->getUser() , 'UserDetail' => $UserDetail, 'countrys' => $countrys , 'user_detail' => $users[0]->getId() );
+
+
+        return array( 'users' => $this->getUser() ,'is_avatar' => $is_avatar, 'UserDetail' => $UserDetail, 'countrys' => $countrys , 'user_detail' => $users[0]->getId() );
     }
 
     /**

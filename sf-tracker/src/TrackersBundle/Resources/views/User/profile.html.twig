@@ -1,6 +1,6 @@
 {% extends '::layoutmain.html.twig' %}
 
-{% block title %}Profile{% endblock %}
+{% block title %}Edit your profile detail{% endblock %}
 
 {% block Breadcrumb %}
     <h5>Profile</h5>
@@ -30,8 +30,8 @@
         <form  class="form from-addUser" method="post" action="" novalidate="novalidate">
             <input type="hidden" name="user_detail" value="{{ user_detail }}" />
             <fieldset>
-                <div class="widget">
-                    <div class="title"><img src="{{ asset('assets/images/icons/dark/list.png') }}" alt="" class="titleIcon"><h6>Profile</h6></div>
+                <div class="widget from-profile">
+                    <div class="title"><img src="{{ asset('assets/images/icons/dark/list.png') }}" alt="" class="titleIcon"><h6>Edit your profile detail</h6></div>
                     <div class="formRow">
                         <label>First name:<span class="req">*</span></label>
                         <div class="formRight"><input type="text" value="{{ UserDetail.getFirstname() }}" class="required error" name="account[firstName]" id="firstName">
@@ -143,7 +143,9 @@
                         <div class="formRight"><input type="text" value="{{ users.getEmail() }}" class="required error" name="account[email]" id="email">
                         </div><div class="clear"></div>
                     </div>
-                    <div class="formSubmit"><input id="button-addUser" type="button" value="submit" class="redB"></div>
+                    <div style="width: 40%" class="formSubmit"><input id="button-addUser" type="button" value="Update" class="button blueB">
+                    <div class="clear"></div>
+                    </div>
                     <div class="clear"></div>
                 </div>
 
@@ -169,7 +171,7 @@
 
 
         $(function(){
-            {% if UserDetail.getAvatar() != ''  %}
+            {% if UserDetail.getAvatar() != '' and is_avatar == true %}
             $('.picture-element-image').attr("src", "{{ asset(UserDetail.getAvatar()) }} ");
             {% endif  %}
             var country_id = $('#country_id').val();

@@ -2,7 +2,7 @@
     {% for comment in comments %}
         <li class="row-comment{{ comment.id }}">
             <div class="pInfo">
-                <a href="#" title=""><strong> {{ comment.fullname  }} </strong> Commented {{ comment.created_at |date('Y-m-d h:i:s') }}</a>
+                <a href="#" title=""><strong> {{ comment.fullname  }} </strong> Commented {{ comment.created_at |date('Y-m-d') }}</a>
                 <i>{{ comment.comment | raw}} </i>
                 {% if comment.attachments %}
                     <ul>

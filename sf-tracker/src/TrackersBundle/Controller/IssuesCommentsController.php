@@ -154,8 +154,11 @@ class IssuesCommentsController extends Controller
         $notifications = new Notifications();
         $text = $user->getFirstname().' '.$user->getLastname()." is comment issue with content ".$comment;
 
+
+
         // send user create project----
         if($this->getUser()->getId() != $project->getOwnerId()){
+            $notifications = new Notifications();
             $notifications->setUserId($project->getOwnerId());
             $notifications->setIssueId($issue->getId());
             $notifications->setProjectId($project_id);
@@ -169,6 +172,7 @@ class IssuesCommentsController extends Controller
         if(!empty($attachments)){
             foreach($attachments as $attachment){
                 if($this->getUser()->getId() != $attachment->getUserId()){
+                    $notifications = new Notifications();
                     $notifications->setUserId($attachment->getUserId());
                     $notifications->setIssueId($issue->getId());
                     $notifications->setProjectId($project_id);

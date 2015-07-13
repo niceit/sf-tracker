@@ -5,15 +5,20 @@
 {% block Breadcrumb %}
     <h5>Add Projects</h5>
 {% endblock %}
- {% block stylesheets %}
-     <link href="{{ asset('assets/css/bootstrap-fileupload.css') }}" rel="stylesheet" type="text/css" />
- {% endblock %}
-{% block javascripts %}
-    <script type="text/javascript" src="{{ asset('assets/js/bootstrap-fileupload.min.js') }}"></script>
+
+
+{% block javascript_ui %}
+    <script type="text/javascript" src="{{ asset('assets/js/jquery-ui.js') }}"></script>
 {% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ asset('assets/css/bootstrap-theme.min.css') }}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/jquery.picture.cut.js') }}"></script>
+{% endblock %}
+
+
 {% block body %}
-
-
 
     <div class="wrapper">
     {{ form_errors(form)  }}
@@ -39,36 +44,41 @@
                         {{ form_errors(form.name) }}
                         <div class="clear"></div>
                     </div>
+
                     <div class="formRow">
                         <label>Image:</label>
                         <div class="formRight">
-                            <div class="fileupload fileupload-new" data-provides="fileupload">
-                                <div class="fileupload-new img-thumbnail" style="width: 200px; height: 150px;">
-                                    <img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt="" />
-                                </div>
-                                <div class="fileupload-preview fileupload-exists img-thumbnail" style="max-width: 200px; max-height: 150px; line-height: 20px;"></div>
-                                <div>
-                                               <span class="btn btn-default btn-file"><span class="fileupload-new">Select image</span>
-                                               <span class="fileupload-exists">Change</span>
-                                               <input type="file" class="file-input" name="image"/>
-                                               </span>
-                                    <a href="#" class="btn btn-default fileupload-exists" data-dismiss="fileupload">Remove</a>
-                                </div>
-                            </div>
+                               <div id="container_image"></div>
+                               <script >
+                                  $("#container_image").PictureCut({
+                                      InputOfImageDirectory       : "image",
+                                      PluginFolderOnServer        : "/jQuery/",
+                                      FolderOnServer              : "/upload/project/",
+                                      EnableCrop                  : true,
+                                      CropWindowStyle             : "Bootstrap"
+                                  });
+                               </script>
+
                         </div>
                         <div class="clear"></div>
                     </div>
                     <div class="formRow">
                         <label>{{ form_label(form.status) }}</label>
                         <div class="formRight">
+                            <div class="selector">
                                 {{ form_widget(form.status) }}
+                            </div>
+
                             </div>
                         {{ form_errors(form.status) }}
                         <div class="clear"></div>
                     </div>
 
 
-                    <div class="formSubmit"><input type="submit" value="submit" class="redB"></div>
+                    <div class="formSubmit">
+                        <input type="submit" value="Save" class="button blueB">
+                         <div class="clear"></div>
+                    </div>
                     <div class="clear"></div>
                 </div>
             </fieldset>

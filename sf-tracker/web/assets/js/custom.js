@@ -256,9 +256,7 @@ $(function() {
 	
 	//===== User nav dropdown =====//		
 	
-	$('.dd').click(function () {
-		$('.userDropdown').slideToggle(200);
-	});
+
 	$(document).bind('click', function(e) {
 		var $clicked = $(e.target);
 		if (! $clicked.parents().hasClass("dd"))
@@ -392,8 +390,8 @@ $(function() {
 
 
 
-	//===== User nav dropdown =====//		
-	
+	//===== User nav dropdown =====//
+
 	$('.sidedd').click(function () {
 		$('.sideDropdown').slideToggle(200);
 	});
@@ -402,7 +400,7 @@ $(function() {
 		if (! $clicked.parents().hasClass("sidedd"))
 		$(".sideDropdown").slideUp(200);
 	});
-	
+
 	
 	//$('.smalldd').click(function () {
 	//	$('.smallDropdown').slideDown(200);
@@ -750,7 +748,7 @@ $(function() {
 	
 	
 	//===== Spinner options =====//
-	
+	/*
 	var itemList = [
 		{url: "http://ejohn.org", title: "John Resig"},
 		{url: "http://bassistance.de/", title: "J&ouml;rn Zaefferer"},
@@ -798,7 +796,7 @@ $(function() {
 			$('#'+ns[1]).spinner( (ns[2] == 'create') ? opts[ns[1]] : ns[2]);
 	});
 	
-	
+	*/
 	
 	//===== UI dialog =====//
 

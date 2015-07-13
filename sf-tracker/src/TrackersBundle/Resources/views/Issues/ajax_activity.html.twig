@@ -4,7 +4,7 @@
             <div class="newUpdate">
                 <div class="uDone">
                     <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong><b>Created</b></strong> - {{ activity.issue }} </a> was created by <b>{{ activity.users }}</b>
-                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                    <span><i>{{ activity.created|date('Y-m-d') }}</i></span>
                 </div>
                 <div class="clear"></div>
             </div>
@@ -12,7 +12,7 @@
             <div class="newUpdate">
                 <div class="uNotice">
                    <strong><b>Comment</b></strong> "{{ activity.comment | raw }}" {{ activity.users }} on issue -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a>
-                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                    <span><i>{{ activity.created|date('Y-m-d') }}</i></span>
                 </div>
                 <div class="clear"></div>
             </div>
@@ -20,7 +20,7 @@
             <div class="newUpdate">
                 <div class="uAlert">
                     <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title=""><strong><b>Closed</b></strong> </a> {{ activity.issue }} was <b>closed</b> by <b>{{ activity.users }}</b>
-                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                    <span><i>{{ activity.created|date('Y-m-d') }}</i></span>
                 </div>
                 <div class="clear"></div>
             </div>
@@ -28,7 +28,7 @@
             <div class="newUpdate">
                 <div class="uDone">
                     <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}</a> <b>Reopened</b> was created by <b>{{ activity.users }}</b>
-                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                    <span><i>{{ activity.created|date('Y-m-d') }}</i></span>
                 </div>
                 <div class="clear"></div>
             </div>
@@ -36,7 +36,7 @@
             <div class="newUpdate">
                 <div class="uNotice">
                    <strong><b>Reassigned</b></strong> on issue {{ activity.users }} -  <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}  </a>
-                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                    <span><i>{{ activity.created|date('Y-m-d') }}</i></span>
                 </div>
                 <div class="clear"></div>
             </div>
@@ -44,7 +44,7 @@
             <div class="newUpdate complete">
                 <div class="uDone">
                     <a href="{{ path('_project_issues', { 'id': activity.issue_id , 'project_id': activity.project_id }) }}" title="">{{ activity.issue }}</a> <b>Completed</b> was created by <b>{{ activity.users }}</b>
-                    <span><i>{{ activity.created|date('Y-m-d h:i:s') }}</i></span>
+                    <span><i>{{ activity.created|date('Y-m-d') }}</i></span>
                 </div>
                 <div class="clear"></div>
             </div>

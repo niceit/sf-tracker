@@ -4,7 +4,7 @@
         {% for user_project in user_projects %}
         <li class="row_user_{{ user_project.id }}">
             <div class="floatL">
-                {% if user_project.avatar != '' %}
+                {% if user_project.avatar  %}
                     <img style="height: 25px" src="{{ asset(user_project.avatar) }}" alt="">
                 {% else %}
                     <img style="height: 25px" src="{{ asset('assets/images/user.png') }}" alt="">

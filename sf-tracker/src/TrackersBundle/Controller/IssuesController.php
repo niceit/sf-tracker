@@ -299,11 +299,12 @@
                     $repository_attachments = $this->getDoctrine()->getRepository('TrackersBundle:Project_issue_assignments');
                     $attachments = $repository_attachments->findBy(array ('issueId' => $issue->getId()));
                     // notifiaction user attachment
-                    $notifications = new Notifications();
+
                     $text = $user->getFirstname().' '.$user->getLastname()." closed issue ".$project->getName();
 
                     // send user create project----
                     if($this->getUser()->getId() != $project->getOwnerId()){
+                        $notifications = new Notifications();
                         $notifications->setUserId($project->getOwnerId());
                         $notifications->setIssueId($issue->getId());
                         $notifications->setProjectId($project_id);
@@ -317,6 +318,7 @@
                     if(!empty($attachments)){
                         foreach($attachments as $attachment){
                             if($this->getUser()->getId() != $attachment->getUserId()){
+                                $notifications = new Notifications();
                                 $notifications->setUserId($attachment->getUserId());
                                 $notifications->setIssueId($issue->getId());
                                 $notifications->setProjectId($project_id);
@@ -380,11 +382,11 @@
                     $repository_attachments = $this->getDoctrine()->getRepository('TrackersBundle:Project_issue_assignments');
                     $attachments = $repository_attachments->findBy(array ('issueId' => $issue->getId()));
                     // notifiaction user attachment
-                    $notifications = new Notifications();
                     $text = $user->getFirstname().' '.$user->getLastname()."  Reopened issue ".$project->getName();
 
                     // send user create project----
                     if($this->getUser()->getId() != $project->getOwnerId()){
+                        $notifications = new Notifications();
                         $notifications->setUserId($project->getOwnerId());
                         $notifications->setIssueId($issue->getId());
                         $notifications->setProjectId($project_id);
@@ -398,6 +400,7 @@
                     if(!empty($attachments)){
                         foreach($attachments as $attachment){
                             if($this->getUser()->getId() != $attachment->getUserId()){
+                                $notifications = new Notifications();
                                 $notifications->setUserId($attachment->getUserId());
                                 $notifications->setIssueId($issue->getId());
                                 $notifications->setProjectId($project_id);
@@ -435,9 +438,15 @@
 
 
 
+            // users create priect
             $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
             $users = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
             $user = $repository_user->find($users[0]->getId());
+
+            // is avatar
+            if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$user->getAvatar()) ){
+                $is_avatar = true;
+            }else $is_avatar = false;
 
 
             $repository_file = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
@@ -502,31 +511,8 @@
             }
 
 
-            return array ('issue' => $issue, 'project' => $project, 'user' => $user, 'attachments' => $attachments, 'is_ssues' => $is_ssues , 'completes' => $array_date );
+            return array ('issue' => $issue , 'is_avatar' => $is_avatar , 'project' => $project, 'user' => $user, 'attachments' => $attachments, 'is_ssues' => $is_ssues , 'completes' => $array_date );
 
-        }
-
-        public  function total_time($start_date , $end_date){
-            $h = '';
-            $start = $start_date->getTimestamp();
-            $end = $end_date->getTimestamp();
-            if($end > $start)
-            {
-                $s = $end - $start;
-                if($s % (60 *60) ==0 ) {
-                    $h = int($s / (60 * 60)) . "hours";
-                    return $h;
-                }
-                elseif(int($s / (60 *60)) > 0){
-                    $h = int($s / (60 * 60)) . "hours";
-                    $i = (($s / (60 * 60)) - int($s / (60 * 60)) )*60;
-                    $h .= $i." minute";
-                }else{
-                    $i = (($s / (60 * 60)) - int($s / (60 * 60)) )*60;
-                    $h .= $i." minute";
-                }
-            }
-            return $h;
         }
 
         /**
@@ -547,7 +533,7 @@
                 $attachments = $requestData->get('attachments');
                 $form = $requestData->get('form');
                 $date = $requestData->get('date');
-                $time = $requestData->get('time');
+                $time = '0:0:0';//$requestData->get('time');
 
                 $arr_date = explode('-',$date);
                 $arr_time = explode(':',$time);
@@ -615,7 +601,7 @@
 
                     }
                 }
-                $this->get('session')->getFlashBag()->add('notice', 'More successful Issues!');
+                $this->get('session')->getFlashBag()->add('notice', 'Issue is successfully added!');
 
                 return $this->redirectToRoute('_addIssues', array ('id' => $id));
             }
@@ -655,7 +641,7 @@
 
 
                 $date = $requestData->get('date');
-                $time = $requestData->get('time');
+                $time = $time = '0:0:0';// $requestData->get('time');
 
                 $arr_date = explode('-',$date);
                 $arr_time = explode(':',$time);
@@ -721,7 +707,7 @@
                         $em->flush();
                     }
                 }
-                $this->get('session')->getFlashBag()->add('notice', 'More update Issues!');
+                $this->get('session')->getFlashBag()->add('notice', 'Issue is successfully edited!');
             }
 
 
@@ -818,5 +804,35 @@
             echo 0;
             exit;
         }
+
+
+        /**
+         * @Route("/tasks", name="_listtasks")
+         * @Template("TrackersBundle:Issues:listtasks.html.twig")
+         */
+        public function _listtasksAction () {
+
+            $em = $this->container->get('doctrine')->getManager();
+
+            $query = $em->createQuery("SELECT p FROM TrackersBundle:Projects p WHERE  p.owner_id = :user_id OR p.id IN ( SELECT up.projectId FROM TrackersBundle:User_projects up WHERE up.userId = :assigned_to)  ORDER BY p.created DESC ")
+                ->setParameter('user_id', $this->getUser()->getId())
+                ->setParameter('assigned_to', $this->getUser()->getId());
+
+            $projects = $query->getResult();
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+            $array = array();
+
+            foreach($projects as $project){
+                $issues = $repository->findBy(array('projectId' => $project->getId()));
+                $array[] = array(
+                    'id' => $project->getId(),
+                    'name' => $project->getName(),
+                    'issues' => $issues
+                );
+
+            }
+            return array( 'project_issues' => $array );
+        }
+
 
     }

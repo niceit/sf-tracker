@@ -20,10 +20,10 @@
     <div class="wrapper">
         <div class="userNav">
             <ul>
-                <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/mainWebsite.png') }}" alt="" /><span>Main website</span></a></li>
-                <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>Contact admin</span></a></li>
-                <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/messages.png') }}" alt="" /><span>Support</span></a></li>
-                <li><a href="login.html" title=""><img src="{{ asset('assets/images/icons/topnav/settings.png') }}" alt="" /><span>Settings</span></a></li>
+                <li><a href="{{ path('_forgotpassword') }}" title=""><img src="{{ asset('assets/images/icons/topnav/mainWebsite.png') }}" alt="" /><span>Forgot password</span></a></li>
+                <li><a href="{{ path('fos_user_security_login') }}" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>Login</span></a></li>
+                <li><a href="{{ path('_singup') }}" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>Register</span></a></li>
+                <li><a href="#" title=""><img src="{{ asset('assets/images/icons/topnav/profile.png') }}" alt="" /><span>Contact</span></a></li>
             </ul>
         </div>
         <div class="clear"></div>
@@ -40,7 +40,7 @@
 
 <!-- Footer line -->
 <div id="footer">
-    <div class="wrapper">As usually all rights reserved. And as usually brought to you by <a href="http://themeforest.net/user/Kopyov?ref=kopyov" title="">Eugene Kopyov</a></div>
+    <div class="wrapper">Copyright @ 2015 By Advanced Project Trackers Team. All Right Reserved</div>
 </div>
 
 {% block javascripts %}

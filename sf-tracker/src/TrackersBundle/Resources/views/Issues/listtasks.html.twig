@@ -1,0 +1,33 @@
+{% extends '::layoutmain.html.twig' %}
+
+{% block title %}Tasks All Projects{% endblock %}
+
+{% block Breadcrumb %}
+    <h5>Tasks All Projects</h5>
+{% endblock %}
+
+{% block body %}
+    <div class="wrapper">
+
+        <div class="wrapper">
+          <div class="toggle acc">
+            {% for project_issue in project_issues %}
+                <div class="title" style="color: rgb(64, 64, 64);"><img src="{{ asset('assets/images/icons/dark/tags.png') }}" alt="" class="titleIcon"><h6>{{ project_issue.name }}</h6></div>
+                <div class="menu_body" style="display: none; color: rgb(64, 64, 64);">
+                    {% if project_issue.issues %}
+                        <ul class="menu_status">
+                        {% for issue in project_issue.issues %}
+                            <li><span class="status status_{{ issue.getStatus() }}">{{ issue.getStatus() }}</span> <a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': issue.getProjectId() }) }}">{{ issue.getTitle() }}</a></li>
+                        {% endfor %}
+                        </ul>
+                         <div class="clear"></div>
+
+                     {% else %}
+                        <p>No issues..</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+          </div>
+     </div>
+    </div>
+{% endblock %}

@@ -6,6 +6,10 @@
     <h5>Add issues</h5>
 {% endblock %}
 
+{% block assigned_user %}
+    {{ include('TrackersBundle:Components:leftAssign.html.twig', { 'project_id': project_id }) }}
+{% endblock %}
+
 {% block body %}
 
 
@@ -55,7 +59,7 @@
                         <label>Due date</label>
                         <div class="formRight">
                             <input name="date" type="text" value="{{ date }}"  class="datepicker" />
-                            <input name="time" type="text" value="{{ time }}" class="timepicker" size="10" />
+                           <!--<input name="time" type="text" value="{{ time }}" class="timepicker" size="10" />-->
                         </div>
                         <div class="clear"></div>
                     </div>
@@ -73,9 +77,13 @@
                     <div id="uploaders"></div>
                     <div id="arr_file"></div>
 
-                     <a href="{{ path('_detailProjects',{'id': project_id}) }}" title="" class="wButton greenwB ml15 m10"><span>Back project</span></a>
 
-                    <div class="formSubmit"><input type="button" value="submit" id="btn_addissue" class="redB"></div>
+                    <div class="formSubmit">
+                        <a href="{{ path('_detailProjects',{'id': project_id}) }}" title=""  style="float: left" class="button greenB ml15 m10"><span>Back to Project Detail</span></a>
+
+                        <input style="float: right" type="button" value="Save" id="btn_addissue" class="button blueB">
+                     <div class="clear"></div>
+                    </div>
                     <div class="clear"></div>
                 </div>
 
