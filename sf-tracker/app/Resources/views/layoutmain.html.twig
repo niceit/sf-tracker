@@ -149,12 +149,14 @@
 
 
     <div id="menu" class="nav">
+         {% block assigned_user %}
+
+         {% endblock %}
+
         <h5 class="projecth3">Add New Project <a href="{{ path('_addProjects' ) }}" data-url=""  title="" class="smallButton  ajax-request-btn" style="float: right;"><img src="{{ asset('assets/images/icons/color/plus.png') }}" alt=""></a></h5>
              {{ knp_menu_render('TrackersBundle:Builder:mainMenu') }}
 
-        {% block assigned_user %}
 
-        {% endblock %}
 
 
     </div>
@@ -171,7 +173,11 @@
     <!-- Top fixed navigation -->
     <div class="topNav">
         <div class="wrapper">
-            <div class="welcome"><a href="#" title=""><img src="{{ asset('assets/images/userPic.png') }}" alt="" /></a><span>Hello, {{app.user.username}}!</span></div>
+            <div class="welcome"><a href="#" title="">
+                    {{ render(controller(
+                    'TrackersBundle:Dashboard:recentAvatar'
+                    )) }}
+                    </a><span>Hello, {{app.user.username}}! Last login {{app.user.lastLogin | date('Y-m-d H:i:s')}}</span></div>
             <div class="userNav">
                 <ul>
                     {% if is_granted("IS_AUTHENTICATED_REMEMBERED") %}
@@ -252,7 +258,6 @@
 
 
 <div class="clear"></div>
-
 
 
 </body>

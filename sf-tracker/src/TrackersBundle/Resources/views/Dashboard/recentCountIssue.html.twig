@@ -1,0 +1,14 @@
+<div class="project_left">
+    <div class="project_header">
+        <h3>{{ project.getName() }}</h3>
+        <p>Assign users and edit the project</p>
+    </div>
+    <div class="row-issue">
+         <a href="{{ path('_detailProjects', { 'id': project_id , 'tab' : 2 }) }}">Open Issues <span>{{ number_open }}</span></a>
+    </div>
+    <div class="row-issue">
+        <a href="{{ path('_detailProjects', { 'id': project_id , 'tab' : 2 }) }}">Closed Issues <span>{{ number_close }}</span></a>
+    </div>
+</div>
+
+<div class="sidebarSep"></div>

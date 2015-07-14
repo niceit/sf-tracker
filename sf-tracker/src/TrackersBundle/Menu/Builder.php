@@ -34,7 +34,7 @@ class Builder extends Controller
 
 
             foreach($projects as $project){
-                $menu->addChild($project->getName(), array('route' => '_detailProjects',  'routeParameters' => array('id' => $project->getId())))->setAttribute('class','detail-projects ajax-request-btn');
+                $menu->addChild($project->getName(), array('route' => '_detailProjects',  'routeParameters' => array('id' => $project->getId(),'tab' => 1)))->setAttribute('class','detail-projects ajax-request-btn');
             }
             // ... add more children
 

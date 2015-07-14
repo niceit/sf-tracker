@@ -1,10 +1,22 @@
 
-    <ul>
+<div class="project_header" >
+     <h4>Assigned Users</h4>
+    <p style="text-align: center">Users assigned to this project</p>
+</div>
+
+    <div class="content-left-assigned">
+        <ul>
         {% for user_project in user_projects %}
-        <li class="row_user_{{ user_project.id }}">
-           <a href="#" title="">{{ user_project.firstname }} {{ user_project.lastname }}</a>
+            <li class="row_user_{{ user_project.id }}">
+           {{ user_project.firstname }} {{ user_project.lastname }}
             <a class="remove-assigned" href="javascipt:void(0);" onclick="remove_user_assigned({{ user_project.id }})" class="tipS" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
             <div class="clear"></div>
         </li>
         {% endfor %}
     </ul>
+    </div>
+     <input type="text" value="" onchange="change_user(this.value)" class="assigned_user_left" >
+    <div class="content_assigned_user left-assigned-ul">
+    </div>
+
+<div class="sidebarSep"></div>

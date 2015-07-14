@@ -7,6 +7,7 @@
 
   {% block body %}
       <div class="wrapper">
+          {% if project_issues %}
           <div class="toggle acc">
             {% for project_issue in project_issues %}
                 <div class="title" style="color: rgb(64, 64, 64);"><img src="{{ asset('assets/images/icons/dark/tags.png') }}" alt="" class="titleIcon"><h6>{{ project_issue.name }}</h6></div>
@@ -58,7 +59,7 @@
                             {% endif %}
 
                         {% endfor %}
-                        <a href="{{ path('_detailProjects', { 'id': project_issue.id }) }}" style="float: right" > > {{ project_issue.name }}</a>
+                        <a href="{{ path('_detailProjects', { 'id': project_issue.id , 'tab' : 1 }) }}" style="float: right" > > {{ project_issue.name }}</a>
                         <div class="clear"></div>
                      {% else %}
                         <p>No activity..</p>
@@ -69,5 +70,8 @@
                 </div>
             {% endfor %}
           </div>
+          {% else %}
+              <p>No projects...</p>
+          {% endif %}
      </div>
   {% endblock %}

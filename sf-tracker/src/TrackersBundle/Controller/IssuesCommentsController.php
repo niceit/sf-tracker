@@ -258,7 +258,35 @@ class IssuesCommentsController extends Controller
                 'id_update' => $is_update
             );
         }
-        $template =  $this->render('TrackersBundle:Comments:ajax_getcomment.html.twig', array( 'comments' => $arr_comments , 'paginations' => $paginations , 'page' => $page, 'status_issue' => $issue->getStatus()));
+
+
+
+
+        $repository_Closed_Issues = $this->getDoctrine()->getRepository('TrackersBundle:Project_Closed_Issues');
+        $Closed_Issues = $repository_Closed_Issues->findBy(array('userId' => $this->getUser()->getId(), 'issueId' => $issueId ));
+        $array_date = array();
+
+        $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+        foreach($Closed_Issues as $closed){
+            $users = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
+
+            $date1 = $closed->getStartDate();
+            $date2 = $closed->getEndDate();
+            $diff = $date2->diff($date1);
+            if($diff->format('%i') > 0 )
+                $h = $diff->format('%d')*24 + $diff->format('%h')." hours ".$diff->format('%i')." minute";
+            else
+                $h = $diff->format('%d')*24 + $diff->format('%h')." hours ";
+            $array_date[] = array(
+                'full_name' => $users[0]->getFirstname()." ".$users[0]->getLastname(),
+                'start_date' => $closed->getStartDate(),
+                'end_date' => $closed->getEndDate(),
+                'total_time' => $h
+
+            );
+        }
+
+        $template =  $this->render('TrackersBundle:Comments:ajax_getcomment.html.twig', array( 'comments' => $arr_comments , 'paginations' => $paginations , 'page' => $page, 'status_issue' => $issue->getStatus(), 'completes' => $array_date ));
         return new Response($template->getContent());
         exit();
     }

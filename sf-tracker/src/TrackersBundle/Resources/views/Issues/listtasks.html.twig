@@ -17,7 +17,7 @@
                     {% if project_issue.issues %}
                         <ul class="menu_status">
                         {% for issue in project_issue.issues %}
-                            <li><span class="status status_{{ issue.getStatus() }}">{{ issue.getStatus() }}</span> <a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': issue.getProjectId() }) }}">{{ issue.getTitle() }}</a></li>
+                            <li><div  style="padding-right:10px;" class="checker" id="uniform-titleCheck2"><span><input {%  if issue.getStatus() == 'CLOSED'  %} checked="checked" {% endif %}  onclick="closeissue({{ issue.getId() }},{{ project_issue.id }});" value="{{ issue.getId() }}" type="checkbox" id="close_issue{{ issue.getId() }}" name="checkRow" style="opacity:1;"></span></div><span class="status status_{{ issue.getStatus() }}  status_{{ issue.getId() }}">{{ issue.getStatus() }}</span> <a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': issue.getProjectId() }) }}">{{ issue.getTitle() }}</a></li>
                         {% endfor %}
                         </ul>
                          <div class="clear"></div>
@@ -30,4 +30,110 @@
           </div>
      </div>
     </div>
+
+    <div id="dialog-messages" style="display: none" title="Closed issue">
+       <input  id="issue_id" type="hidden"/>
+       <input  id="project_id" type="hidden"/>
+        <div class="formRow">
+            <label>Start date: <span class="req">*</span> </label>
+            <div class="formRight row-date">
+                <input id="start_date" name="start_date" type="text" value=""  class="datepicker" />
+                <input id="start_time" name="start_time" type="text" value="" class="timepicker" size="10" />
+                <span class="error error-start"></span>
+            </div><div class="clear"></div>
+        </div>
+
+        <div class="formRow">
+            <label>End date: <span class="req">*</span> </label>
+            <div class="formRight row-date">
+                <input id="end_date" name="end_date" type="text" value=""  class="datepicker" />
+                <input id="end_time" name="end_time" type="text" value="" class="timepicker" size="10" />
+                <span class="error error-end"></span>
+            </div><div class="clear"></div>
+        </div>
+        <div class="formRow-submit">
+             <a href="javascript:void(0);" onclick="saveclose();" title="" class="button blueB" style="margin: 5px;"><span>OK</span></a>
+            </div>
+
+    </div>
+
+
+
+     <script type="text/javascript">
+         function saveclose(){
+             $('.error').html('');
+             var issue_id = $("#issue_id").val();
+             var project_id = $("#project_id").val();
+             var start_date = $("#start_date").val();
+             var start_time = $("#start_time").val();
+             var end_date = $("#end_date").val();
+             var end_time = $("#end_time").val();
+             if(start_date.length ==0 || start_time.length == 0){
+                 $('.error-start').html('Please enter the start time!');
+                 return false;
+             }
+             if(end_date.length ==0 || end_time.length == 0 ){
+                 $('.error-end').html('Please enter the end time!');
+                 return false;
+             }
+             var confirmBox = confirm('Are you sure you want to close this issue?');
+             if (!confirmBox) return false;
+             $('.loading').show();
+
+             var URL = '{{ path('_ajaxcloseissues') }}';
+             jQuery.ajax({
+                 type: "post",
+                 url : URL,
+                 data:{
+                     'issueId' : issue_id ,
+                     'project_id': project_id ,
+                     'start_date' : start_date,
+                     'start_time' : start_time,
+                     'end_date' : end_date,
+                     'end_time' : end_time
+                 },
+                 dataType : "html",
+                 success : function(data){
+                     $('.status_'+issue_id).html('CLOSED');
+                     $('.status_'+issue_id).css("background","#9F352B")
+                     $('.loading').hide();
+
+                     $( '#dialog-messages' ).dialog( "close" );
+                 }
+             });
+         }
+
+        function closeissue(id,project_id){
+            $("#issue_id").val(id);
+            $("#project_id").val(project_id);
+            var status = '';
+            if($("#close_issue"+id).is(':checked')==true){
+                status = 'CLOSED';
+                $( "#dialog-messages").dialog({modal: true, height: 270, width: 300 });
+                $( "#dialog-messages" ).dialog( "open" );
+            }else{
+                status = 'OPEN';
+                var confirmBox = confirm('Are you sure you want to  reopened this issue?');
+                if (!confirmBox) return false;
+
+                $('.loading').show();
+                var URL = '{{ path('_ajaxopenissues') }}';
+                jQuery.ajax({
+                    type: "post",
+                    url : URL,
+                    data:{'issueId' : id, 'project_id': project_id },
+                    dataType : "html",
+                    success : function(data){
+                        $('.loading').hide();
+                        $('.status_'+id).html('OPEN');
+                        $('.status_'+id).css("background","#0069D6")
+                    }
+
+                });
+            }
+            return false;
+        }
+
+
+    </script>
 {% endblock %}

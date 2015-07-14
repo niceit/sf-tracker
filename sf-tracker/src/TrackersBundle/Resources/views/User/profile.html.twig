@@ -33,17 +33,24 @@
                 <div class="widget from-profile">
                     <div class="title"><img src="{{ asset('assets/images/icons/dark/list.png') }}" alt="" class="titleIcon"><h6>Edit your profile detail</h6></div>
                     <div class="formRow">
-                        <label>First name:<span class="req">*</span></label>
-                        <div class="formRight"><input type="text" value="{{ UserDetail.getFirstname() }}" class="required error" name="account[firstName]" id="firstName">
-                        <span style="color: red" class="error-first_name"></span>
-                        </div><div class="clear"></div>
+                        <div class="oneTwo">
+                            <label>First name:<span class="req">*</span></label>
+                            <div class="formRight"><input type="text" value="{{ UserDetail.getFirstname() }}" class="required error" name="account[firstName]" id="firstName">
+                            <span style="color: red" class="error-first_name"></span>
+                            </div>
+                        </div>
+                        <div class="oneTwo">
+                             <label>Last name:<span class="req">*</span></label>
+                            <div class="formRight"><input type="text" value="{{ UserDetail.getLastname() }}" class="required error" name="account[lastName]" id="lastName">
+                            <span style="color: red" class="error-last_name"></span>
+                            </div><div class="clear"></div>
+                        </div>
+
+                        <div class="clear"></div>
+
+
                     </div>
-                    <div class="formRow">
-                        <label>Last name:<span class="req">*</span></label>
-                        <div class="formRight"><input type="text" value="{{ UserDetail.getLastname() }}" class="required error" name="account[lastName]" id="lastName">
-                        <span style="color: red" class="error-last_name"></span>
-                        </div><div class="clear"></div>
-                    </div>
+
                     <div class="formRow">
                         <label>Avatar:</label>
                         <div class="formRight">
@@ -85,17 +92,17 @@
 
                      <div class="formRow">
                         <label>Street 2:</label>
-                        <div class="formRight"><input type="text" value="{{ UserDetail.getStreet2() }}" class=" error" name="account[street_2]" id="street_2">
+                        <div class="formRight"><input  type="text" value="{{ UserDetail.getStreet2() }}" class=" error" name="account[street_2]" id="street_2">
                         </div><div class="clear"></div>
                     </div>
                     <div class="formRow">
                         <label>State :</label>
-                        <div class="formRight"><input type="text" value="{{ UserDetail.getState() }}" class="error" name="account[state]" id="state">
+                        <div class="formRight"><input style="width: 200px"  type="text" value="{{ UserDetail.getState() }}" class="error" name="account[state]" id="state">
                         </div><div class="clear"></div>
                     </div>
                      <div class="formRow">
                         <label>Phone :</label>
-                        <div class="formRight"><input type="text" value="{{ UserDetail.getPhone() }}" class="error" name="account[phone]" id="phone">
+                        <div class="formRight"><input style="width: 200px" type="text" value="{{ UserDetail.getPhone() }}" class="error" name="account[phone]" id="phone">
                         </div><div class="clear"></div>
                     </div>
 
@@ -124,13 +131,13 @@
 
                     <div class="formRow">
                         <label>Password:<span class="req">*</span></label>
-                        <div class="formRight"><input type="password" class=" error" name="account[password]" id="password">
+                        <div class="formRight"><input style="width: 200px"  type="password" class=" error" name="account[password]" id="password">
                         </div>
                         <div class="clear"></div>
                     </div>
                     <div class="formRow">
                         <label>Confirmation password:<span class="req">*</span></label>
-                        <div class="formRight"><input type="password" class=" error" name="account[repeatPassword]" id="repeatPassword">
+                        <div class="formRight"><input style="width: 200px"  type="password" class=" error" name="account[repeatPassword]" id="repeatPassword">
 
                         <span style="color: red" class="red error-repeatPassword"></span>
                         </div>
@@ -140,7 +147,7 @@
 
                     <div class="formRow">
                         <label>Email:<span class="req">*</span></label>
-                        <div class="formRight"><input type="text" value="{{ users.getEmail() }}" class="required error" name="account[email]" id="email">
+                        <div class="formRight"><input type="text" style="width: 200px"  value="{{ users.getEmail() }}" class="required error" name="account[email]" id="email">
                         </div><div class="clear"></div>
                     </div>
                     <div style="width: 40%" class="formSubmit"><input id="button-addUser" type="button" value="Update" class="button blueB">

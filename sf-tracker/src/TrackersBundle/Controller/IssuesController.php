@@ -189,19 +189,37 @@
             $requestData = $this->getRequest()->request;
             $page = $requestData->get('page');
             $project_id = $requestData->get('project_id');
-            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+
+            // get uer_id project assign
+            $em = $this->container->get('doctrine')->getManager();
+            $query = $em->createQuery("SELECT p FROM TrackersBundle:Project_issues p , TrackersBundle:Project_issue_assignments pm  WHERE  p.projectId =:projectId AND  p.id = pm.issueId AND pm.userId =:userId   ORDER BY p.created DESC ")
+                ->setParameter('projectId', $project_id)
+                ->setParameter('userId', $this->getUser()->getId());
+            $project_issues = $query->getResult();
+
             $limit = $this->container->getParameter('limit_open_issues');
             $offset = $page * $limit;
 
-            $total = (int)(count($repository->findBy(array ('projectId' => $project_id,  'assignedTo' => $this->getUser()->getId()))) / $limit);
-            $count = count($repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN', 'assignedTo' => $this->getUser()->getId()))) / $limit;
+
+
+            $total = (int)(count($project_issues) / $limit);
+            $count = count($project_issues) / $limit;
             if($count > $limit &&  $count  % $limit != 0){
                 $total = $total + 1;
             }
 
             $pagination = new Pagination();
             $paginations = $pagination->render($page, $total, 'load_assigned');
-            $issues = $repository->findBy(array ('projectId' => $project_id,'assignedTo' => $this->getUser()->getId() ), array ('created' => 'DESC'), $limit, $offset);
+
+            $query = $em->createQuery("SELECT p FROM TrackersBundle:Project_issues p , TrackersBundle:Project_issue_assignments pm  WHERE p.projectId =:projectId AND p.id = pm.issueId AND pm.userId =:userId   ORDER BY p.created DESC ")
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
+                ->setParameter('projectId', $project_id)
+                ->setParameter('userId', $this->getUser()->getId());
+            $issues = $query->getResult();
+
+          
+
             $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
             $arr = array ();
             foreach ($issues as $issue) {
@@ -351,6 +369,7 @@
                 $requestData = $this->getRequest()->request;
                 $issueId = $requestData->get('issueId');
                 $project_id = $requestData->get('project_id');
+
                 $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
                 $issue = $repository->find($issueId);
                 $issue->setStatus('OPEN');
@@ -444,8 +463,10 @@
             $user = $repository_user->find($users[0]->getId());
 
             // is avatar
-            if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$user->getAvatar()) ){
-                $is_avatar = true;
+            if($user->getAvatar()!='' && !empty($user)){
+                if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$user->getAvatar()) ) {
+                    $is_avatar = true;
+                }else $is_avatar = false;
             }else $is_avatar = false;
 
 

@@ -33,6 +33,7 @@ security:
         - { path: ^/registers, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/signup, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/contact, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/isusername, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/isemail, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/registersubmit, role: IS_AUTHENTICATED_ANONYMOUSLY }

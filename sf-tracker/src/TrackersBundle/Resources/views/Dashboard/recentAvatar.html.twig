@@ -1,0 +1,7 @@
+{% if is_avatar %}
+    <img style="height: 17px" src="{{ asset(avatar) }}" alt="" />
+{% else %}
+    <img src="{{ asset('assets/images/userPic.png') }}" alt="" />
+{% endif %}
+
+

@@ -3,8 +3,9 @@
 {% block title %}Projects Issues{% endblock %}
 
 {% block Breadcrumb %}
-    <h5>{{ issue.getTitle() }}</h5>
-    <span>On Project <a href="{{ path('_detailProjects', { 'id': project.getId() }) }}">{{ project.getName() }}</a></span>
+    <span class="title">{{ issue.getTitle() }} {% if is_ssues %} <a  href="{{ path('_editIssues', { 'id': issue.getId() , 'project_id': project.getId() }) }}" title="" class="smallButton edit-issue" style="margin: 5px;"><img src="{{ asset('assets/images/icons/color/pencil.png') }}" alt=""></a>{% endif  %}</span>
+    <br/>
+    <span>On Project <a href="{{ path('_detailProjects', { 'id': project.getId() , 'tab' : 2 }) }}">{{ project.getName() }}</a></span>
 {% endblock %}
 
 {% block assigned_user %}
@@ -19,43 +20,45 @@
 
 
     <div class="wrapper">
-
-        <div class="widget">
-
-            {% if is_ssues %}
-                <div style="text-align: right">
+         {% if is_ssues %}
+             <div style="text-align: right">
                     <a id="opener" {% if issue.getStatus() == 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);"  title="" class="button greenB close_issue  " style="margin: 5px;"><span> Close Issue</span></a>
 
                     <a {% if issue.getStatus() != 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);" onclick="fc_open()" title="" class="button greenB open_issue" style="margin: 5px;"><span> Reopened </span></a>
                 </div>
-            {% endif %}
+         {% endif %}
+        <div class="widget">
+
+
 
 
             <ul id="partners" class="partners">
                 <li>
-                    <a href="#" title="" class="floatL"><img height="30px" src="{% if is_avatar == false %} {{ asset('assets/images/user.png') }} {% else %} {{ asset(user.getAvatar()) }}  {% endif %}" alt=""></a>
+                    <a href="#" title="" class="floatL"><img height="50px" src="{% if is_avatar == false %} {{ asset('assets/images/user.png') }} {% else %} {{ asset(user.getAvatar()) }}  {% endif %}" alt=""></a>
                     <div class="pInfo">
-                        <a href="#" title=""><strong> {{ user.getFirstname() }} {{ user.getLastname() }} opened this issue </strong> {{ issue.getCreated() |date('Y-m-d') }}</a>
+                        <a href="#" title=""><strong> {{ user.getFirstname() }} {{ user.getLastname() }} opened this issue </strong> </a>
+                       <br/> <span>{{ issue.getCreated() |date('Y-m-d') }}</span>
+
+                    </div>
+                    <div class="clear"></div>
+                    <div>
                         <i>{{ issue.getDescription()| raw }}</i>'
                         {% if attachments %}
                         <p>
                             <ul>
                             {% for attach in attachments %}
-                                <li><a href="{{ path('download_file', { 'id': attach.getId  }) }}">{{ attach.getFilename }}</a> - {{ attach.getFilesize | number_format }} kb</li>
-                            {% endfor %}
+                            <li><a href="{{ path('download_file', { 'id': attach.getId  }) }}">{{ attach.getFilename }}</a> - {{ attach.getFilesize | number_format }} kb</li>
+                        {% endfor %}
                             </ul>
                         </p>
                         {% endif %}
                     </div>
-                    <div class="clear"></div>
                 </li>
             </ul>
             <div id="comment_content">
 
             </div>
-            {% for complete in completes %}
-                <p><b>{{ complete.full_name }}</b> start <b>from</b> {{ complete.start_date | date('Y-m-y h:i:s') }} <b>to</b> {{ complete.end_date | date('Y-m-y h:i:s') }} : <b>{{ complete.total_time }}</b></p>
-            {% endfor %}
+
 
         </div>
 
@@ -205,11 +208,12 @@
                     $('.open_issue').hide();
                     $('.loading').hide();
                 }
+
             });
         }
         function loadcomments(page){
             $('.loading').show();
-            $("#comment_content").append("<img style='margin:0 auto;' src='{{ asset('assets/images/loaders/loader5.gif') }}'>");
+            $("#comment_content").append("<div style='width:100%; text-align:center;'><img  src='{{ asset('assets/images/loaders/loader5.gif') }}'></div>");
             var URL = '{{ path('_ajaxgetcomment') }}';
             jQuery.ajax({
                 type: "post",
@@ -308,6 +312,7 @@
                         },
                         dataType: "json",
                         success: function (data) {
+                            $('#arr_file').html('');
                             load_fileloader();
                             $('#editor').cleditor()[0].clear();
                             $('.message').html('<div class="nNote nSuccess hideit"> <p><strong>SUCCESS: </strong>Success comment!</p>  </div>');

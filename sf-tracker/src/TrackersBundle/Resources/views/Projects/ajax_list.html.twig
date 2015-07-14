@@ -1,6 +1,6 @@
 {% for project in projects %}
     <tr class="row-{{ project.id }}">
-        <td><a href="{{ path('_detailProjects', { 'id': project.id }) }}">{{ project.name }}</a></td>
+        <td><a href="{{ path('_detailProjects', { 'id': project.id , 'tab' : 1 }) }}">{{ project.name }}</a></td>
         <td align="center" style="border-left-color: rgb(203, 203, 203);"><img src="http://{{ app.request.getHost()}}/upload/{{  project.image }}" height="20" alt=""></td>
         <td align="center">{% if project.status == 1  %}
                 Open

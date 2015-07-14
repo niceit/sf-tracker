@@ -5,9 +5,9 @@
 {% block Breadcrumb %}
     <div class="left-top">
         {% if is_image %}
-            <img style="width:100px" src="{{ asset(project.getImage()) }}"/>
+            <img style="height:36px" src="{{ asset(project.getImage()) }}"/>
         {% else %}
-            <img src="{{ asset('assets/images/Project.png') }}"/>
+            <img style="width:36px" src="{{ asset('assets/images/icons/control/32/order-149.png') }}"/>
         {% endif %}
     </div>
     <div class="left-top">
@@ -36,10 +36,10 @@
     <div class="wrapper">
         <div class="widget">
             <ul class="tabs">
-                <li class="activeTab"><a href="#tab1"><span class="number_activity">{{ number_activity }}</span> Activity</a></li>
-                <li class=""><a href="#tab2"><span class="number_open">{{ number_open }}</span> Open Issues</a></li>
-                <li class=""><a href="#tab3"><span class="number_close">{{ number_close }}</span> Closed Issues</a></li>
-                <li class=""><a href="#tab4"><span class="number_assigned">{{ number_assigned }}</span> Issues Assigned To You</a></li>
+                <li class="li-tab1"><a href="#tab1"><span class="number_activity">{{ number_activity }}</span> Activity</a></li>
+                <li class="li-tab2"><a href="#tab2"><span class="number_open">{{ number_open }}</span> Open Issues</a></li>
+                <li class="li-tab3"><a href="#tab3"><span class="number_close">{{ number_close }}</span> Closed Issues</a></li>
+                <li class="li-tab4"><a href="#tab4"><span class="number_assigned">{{ number_assigned }}</span> Issues Assigned To You</a></li>
             </ul>
 
             <div class="tab_container">
@@ -89,7 +89,31 @@
 
     <script type="text/javascript" >
         var project_id = {{ id }};
+        var tab = {{ tab }};
+
         $(function(){
+            //===== Tabs =====//
+
+            $.fn.contentTabs = function(){
+
+                $(this).find(".tab_content").hide(); //Hide all content
+                $(this).find("ul.tabs .li-tab"+tab).addClass("activeTab").show(); //Activate first tab
+                $(this).find("#tab"+tab).show(); //Show first tab content
+
+                $("ul.tabs li").click(function() {
+                    $(this).parent().parent().find("ul.tabs li").removeClass("activeTab"); //Remove any "active" class
+                    $(this).addClass("activeTab"); //Add "active" class to selected tab
+                    $(this).parent().parent().find(".tab_content").hide(); //Hide all tab content
+                    var activeTab = $(this).find("a").attr("href"); //Find the rel attribute value to identify the active tab + content
+                    $(activeTab).show(); //Fade in the active content
+                    return false;
+                });
+
+            };
+            $("div[class^='widget']").contentTabs(); //Run function on any div with class name of "Content Tabs"
+
+
+
             load_activity(0);
             load_open(0);
             load_close(0);

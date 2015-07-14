@@ -29,10 +29,10 @@ class ProjectsController extends Controller
         return array();
     }
     /**
-     * @Route("/project/{id}", name="_detailProjects")
+     * @Route("/project/{id}/{tab}", name="_detailProjects")
      * @Template("TrackersBundle:Projects:show.html.twig")
      */
-    public function showAction($id)
+    public function showAction($id,$tab)
     {
 
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
@@ -42,9 +42,11 @@ class ProjectsController extends Controller
             $is_add = true;
         }else $is_add = false;
 
-
-        if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$project->getImage()) ){
+        if(!empty($project) && $project->getImage() != '' ){
+        if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$project->getImage()) ) {
             $is_image = true;
+        }
+            else $is_image = false;
         }else $is_image = false;
 
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Users_activity');
@@ -54,8 +56,14 @@ class ProjectsController extends Controller
         $number_open = count($repository->findBy(array ('projectId' => $id, 'status' => 'OPEN')));
 
         $number_close = count($repository->findBy(array ('projectId' => $id, 'status' => 'CLOSED')));
-        $number_assigned = count($repository->findBy(array ('projectId' => $id, 'assignedTo' => $this->getUser()->getId())));
-        return array('id'=>$id, 'is_image' => $is_image, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned, 'project' => $project , 'is_add' => $is_add );
+       // $number_assigned = count($repository->findBy(array ('projectId' => $id, 'assignedTo' => $this->getUser()->getId())));
+        $em = $this->container->get('doctrine')->getManager();
+        $query = $em->createQuery("SELECT p FROM TrackersBundle:Project_issues p , TrackersBundle:Project_issue_assignments pm  WHERE  p.projectId =:projectId AND  p.id = pm.issueId AND pm.userId =:userId   ORDER BY p.created DESC ")
+            ->setParameter('projectId', $id)
+            ->setParameter('userId', $this->getUser()->getId());
+        $project_issues = $query->getResult();
+        $number_assigned = count($project_issues);
+        return array('id'=>$id, 'is_image' => $is_image, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned'=>$number_assigned, 'project' => $project , 'is_add' => $is_add , 'tab' => $tab);
     }
 
     /**
@@ -141,11 +149,17 @@ class ProjectsController extends Controller
      */
     public function add_user_projectAction()
     {
+
         $requestData = $this->getRequest()->request;
         $project_id = $requestData->get('project_id');
         $user_id = $requestData->get('user_id');
         $full_name = $requestData->get('full_name');
 
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:User_projects');
+        $user_project = $repository->findBy(array('projectId' => $project_id , 'userId' => $user_id));
+        if(!empty($user_project)){
+            die();
+        }
         $user_projects = new User_projects();
         $user_projects->setProjectId($project_id);
         $user_projects->setUserId($user_id);
@@ -154,14 +168,14 @@ class ProjectsController extends Controller
         $em->persist($user_projects);
         $em->flush();
 
-        echo json_encode(array('user_id'=> $user_id , 'full_name' => $full_name));
+        echo json_encode(array('user_id'=> $user_id, 'project_user_id' => $user_projects->getId() , 'full_name' => $full_name));
         die();
 
     }
 
 
     /**
-     * @Route("/project/edit/{id}", name="_editProjects")
+     * @Route("/pro/edit/{id}", name="_editProjects")
      * @Template("TrackersBundle:Projects:edit.html.twig")
      */
     public function editAction($id,Request $request)
@@ -207,7 +221,7 @@ class ProjectsController extends Controller
             $is_image = true;
         }else $is_image = false;
 
-        return array('form' => $form->createView(),'err'=>$arr_err,'image_old'=>$project_id->getImage(), 'id' => $id, 'is_image' => $is_image);
+        return array('form' => $form->createView(),'title' => $project->getName(),'err'=>$arr_err,'image_old'=>$project_id->getImage(), 'id' => $id, 'is_image' => $is_image);
     }
 
     /**
@@ -241,14 +255,14 @@ class ProjectsController extends Controller
             );
         }
 
-        $template = $this->render('TrackersBundle:Projects:ajax_assigned_user.html.twig', array( 'user_projects' => $entities  ));
+        $template = $this->render('TrackersBundle:Projects:ajax_assigned_user.html.twig', array( 'user_projects' => $array  ));
         return new Response($template->getContent());
         die();
     }
 
 
     /**
-     * @Route("/project/delete/{id}", name="_deleteProjects")
+     * @Route("/pro/delete/{id}", name="_deleteProjects")
      */
     public function deleteAction($id)
     {
@@ -257,6 +271,8 @@ class ProjectsController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->remove($project);
         $em->flush();
+
+        return $this->redirectToRoute('_home');
 
     }
     /**
@@ -320,13 +336,25 @@ class ProjectsController extends Controller
     {
         $requestData = $this->getRequest()->request;
         $project_id = $requestData->get('project_id');
+
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
+        $project = $repository->find($project_id);
+        if($project->getOwnerId() != $this->getUser()->getId()){
+            die();
+        }
+
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+        $number_open = count($repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN')));
+
+        $number_close = count($repository->findBy(array ('projectId' => $project_id, 'status' => 'CLOSED')));
+
         $em = $this->getDoctrine()->getEntityManager();
 
         $query = $em->createQuery("SELECT n.firstname , n.lastname , u.id, n.avatar FROM TrackersBundle:UserDetail n, TrackersBundle:User_projects u WHERE  u.userId = n.user_id AND u.projectId = :project_id")
             ->setParameter('project_id', $project_id);
 
         $entities = $query->getResult();
-        $template = $this->render('TrackersBundle:Projects:ajax_left_assigned_user.html.twig', array( 'user_projects' => $entities  ));
+        $template = $this->render('TrackersBundle:Projects:ajax_left_assigned_user.html.twig', array( 'user_projects' => $entities , 'number_open' => $number_open ,'number_close' => $number_close , 'project_id' => $project_id ));
         return new Response($template->getContent());
         die();
     }

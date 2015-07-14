@@ -36,6 +36,9 @@
     </div>
 {% endif %}
 
+ {% for complete in completes %}
+     <p class="close-p"><b>{{ complete.full_name }}</b> start <b>from</b> {{ complete.start_date | date('Y-m-y h:i:s') }} <b>to</b> {{ complete.end_date | date('Y-m-y h:i:s') }} : <b>{{ complete.total_time }}</b></p>
+ {% endfor %}
 
 <script>
     $(function(){

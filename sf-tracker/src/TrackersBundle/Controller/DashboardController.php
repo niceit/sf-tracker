@@ -143,6 +143,51 @@ class DashboardController extends Controller
         die();
     }
 
+    /**
+     * @Route("/recentAvatar", name="_recentAvatar")
+     */
+    public function recentAvatarAction()
+    {
+
+        $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
+
+        $users = $repository_user->findBy(array ('user_id' => $this->getUser()->getId()));
+
+
+       if(!empty($users) && $users[0]->getAvatar() != '' ){
+           if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$users[0]->getAvatar()) ){
+               $is_avatar = true;
+           }else $is_avatar = false;
+       }else $is_avatar = false;
+
+
+            return $this->render(
+            'TrackersBundle:Dashboard:recentAvatar.html.twig',
+            array('avatar' => $users[0]->getAvatar() , 'is_avatar' => $is_avatar)
+        );
+    }
+
+    /**
+     * @Route("/recentCountIssue/{id}", name="_recentCountIssue")
+     */
+    public function recentCountIssueAction($id)
+    {
+
+        $repository_Projects = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
+        $project = $repository_Projects->find($id);
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
+        $number_open = count($repository->findBy(array ('projectId' => $id, 'status' => 'OPEN')));
+
+        $number_close = count($repository->findBy(array ('projectId' => $id, 'status' => 'CLOSED')));
+
+
+
+        return $this->render(
+            'TrackersBundle:Dashboard:recentCountIssue.html.twig',
+            array('project' => $project, 'number_open' => $number_open , 'number_close' => $number_close , 'project_id' => $id )
+        );
+    }
+
 
 
 }

@@ -1,11 +1,11 @@
+
+
+{{ render(controller(
+'TrackersBundle:Dashboard:recentCountIssue',
+{ 'id':  project_id }
+)) }}
+
 <div class="left-assigned">
-    <h4>Assigned Users</h4>
-    <p>Users assigned to this project</p>
-    <div class="content-left-assigned">
-    </div>
-     <input type="text" value="" onchange="change_user(this.value)" class="assigned_user_left" >
-    <div class="content_assigned_user left-assigned-ul">
-    </div>
 </div>
 <script type="text/javascript">
     $(function(){
@@ -16,7 +16,7 @@
             data:{'project_id' : {{ project_id }} },
             dataType : "html",
             success : function(data){
-             $('.content-left-assigned').html(data);
+             $('.left-assigned').html(data);
             }
         });
     });
@@ -67,7 +67,7 @@
             dataType : "json",
             success : function(data){
                 $('.row-'+data['user_id']).hide();
-                $('.content-left-assigned ul').append('<li class="row_user_'+data['user_id']+'"> <a href="#" title="">'+data['full_name']+'</a> <a class="remove-assigned" href="javascipt:void(0);" onclick="remove_user_assigned('+data['user_id']+')" original-title="Remove"><img src="/assets/images/icons/remove.png" alt=""></a> <div class="clear"></div> </li>');
+                $('.content-left-assigned ul').append('<li class="row_user_'+data['project_user_id']+'"> <a href="#" title="">'+data['full_name']+'</a> <a class="remove-assigned" href="javascipt:void(0);" onclick="remove_user_assigned('+data['project_user_id']+')" original-title="Remove"><img src="/assets/images/icons/remove.png" alt=""></a> <div class="clear"></div> </li>');
             }
         });
     }

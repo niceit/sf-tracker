@@ -125,7 +125,7 @@
 
 
 
-                $('.send-loading').show();
+
                 $('.error').html('');
                 change_username();
                 onchange_email();
@@ -141,7 +141,7 @@
                     $('.is-email').html('Please enter a valid email address');
                     return false;
                 }
-
+                $('.send-loading').show();
                 $.ajax({
                     type: "post",
                     url : URL,

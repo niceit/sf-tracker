@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RegisterController extends Controller
 {
-
     /**
      * @Route("/signup", name="_singup")
      * @Template("TrackersBundle:Registration:register.html.twig")
