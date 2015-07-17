@@ -127,12 +127,15 @@
             else
                 $is_close = false;
 
+
+            $now = date('Y-m-d');
+            $endtime = '';
+            $tomorrow =  '';
             foreach ($issues as $issue) {
                 $user = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
-                $endtime = $issue->getEndTime()->format('Y-m-d');
-                $now = date('Y-m-d');
-                $tomorrow = date('Y-m-d',strtotime('+1 day'));
 
+                $endtime = $issue->getEndTime()->format('Y-m-d');
+                $tomorrow = date('Y-m-d',strtotime('+1 day'));
                 $arr[] = array (
                     'id' => $issue->getId(),
                     'title' => $issue->getTitle(),

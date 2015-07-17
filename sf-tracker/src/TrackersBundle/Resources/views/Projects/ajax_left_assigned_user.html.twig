@@ -8,15 +8,19 @@
         <ul>
         {% for user_project in user_projects %}
             <li class="row_user_{{ user_project.id }}">
-           {{ user_project.firstname }} {{ user_project.lastname }}
-            <a class="remove-assigned" href="javascipt:void(0);" onclick="remove_user_assigned({{ user_project.id }})" class="tipS" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
+           <label>{{ user_project.firstname }} {{ user_project.lastname }}</label>
+            <a  class="remove-assigned" href="javascipt:void(0);" onclick="remove_user_assigned({{ user_project.id }})" class="tipS" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
             <div class="clear"></div>
         </li>
         {% endfor %}
     </ul>
     </div>
-     <input type="text" value="" onchange="change_user(this.value)" class="assigned_user_left" >
-    <div class="content_assigned_user left-assigned-ul">
+
+    <div style="position: relative;  text-align: center;">
+        <input  type="text" value="" onchange="change_user(this.value)" class="assigned_user_left" >
+        <div class="content_assigned_user left-assigned-ul">
+        </div>
     </div>
+
 
 <div class="sidebarSep"></div>

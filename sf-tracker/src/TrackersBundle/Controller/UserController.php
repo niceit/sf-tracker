@@ -94,8 +94,10 @@ class UserController extends Controller
         if(!empty($entities)){
             $html = '<ul>';
             foreach($entities as $entitie){
-                $full_name = "'".$entitie['firstname'].' '. $entitie['lastname']."'";
-                $html .= '<li class="row-'.$entitie['id'].'"><a onclick="fcadd_user('.$entitie['id'].', '.$full_name.');" href="javascript:void(0);">'.$entitie['firstname'].' '. $entitie['lastname'].'</a></li>';
+                $repository = $this->getDoctrine()->getRepository('TrackersBundle:User');
+                $user = $repository->find($entitie['id']);
+                $full_name = "' ".$user->getUsername()." - ".$entitie['firstname'].' '. $entitie['lastname']."'";
+                $html .= '<li class="row-'.$entitie['id'].'"><a onclick="fcadd_user('.$entitie['id'].', '.$full_name.');" href="javascript:void(0);">'.$user->getUsername().' - '.$entitie['firstname'].' '. $entitie['lastname'].'</a></li>';
             }
             $html .= '</ul>';
         }

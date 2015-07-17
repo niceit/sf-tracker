@@ -1,6 +1,6 @@
 {% extends '::layoutmain.html.twig' %}
 
-{% block title %}Issuse{% endblock %}
+{% block title %}{{ project.getName }}{% endblock %}
 
 {% block Breadcrumb %}
     <div class="left-top">
@@ -13,12 +13,21 @@
     <div class="left-top">
         <h5>{{ project.getName }}</h5>
         Date created: <i>{{ project.getCreated() | date('Y-m-d') }}</i>
+        <div>
+            {{ project.getDescription | raw}}
+        </div>
     </div>
     <div class="clear"></div>
 
 {% endblock %}
 
 {% block body %}
+
+    <style>
+        .ui-dialog-titlebar-close{
+            display: none;
+        }
+    </style>
 
     {% if is_add %}
         <div class="wrapper">
@@ -73,7 +82,7 @@
             <div class="widget">
                 <div class="title"><img src="{{ asset('assets/images/icons/dark/transfer.png') }}" alt="" class="titleIcon"><h6>Assigned user</h6>
                     <div class="div_assigned" >
-                        <input type="text" value="" onchange="changeuser(this.value)" class="assigned_user" >
+                        <input type="text" value="" id="assign_users" class="assigned_user" >
                         <div id="content_assigned_user">
                         </div>
                     </div>
@@ -83,6 +92,37 @@
                 </div>
             </div>
         {% endif %}
+
+
+        <div id="dialog-messages" style="display: none" title="Closed issue">
+       <input  id="issue_id" type="hidden"/>
+       <input  id="project_id" type="hidden"/>
+        <div class="formRow">
+            <label>Start date: <span class="req">*</span> </label>
+            <div class="formRight row-date">
+                <input id="start_date" name="start_date" type="text" value=""  class="datepicker" />
+                <input id="start_time" name="start_time" type="text" value="" class="timepicker" size="10" />
+                <span class="error error-start"></span>
+            </div><div class="clear"></div>
+        </div>
+
+        <div class="formRow">
+            <label>End date: <span class="req">*</span> </label>
+            <div class="formRight row-date">
+                <input id="end_date" name="end_date" type="text" value=""  class="datepicker" />
+                <input id="end_time" name="end_time" type="text" value="" class="timepicker" size="10" />
+                <span class="error error-end"></span>
+            </div><div class="clear"></div>
+        </div>
+        <div class="formRow-submit">
+             <a href="javascript:void(0);" onclick="saveclose_n();" title="" class="button blueB" style="margin: 5px;"><span>OK</span></a>
+
+              <a  href="javascript:void(0);" onclick="exit()" title="" class="button redB ml15 m10"><span>Close</span></a>
+
+
+        </div>
+
+    </div>
 
 
     </div>
@@ -169,6 +209,14 @@
                 }
             });
         }
+
+        $(function(){
+            $('#assign_users').keydown(function(){
+                changeuser(this.value);
+            });
+        });
+
+
         function changeuser(user_name){
             var URL = '{{ path('_ajaxSearch_user') }}';
             jQuery.ajax({
@@ -287,6 +335,89 @@
                 }
             });
         }
+
+        function saveclose_n(){
+            $('.error').html('');
+            var issue_id = $("#issue_id").val();
+            var project_id = $("#project_id").val();
+            var start_date = $("#start_date").val();
+            var start_time = $("#start_time").val();
+            var end_date = $("#end_date").val();
+            var end_time = $("#end_time").val();
+            if(start_date.length ==0 || start_time.length == 0){
+                $('.error-start').html('Please enter the start time!');
+                return false;
+            }
+            if(end_date.length ==0 || end_time.length == 0 ){
+                $('.error-end').html('Please enter the end time!');
+                return false;
+            }
+            var confirmBox = confirm('Are you sure you want to close this issue?');
+            if (!confirmBox) return false;
+            $('.loading').show();
+
+            var URL = '{{ path('_ajaxcloseissues') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{
+                    'issueId' : issue_id ,
+                    'project_id': project_id ,
+                    'start_date' : start_date,
+                    'start_time' : start_time,
+                    'end_date' : end_date,
+                    'end_time' : end_time
+                },
+                dataType : "html",
+                success : function(data){
+                    $(".row-"+issue_id+" td").css('text-decoration','line-through');
+                    $('.loading').hide();
+
+                    $( '#dialog-messages' ).dialog( "close" );
+                }
+            });
+        }
+
+        function closeissue_n(id,project_id){
+            $("#issue_id").val(id);
+            $("#project_id").val(project_id);
+
+
+
+
+            var status = '';
+            if($("#close_issue"+id).is(':checked')==true){
+                status = 'CLOSED';
+                $( "#dialog-messages").dialog({modal: true, height: 270, width: 300 });
+                $( "#dialog-messages" ).dialog( "open" );
+            }else{
+                status = 'OPEN';
+
+                var confirmBox = confirm('Are you sure you want to  reopened this issue?');
+                if (!confirmBox) return false;
+
+                $('.loading').show();
+                var URL = '{{ path('_ajaxopenissues') }}';
+                jQuery.ajax({
+                    type: "post",
+                    url : URL,
+                    data:{'issueId' : id, 'project_id': project_id },
+                    dataType : "html",
+                    success : function(data){
+                        $('.loading').hide();
+                        $(".row-"+id+" td").css('text-decoration','none');
+                    }
+
+                });
+            }
+            return false;
+        }
+        function exit(){
+            var id = $("#issue_id").val();
+            $("#close_issue"+id).attr('checked', false);
+            $( '#dialog-messages' ).dialog( "close" );
+        }
+
     </script>
 
 {% endblock %}

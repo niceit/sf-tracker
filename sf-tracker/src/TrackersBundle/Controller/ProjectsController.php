@@ -119,8 +119,11 @@ class ProjectsController extends Controller
             $requestData = $this->getRequest()->request;
                 $form = $requestData->get('form');
                 $image = $requestData->get('image');
+                $check_user = $requestData->get('check_user');
+
 
                 $project->setName($form['name']);
+                $project->setDescription($form['description']);
                 $project->setImage($image);
                 $project->setStatus($form['status']);
                 $project->setOwnerId($this->getUser()->getId());
@@ -130,11 +133,23 @@ class ProjectsController extends Controller
                 $em->persist($project);
                 $em->flush();
 
+                if(!empty($check_user)){
+                    foreach($check_user as $check){
+                        $user_projects = new User_projects();
+                        $user_projects->setProjectId($project->getId());
+                        $user_projects->setUserId($check);
+                        $user_projects->setCreated(new \DateTime('now'));
+                        $em = $this->getDoctrine()->getManager();
+                        $em->persist($user_projects);
+                        $em->flush();
+                    }
+                }
                 $this->get('session')->getFlashBag()->add('notice', 'More successful project!');
                 return $this->redirectToRoute('_addProjects');
         }
         $form = $this->createFormBuilder($project)
             ->add('name', 'text', array('label'=>'Name','required'    => true))
+            ->add('description', 'textarea', array ('required' => false, 'label' => 'Description', 'attr' => array ('class' => 'editor', 'id' => 'editor')))
             ->add('status', 'choice', array(
                 'choices' => array('1' => 'Open', '0' => 'Archived'),
                 'preferred_choices' => array('0'),
@@ -183,14 +198,19 @@ class ProjectsController extends Controller
         $arr_err = array();
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
         $project = new Projects();
+
+
+
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
             $form = $requestData->get('form');
+            $check_user = $requestData->get('check_user');
 
             $image = $requestData->get('image');
 
             $project = $repository->find($id);
             $project->setName($form['name']);
+            $project->setDescription($form['description']);
             if($image=='')
                 $project->setImage($requestData->get('old_image'));
             else
@@ -201,15 +221,40 @@ class ProjectsController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($project);
             $em->flush();
+
+            $repository_User_projects = $this->getDoctrine()->getRepository('TrackersBundle:User_projects');
+            $user_projectss = $repository_User_projects->findBy(array('projectId' => $id ));
+
+            foreach($user_projectss as $user_project){
+                $repositorys = $this->getDoctrine()->getRepository('TrackersBundle:User_projects');
+                $project_user = $repositorys->find($user_project->getId());
+                $em = $this->getDoctrine()->getManager();
+                $em->remove($project_user);
+                $em->flush();
+            }
+
+            if(!empty($check_user)){
+                foreach($check_user as $check){
+                    $user_projects = new User_projects();
+                    $user_projects->setProjectId($project->getId());
+                    $user_projects->setUserId($check);
+                    $user_projects->setCreated(new \DateTime('now'));
+                    $em = $this->getDoctrine()->getManager();
+                    $em->persist($user_projects);
+                    $em->flush();
+                }
+            }
+
             $this->get('session')->getFlashBag()->add('notice', 'More edit successful project!');
 
 
         }
         $project_id = $repository->find($id);
         $project->setName($project_id->getName());
-
+        $project->setDescription($project_id->getDescription());
         $form = $this->createFormBuilder($project)
             ->add('name', 'text', array('label'=>'Name','required'    => true))
+            ->add('description', 'textarea', array ('required' => false, 'label' => 'Description', 'attr' => array ('class' => 'editor', 'id' => 'editor')))
             ->add('status', 'choice', array(
                 'choices' => array('1' => 'Open', '0' => 'Archived'),
                 'preferred_choices' => array($project_id->getStatus()),
@@ -217,11 +262,33 @@ class ProjectsController extends Controller
             ))
             ->getForm();
 
-        if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$project_id->getImage()) ){
-            $is_image = true;
+        if($project_id->getImage() != ''){
+            if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$project_id->getImage()) ){
+                $is_image = true;
+            }else $is_image = false;
         }else $is_image = false;
 
-        return array('form' => $form->createView(),'title' => $project->getName(),'err'=>$arr_err,'image_old'=>$project_id->getImage(), 'id' => $id, 'is_image' => $is_image);
+
+        $repository_User_projects = $this->getDoctrine()->getRepository('TrackersBundle:User_projects');
+        $user_projects = $repository_User_projects->findBy(array('projectId' => $id ));
+
+        $arr_user = array();
+        $em = $this->getDoctrine()->getEntityManager();
+        foreach($user_projects as $user){
+
+
+            $query = $em->createQuery("SELECT n.firstname , n.lastname , u.username FROM TrackersBundle:UserDetail n, TrackersBundle:User u WHERE  u.id = n.user_id  AND  n.user_id = :user_id ")
+                ->setParameter('user_id', $user->getUserId());
+            $users = $query->getResult();
+
+
+            $arr_user[] = array(
+                'user_id' => $user->getUserId(),
+                'full_name' => $users[0]['username']." - ".$users[0]['firstname']." ".$users[0]['lastname']
+            );
+        }
+
+        return array('form' => $form->createView(), 'user_projects' => $arr_user,'title' => $project->getName(),'err'=>$arr_err,'image_old'=>$project_id->getImage(), 'id' => $id, 'is_image' => $is_image);
     }
 
     /**

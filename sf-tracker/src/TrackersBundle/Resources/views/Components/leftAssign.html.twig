@@ -8,6 +8,9 @@
 <div class="left-assigned">
 </div>
 <script type="text/javascript">
+
+
+
     $(function(){
         var URL = '{{ path('_list_assigned') }}';
         jQuery.ajax({
@@ -67,7 +70,7 @@
             dataType : "json",
             success : function(data){
                 $('.row-'+data['user_id']).hide();
-                $('.content-left-assigned ul').append('<li class="row_user_'+data['project_user_id']+'"> <a href="#" title="">'+data['full_name']+'</a> <a class="remove-assigned" href="javascipt:void(0);" onclick="remove_user_assigned('+data['project_user_id']+')" original-title="Remove"><img src="/assets/images/icons/remove.png" alt=""></a> <div class="clear"></div> </li>');
+                $('.content-left-assigned ul').append('<li class="row_user_'+data['project_user_id']+'"><label>'+data['full_name']+'</label> <a class="remove-assigned" href="javascipt:void(0);" onclick="remove_user_assigned('+data['project_user_id']+')" original-title="Remove"><img src="/assets/images/icons/remove.png" alt=""></a> <div class="clear"></div> </li>');
             }
         });
     }

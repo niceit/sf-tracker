@@ -245,6 +245,13 @@ class IssuesCommentsController extends Controller
         $is_update = true;
         }
 
+        if(!empty($users_comment) && $users_comment[0]->getAvatar() != '' ){
+            if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$users_comment[0]->getAvatar()) ) {
+                $is_avatar = true;
+            }
+            else $is_avatar = false;
+        }else $is_avatar = false;
+
         if($issue->getStatus() == 'CLOSED')
             $is_update = false;
 
@@ -255,7 +262,9 @@ class IssuesCommentsController extends Controller
                 'comment' => $comment->getComment(),
                 'id'    => $comment->getId(),
                 'attachments' => $attachments,
-                'id_update' => $is_update
+                'id_update' => $is_update,
+                'is_avatar' => $is_avatar,
+                'avatar' => $users_comment[0]->getAvatar()
             );
         }
 

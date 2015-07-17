@@ -7,6 +7,11 @@
 {% endblock %}
 
 {% block body %}
+    <style>
+        .ui-dialog-titlebar-close{
+            display: none;
+        }
+    </style>
     <div class="wrapper">
 
         <div class="wrapper">
@@ -53,7 +58,8 @@
         </div>
         <div class="formRow-submit">
              <a href="javascript:void(0);" onclick="saveclose();" title="" class="button blueB" style="margin: 5px;"><span>OK</span></a>
-            </div>
+             <a  href="javascript:void(0);" onclick="exit()" title="" class="button redB ml15 m10"><span>Close</span></a>
+        </div>
 
     </div>
 
@@ -133,7 +139,11 @@
             }
             return false;
         }
-
+         function exit(){
+             var id = $("#issue_id").val();
+             $("#close_issue"+id).attr('checked', false);
+             $( '#dialog-messages' ).dialog( "close" );
+         }
 
     </script>
 {% endblock %}

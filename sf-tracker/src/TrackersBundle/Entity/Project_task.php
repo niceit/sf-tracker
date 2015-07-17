@@ -5,12 +5,12 @@ namespace TrackersBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Projects
+ * Project_task
  *
- * @ORM\Table(name="project_projects")
+ * @ORM\Table(name="project_task")
  * @ORM\Entity
  */
-class Projects
+class Project_task
 {
     /**
      * @var integer
@@ -24,9 +24,9 @@ class Projects
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255)
+     * @ORM\Column(name="title", type="string", length=255)
      */
-    private $name;
+    private $title;
 
     /**
      * @var string
@@ -36,24 +36,32 @@ class Projects
     private $description;
 
     /**
-     * @var string
+     * @var integer
      *
-     * @ORM\Column(name="image", type="string", length=255)
+     * @ORM\Column(name="category_task_id", type="integer")
      */
-    private $image;
+    private $categoryTaskId;
 
     /**
      * @var integer
      *
-     * @ORM\Column(name="status", type="integer")
+     * @ORM\Column(name="project_id", type="integer")
      */
-    private $status;
+    private $projectId;
+
     /**
      * @var integer
      *
-     * @ORM\Column(name="owner_id", type="integer")
+     * @ORM\Column(name="created_by", type="integer")
      */
-    private $owner_id;
+    private $createdBy;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="duetime", type="datetime")
+     */
+    private $duetime;
 
     /**
      * @var \DateTime
@@ -81,33 +89,33 @@ class Projects
     }
 
     /**
-     * Set name
+     * Set title
      *
-     * @param string $name
-     * @return Projects
+     * @param string $title
+     * @return Project_task
      */
-    public function setName($name)
+    public function setTitle($title)
     {
-        $this->name = $name;
+        $this->title = $title;
 
         return $this;
     }
 
     /**
-     * Get name
+     * Get title
      *
      * @return string 
      */
-    public function getName()
+    public function getTitle()
     {
-        return $this->name;
+        return $this->title;
     }
 
     /**
      * Set description
      *
      * @param string $description
-     * @return Projects
+     * @return Project_task
      */
     public function setDescription($description)
     {
@@ -119,88 +127,112 @@ class Projects
     /**
      * Get description
      *
-     * @return string
+     * @return string 
      */
     public function getDescription()
     {
         return $this->description;
     }
 
+
     /**
-     * Set image
+     * Set categoryTaskId
      *
-     * @param string $image
-     * @return Projects
+     * @param integer $categoryTaskId
+     * @return Project_task
      */
-    public function setImage($image)
+    public function setCategoryTaskId($categoryTaskId)
     {
-        $this->image = $image;
+        $this->categoryTaskId = $categoryTaskId;
 
         return $this;
     }
 
     /**
-     * Get image
-     *
-     * @return string 
-     */
-    public function getImage()
-    {
-        return $this->image;
-    }
-
-    /**
-     * Set status
-     *
-     * @param integer $status
-     * @return Projects
-     */
-    public function setStatus($status)
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    /**
-     * Get status
-     *
-     * @return integer 
-     */
-    public function getStatus()
-    {
-        return $this->status;
-    }
-
-    /**
-     * Set owner_id
-     *
-     * @param integer $owner_id
-     * @return Projects
-     */
-    public function setOwnerId($owner_id)
-    {
-        $this->owner_id = $owner_id;
-
-        return $this;
-    }
-
-    /**
-     * Get owner_id
+     * Get categoryTaskId
      *
      * @return integer
      */
-    public function getOwnerId()
+    public function getCategoryTaskId()
     {
-        return $this->owner_id;
+        return $this->categoryTaskId;
     }
 
+
+    /**
+     * Set projectId
+     *
+     * @param integer $projectId
+     * @return Project_task
+     */
+    public function setProjectId($projectId)
+    {
+        $this->projectId = $projectId;
+
+        return $this;
+    }
+
+    /**
+     * Get projectId
+     *
+     * @return integer 
+     */
+    public function getProjectId()
+    {
+        return $this->projectId;
+    }
+
+    /**
+     * Set createdBy
+     *
+     * @param integer $createdBy
+     * @return Project_task
+     */
+    public function setCreatedBy($createdBy)
+    {
+        $this->createdBy = $createdBy;
+
+        return $this;
+    }
+
+    /**
+     * Get createdBy
+     *
+     * @return integer 
+     */
+    public function getCreatedBy()
+    {
+        return $this->createdBy;
+    }
+
+    /**
+     * Set duetime
+     *
+     * @param \DateTime $duetime
+     * @return Project_task
+     */
+    public function setDuetime($duetime)
+    {
+        $this->duetime = $duetime;
+
+        return $this;
+    }
+
+    /**
+     * Get duetime
+     *
+     * @return \DateTime 
+     */
+    public function getDuetime()
+    {
+        return $this->duetime;
+    }
 
     /**
      * Set created
      *
      * @param \DateTime $created
-     * @return Projects
+     * @return Project_task
      */
     public function setCreated($created)
     {
@@ -223,7 +255,7 @@ class Projects
      * Set modified
      *
      * @param \DateTime $modified
-     * @return Projects
+     * @return Project_task
      */
     public function setModified($modified)
     {

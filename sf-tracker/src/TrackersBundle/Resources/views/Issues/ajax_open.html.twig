@@ -14,7 +14,7 @@
         {% for issue in issues %}
             <tr class="row-{{ issue.id }} ">
                 {% if is_close %}
-                <td><div  class="checker" id="uniform-titleCheck2"><span><input onclick="closeissue({{ issue.id }});" value="{{ issue.id }}" type="checkbox" id="close_issue{{ issue.id }}" name="checkRow" style="opacity:1;"></span></div></td>
+                <td><div  class="checker" id="uniform-titleCheck2"><span><input onclick="closeissue_n({{ issue.id }},{{ project_id }});" value="{{ issue.id }}" type="checkbox" id="close_issue{{ issue.id }}" name="checkRow" style="opacity:1;"></span></div></td>
                 {% endif %}
                 <td align="center">#{{ issue.id }}</td>
                 <td><h5><a href="{{ path('_project_issues', { 'id': issue.id , 'project_id': project_id }) }}">{{ issue.title }}</a></h5>
@@ -64,5 +64,5 @@
     </table>
 
     {% else %}
-        <p>No content....</p>
+        <p>No data available at this time...</p>
 {% endif %}

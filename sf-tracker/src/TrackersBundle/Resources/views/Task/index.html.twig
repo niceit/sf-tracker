@@ -1,0 +1,119 @@
+{% extends '::layoutmain.html.twig' %}
+
+{% block title %}Task{% endblock %}
+
+{% block Breadcrumb %}
+    <h5>Task</h5>
+
+{% endblock %}
+
+{% block body %}
+
+    <div class="wrapper">
+        <div><a href="javascript:void(0);" id="add-group" title="" class="bFirst button basic"><img src="{{ asset('assets/images/icons/dark/photos.png') }}" class="icon" alt=""><span>Add new group</span></a></div>
+
+        <div class="add-category-task">
+            <div class="widget">
+                <div class="title"><img src="{{ asset('assets/images/icons/dark/repeat.png') }}" alt="" class="titleIcon"><h6>Add new category task</h6></div>
+                <div class="body">
+                    <div class="category">
+                        <input type="text" name="name" id="name_category_task" />
+                        <a class="button blueB" id="save-group-add" href="javascript:void(0);">Save category task</a> or <a  href="javascript:void(0);" >Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="list-category">
+            {% for category in categorys %}
+                <h4 class="title">{{ category.name }}</h4>
+                <ul class="ul-task ul-task-{{ category.id }}">
+                    {% for task in category.tasks %}
+                        <li class="li-task{{ task.getId() }}" data-id="{{ task.getId() }}"><input type="checkbox"/> {{ task.getTitle() }}
+                            <label><a >Xoa</a> <a>Edit</a></label>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <a class="a-addtask-{{ category.id }}" onclick="add_task({{ category.id }});" href="javascript:void(0);">Add task</a>
+                <div class="add-task add-task-{{ category.id }}">
+                     <div class="widget form-task">
+                        <input type="text" name="name" id="title_task" />
+                        <a onclick="save_task({{ category.id }})" class="button blueB"  href="javascript:void(0);">Save task</a> or <a onclick="close_task({{ category.id }})" href="javascript:void(0);" >Cancel</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+
+    <script type="text/javascript">
+        $(function(){
+            $('.add-category-task').hide();
+            $('.add-task').hide();
+        });
+        $('#add-group').click(function(){
+            $('.add-category-task').slideToggle('slow');
+        });
+        $('#save-group-add').click(function(){
+            var name_category_task = $('#name_category_task').val();
+            var URL = '{{ path('_ajaxAddcategoryGroup') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'name' : name_category_task , 'project_id' : {{ project_id}} },
+                dataType : "html",
+                success : function(data){
+                    $('.add-category-task').slideToggle('slow');
+                    var html =      '<h4>'+name_category_task+'</h4>';
+                    html +=         '<ul class="ul-task ul-task-'+data+'">';
+                    html +=       '</ul>';
+                    html +=        '<a class="a-addtask-'+data+'" onclick="add_task('+data+');" href="javascript:void(0);">Add task</a>';
+                    html +=        '<div style="display:none" class="add-task add-task-'+data+'">';
+                    html +=        '<div class="widget form-task">';
+                    html +=        '<input type="text" name="name" id="title_task" />';
+                    html +=        '<a onclick="save_task('+data+')" class="button blueB"  href="javascript:void(0);">Save task</a> or <a onclick="close_task('+data+')" href="javascript:void(0);" >Cancel</a>';
+                    html +=        '</div>';
+                    html +=        '</div>';
+                    $( ".list-category" ).prepend( html );
+                }
+
+            });
+
+        });
+
+        function add_task(id_category){
+            $('.add-task-'+id_category).slideToggle('slow');
+            $('.a-addtask-'+id_category).hide();
+        }
+        function close_task(id_category){
+            $('.add-task-'+id_category).slideToggle('slow');
+            $('.a-addtask-'+id_category).show();
+        }
+        function save_task(id_category){
+            var title = $('.add-task-'+id_category+' input').val();
+            var URL = '{{ path('_ajaxAddTask') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'title' : title ,'id_category' : id_category, 'project_id' : {{ project_id}} },
+                dataType : "json",
+                success : function(data){
+                    $('.ul-task-'+id_category).append('<li  class="li-task'+data['id']+'"   data-id="'+data['id']+'"   ><input type="checkbox" />'+data['title']+' <label><a >Xoa</a> <a>Edit</a></label></li>');
+                }
+
+            });
+        }
+        $(function(){
+            $(".ul-task li").hover(function(){
+                $('.li-task'+$(this).data("id")+' label').show();
+            }, function(){
+                $('.li-task'+$(this).data("id")+' label').hide();
+            });
+        });
+
+
+
+    </script>
+
+{% endblock %}

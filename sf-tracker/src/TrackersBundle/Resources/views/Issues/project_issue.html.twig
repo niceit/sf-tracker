@@ -20,13 +20,7 @@
 
 
     <div class="wrapper">
-         {% if is_ssues %}
-             <div style="text-align: right">
-                    <a id="opener" {% if issue.getStatus() == 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);"  title="" class="button greenB close_issue  " style="margin: 5px;"><span> Close Issue</span></a>
 
-                    <a {% if issue.getStatus() != 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);" onclick="fc_open()" title="" class="button greenB open_issue" style="margin: 5px;"><span> Reopened </span></a>
-                </div>
-         {% endif %}
         <div class="widget">
 
 
@@ -62,6 +56,13 @@
 
         </div>
 
+        {% if is_ssues %}
+            <div style="text-align: right">
+                    <a id="opener" {% if issue.getStatus() == 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);"  title="" class="button greenB close_issue  " style="margin: 5px;"><span> Close Issue</span></a>
+
+                    <a {% if issue.getStatus() != 'CLOSED' %} style="display: none" {% endif %}  href="javascript:void(0);" onclick="fc_open()" title="" class="button greenB open_issue" style="margin: 5px;"><span> Reopened </span></a>
+                </div>
+        {% endif %}
 
         {% if is_ssues %}
 
