@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use TrackersBundle\Entity\Project_category_task;
 use TrackersBundle\Entity\Project_task;
+use Symfony\Component\HttpFoundation\Response;
 
 class TaskController extends Controller
 {
@@ -34,7 +35,6 @@ class TaskController extends Controller
 
     /**
      * @Route("/ajaxAddTask", name="_ajaxAddTask")
-     * @Template("TrackersBundle:Task:index.html.twig")
      */
     public function ajaxAddTaskAction()
     {
@@ -69,5 +69,76 @@ class TaskController extends Controller
         echo json_encode($arr);
         die();
     }
+    /**
+     * @Route("/ajaxEditTask", name="_ajaxEditTask")
+     */
+    public function ajaxEditTaskAction()
+    {
+        $arr = array();
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $title = $requestData->get('title');
+            $task_id = $requestData->get('task_id');
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
+
+            $task = $repository->find($task_id);
+            $task->setTitle($title);
+            $task->setModified(new \DateTime('now'));
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($task);
+            $em->flush();
+
+            $arr = array(
+                'id' => $task->getId(),
+                'title' => $task->getTitle(),
+                'duetime' => $task->getDuetime()
+            );
+        }
+
+
+        echo json_encode($arr);
+        die();
+    }
+    /**
+     * @Route("/ajaxRomoveTask", name="_ajaxRomoveTask")
+     */
+    public function ajaxRomoveTaskAction()
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $id = $requestData->get('task_id');
+
+
+            $repository_pro = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
+
+            $em = $this->getDoctrine()->getManager();
+            $task = $repository_pro->find($id);
+            $em->remove($task);
+            $em->flush();
+            echo $id;
+            exit;
+        }
+        echo 0;
+        die();
+    }
+    /**
+     * @Route("/ajaxGetFromEditTask", name="_ajaxGetFromEditTask")
+     */
+    public function ajaxGetFromEditTaskAction()
+    {
+        $arr = array();
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $task_id = $requestData->get('task_id');
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
+            $arr = $repository->find($task_id);
+        }
+        $template = $this->render('TrackersBundle:Task:ajaxgetfromedittask.html.twig', array ('task' => $arr));
+
+        return new Response($template->getContent());
+        die();
+    }
+
 
 }

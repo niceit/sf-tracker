@@ -8,6 +8,11 @@
 {% endblock %}
 
 {% block body %}
+    <link href="{{ asset('assets/css/jquery.growl.css') }}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{{ asset('assets/js/jquery.growl.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/rainbow.js') }}"></script>
+
+
 
     <div class="wrapper">
         <div><a href="javascript:void(0);" id="add-group" title="" class="bFirst button basic"><img src="{{ asset('assets/images/icons/dark/photos.png') }}" class="icon" alt=""><span>Add new group</span></a></div>
@@ -18,7 +23,7 @@
                 <div class="body">
                     <div class="category">
                         <input type="text" name="name" id="name_category_task" />
-                        <a class="button blueB" id="save-group-add" href="javascript:void(0);">Save category task</a> or <a  href="javascript:void(0);" >Cancel</a>
+                        <a class="button blueB" id="save-group-add" href="javascript:void(0);">Save category task</a> or <a onclick="close_category()"  href="javascript:void(0);" >Cancel</a>
                     </div>
                 </div>
             </div>
@@ -26,20 +31,27 @@
 
         <div class="list-category">
             {% for category in categorys %}
-                <h4 class="title">{{ category.name }}</h4>
+                <div class="group group-{{ category.id }}">
+                    <h4 data-id="{{ category.id }}" class="title title-{{ category.id }}"><label>{{ category.name }} </label><span><a onclick="removecategory({{ category.id }})" href="javascript:;">Xoa</a> <a onclick="editcategory({{ category.id }})" href="javascript:;">Edit</a></span></h4>
+                <div class="update-{{ category.id }}"></div>
                 <ul class="ul-task ul-task-{{ category.id }}">
                     {% for task in category.tasks %}
-                        <li class="li-task{{ task.getId() }}" data-id="{{ task.getId() }}"><input type="checkbox"/> {{ task.getTitle() }}
-                            <label><a >Xoa</a> <a>Edit</a></label>
+                        <li class="li-task li-task{{ task.getId() }}" data-id="{{ task.getId() }}">
+                            <div class="title-task">
+                                <input type="checkbox"/> <span class="task-name">{{ task.getTitle() }}</span>
+                                <label><a href="javascript:void(0)" onclick="remove_task({{ task.getId() }} , '{{ task.getTitle() }}' )" >Xoa</a> <a onclick="edit_task({{ task.getId() }})" href="javascript:void(0)">Edit</a></label>
+                            </div>
+                            <div class="edit-from-task"></div>
                         </li>
                     {% endfor %}
                 </ul>
-                <a class="a-addtask-{{ category.id }}" onclick="add_task({{ category.id }});" href="javascript:void(0);">Add task</a>
+                <a class="a-addtask a-addtask-{{ category.id }}" onclick="add_task({{ category.id }});" href="javascript:void(0);">Add task</a>
                 <div class="add-task add-task-{{ category.id }}">
                      <div class="widget form-task">
                         <input type="text" name="name" id="title_task" />
                         <a onclick="save_task({{ category.id }})" class="button blueB"  href="javascript:void(0);">Save task</a> or <a onclick="close_task({{ category.id }})" href="javascript:void(0);" >Cancel</a>
                     </div>
+                </div>
                 </div>
             {% endfor %}
         </div>
@@ -51,12 +63,37 @@
         $(function(){
             $('.add-category-task').hide();
             $('.add-task').hide();
+            $('.edit-task').hide();
+            $("h4.title span").hide();
+            hover_h4();
+            hover_li();
         });
+        function hover_li(){
+            $(".ul-task li").hover(function(){
+                $('.li-task'+$(this).data("id")+' label').show();
+            }, function(){
+                $('.li-task'+$(this).data("id")+' label').hide();
+            });
+        }
+        function hover_h4(){
+            $("h4.title").hover(function(){
+                $('h4.title-'+$(this).data("id")+' span').show();
+            }, function(){
+                $('h4.title-'+$(this).data("id")+' span').hide();
+            });
+        }
         $('#add-group').click(function(){
             $('.add-category-task').slideToggle('slow');
         });
+        function close_category(){
+            $('.add-category-task').slideToggle('slow');
+        }
         $('#save-group-add').click(function(){
             var name_category_task = $('#name_category_task').val();
+            if(name_category_task.trim() == ''){
+                return false;
+            }
+
             var URL = '{{ path('_ajaxAddcategoryGroup') }}';
             jQuery.ajax({
                 type: "post",
@@ -65,17 +102,26 @@
                 dataType : "html",
                 success : function(data){
                     $('.add-category-task').slideToggle('slow');
-                    var html =      '<h4>'+name_category_task+'</h4>';
+                    var html =      '<div class="group-'+data+'" ><h4 data-id="'+data+'" class="title title-'+data+'"><label>'+name_category_task+' </label><span><a onclick="removecategory('+data+')" href="javascript:;">Xoa</a> <a onclick="editcategory('+data+')" href="javascript:;">Edit</a></span></h4><div class="update-'+data+'"></div>';
                     html +=         '<ul class="ul-task ul-task-'+data+'">';
                     html +=       '</ul>';
-                    html +=        '<a class="a-addtask-'+data+'" onclick="add_task('+data+');" href="javascript:void(0);">Add task</a>';
+                    html +=        '<a class="a-addtask a-addtask-'+data+'" onclick="add_task('+data+');" href="javascript:void(0);">Add task</a>';
                     html +=        '<div style="display:none" class="add-task add-task-'+data+'">';
                     html +=        '<div class="widget form-task">';
                     html +=        '<input type="text" name="name" id="title_task" />';
                     html +=        '<a onclick="save_task('+data+')" class="button blueB"  href="javascript:void(0);">Save task</a> or <a onclick="close_task('+data+')" href="javascript:void(0);" >Cancel</a>';
                     html +=        '</div>';
-                    html +=        '</div>';
+                    html +=        '</div></div>';
                     $( ".list-category" ).prepend( html );
+                    $("h4.title span").hide();
+                    $('#name_category_task').val('');
+                    $('#name_category_task').focus();
+                    hover_h4();
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return $.growl.notice({
+                        message: "Add category "+name_category_task+" successful!"
+                    });
                 }
 
             });
@@ -92,6 +138,9 @@
         }
         function save_task(id_category){
             var title = $('.add-task-'+id_category+' input').val();
+            if(title.trim() == ''){
+                return false;
+            }
             var URL = '{{ path('_ajaxAddTask') }}';
             jQuery.ajax({
                 type: "post",
@@ -99,22 +148,165 @@
                 data:{'title' : title ,'id_category' : id_category, 'project_id' : {{ project_id}} },
                 dataType : "json",
                 success : function(data){
-                    $('.ul-task-'+id_category).append('<li  class="li-task'+data['id']+'"   data-id="'+data['id']+'"   ><input type="checkbox" />'+data['title']+' <label><a >Xoa</a> <a>Edit</a></label></li>');
+                    var title_temp = "'"+title+"'";
+                    var html = '<li  class="li-task'+data['id']+'"   data-id="'+data['id']+'"><div class="title-task">';
+                    html +=    '<input type="checkbox"/> <span class="task-name">'+data['title']+'</span>';
+                    html +=  '<label><a href="javascript:void(0)" onclick="remove_task('+data['id']+' , '+title_temp+' )" >Xoa</a> <a onclick="edit_task('+data['id']+')" href="javascript:void(0)">Edit</a></label>';
+                    html +=  '</div><div class="edit-from-task"></div>';
+                    $('.ul-task-'+id_category).append(html);
+                    $('.add-task-'+id_category+' input').val('');
+                    $('.add-task-'+id_category+' input').focus();
+                    hover_li();
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return $.growl.notice({
+                        message: "Add task "+title+" successful!"
+                    });
+
+
                 }
 
             });
         }
-        
-        $(function(){
-            $(".ul-task li").hover(function(){
-                $('.li-task'+$(this).data("id")+' label').show();
-            }, function(){
-                $('.li-task'+$(this).data("id")+' label').hide();
+
+
+
+        function edit_task(task_id){
+            var URL = '{{ path('_ajaxGetFromEditTask') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'task_id' : task_id },
+                dataType : "html",
+                success : function(data){
+                    $('.edit-task').hide();
+                    $('.li-task'+task_id+' .edit-from-task').html(data);
+                    $('.li-task'+task_id+' .title-task').hide();
+
+                }
+
             });
-        });
 
 
+        }
+        function close_Edit_task(task_id){
+            $('.edit-task-'+task_id).slideToggle('slow');
+            $('.li-task'+task_id+' .title-task').show();
+        }
+        function save_edit_task(task_id){
+            var title = $('.input-'+task_id).val();
 
+            if(title.trim() == ''){
+                return false;
+            }
+
+            var URL = '{{ path('_ajaxEditTask') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'title' : title ,'task_id' : task_id },
+                dataType : "json",
+                success : function(data){
+                    $('.li-task'+task_id+' .task-name').html(data['title']);
+                    close_Edit_task(task_id);
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return $.growl.notice({
+                        message: "Update task "+data['title']+" successful!"
+                    });
+                }
+
+            });
+        }
+        function remove_task(task_id, title){
+            var confirmBox = confirm(' Are you sure you want to delete this task?');
+            if (!confirmBox) return false;
+
+
+            var URL = '{{ path('_ajaxRomoveTask') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'task_id' : task_id },
+                dataType : "json",
+                success : function(data){
+                    $('.li-task'+task_id).hide();
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return $.growl.notice({
+                        message: "Remove task "+title+" successful!"
+                    });
+                }
+
+            });
+        }
+        function editcategory(category_id){
+
+            var URL = '{{ path('_ajaxGetFromCategory') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'category_id' : category_id },
+                dataType : "html",
+                success : function(data){
+                    $('.update-'+category_id).show();
+                    $('.title-'+category_id).hide();
+                    $('.update-'+category_id).html(data);
+
+
+                }
+
+            });
+        }
+        function save_edit_category(category_id){
+            var name = $('.name_category_'+category_id).val();
+
+            var URL = '{{ path('_ajaxSaveEditCategory') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'category_id' : category_id, 'name' : name  },
+                dataType : "json",
+                success : function(data){
+                    $('.title-'+category_id+' label').html(data['name']);
+                    $('.update-'+category_id).html('');
+                    $('.title-'+category_id).show();
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return $.growl.notice({
+                        message: "Update category "+data['name']+" successful!"
+                    });
+
+                }
+
+            });
+        }
+        function removecategory(category_id){
+            var confirmBox = confirm(' Are you sure you want to delete this category?');
+            if (!confirmBox) return false;
+
+            var URL = '{{ path('_ajaxRemoveCategory') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'category_id' : category_id},
+                dataType : "json",
+                success : function(data){
+                    $('.group-'+category_id).hide();
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return $.growl.notice({
+                        message: "Delete category successful!"
+                    });
+                }
+
+            });
+        }
+        function close_edit_category(category_id){
+            $('.update-'+category_id).slideUp('slow');
+            $('.title-'+category_id).slideDown('slow');
+        }
     </script>
 
 {% endblock %}

@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Component\HttpFoundation\Request;
 use TrackersBundle\Entity\Project_category_task;
+use Symfony\Component\HttpFoundation\Response;
 
 class CategoryTaskController extends Controller
 {
@@ -33,4 +34,86 @@ class CategoryTaskController extends Controller
         echo $Project_category_task->getId();
         die();
     }
+    /**
+     * @Route("/ajaxGetFromCategory", name="_ajaxGetFromCategory")
+     */
+    public function ajaxGetFromCategoryAction()
+    {
+        $arr = array();
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $category_id = $requestData->get('category_id');
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_category_task');
+            $arr = $repository->find($category_id);
+        }
+        $template = $this->render('TrackersBundle:Task:ajaxgetfromeditcategory.html.twig', array ('category_task' => $arr));
+
+        return new Response($template->getContent());
+        die();
+    }
+    /**
+     * @Route("/ajaxSaveEditCategory", name="_ajaxSaveEditCategory")
+     */
+    public function editAction()
+    {
+        $arr = array();
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $name = $requestData->get('name');
+            $category_id = $requestData->get('category_id');
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_category_task');
+            $Project_category_task = $repository->find($category_id);
+
+            $Project_category_task->setName($name);
+            $Project_category_task->setModified(new \DateTime('now'));
+
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($Project_category_task);
+            $em->flush();
+
+            $arr = array(
+                'id' => $Project_category_task->getId(),
+                'name' => $Project_category_task->getName()
+            );
+        }
+        echo json_encode($arr);
+        die();
+    }
+
+
+    /**
+     * @Route("/ajaxRemoveCategory", name="_ajaxRemoveCategory")
+     */
+    public function ajaxRemoveCategoryAction()
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $id = $requestData->get('category_id');
+
+
+            $repository_pro = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
+            $tasks = $repository_pro->findBy(array('categoryTaskId' => $id));
+
+            foreach($tasks as $row){
+
+
+                $em = $this->getDoctrine()->getManager();
+                $taskrow = $repository_pro->find($row->getId());
+                $em->remove($taskrow);
+                $em->flush();
+            }
+
+            $repository_pro = $this->getDoctrine()->getRepository('TrackersBundle:Project_category_task');
+            $em = $this->getDoctrine()->getManager();
+            $task = $repository_pro->find($id);
+            $em->remove($task);
+            $em->flush();
+            echo $id;
+            exit;
+        }
+        echo 0;
+        die();
+    }
+
+
 }

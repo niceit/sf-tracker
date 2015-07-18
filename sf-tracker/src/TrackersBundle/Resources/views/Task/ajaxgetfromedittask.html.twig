@@ -1,0 +1,6 @@
+<div class="edit-task edit-task-{{ task.getId()  }}">
+     <div class="widget form-task">
+        <input type="text" value="{{ task.getTitle() }}" name="name" class="input-{{ task.getId()  }}" id="title_task" />
+        <a onclick="save_edit_task({{ task.getId() }})" class="button blueB"  href="javascript:void(0);">Update task</a> or <a onclick="close_Edit_task({{ task.getId()  }})" href="javascript:void(0);" >Cancel</a>
+    </div>
+</div>
