@@ -13,7 +13,6 @@
     <script type="text/javascript" src="{{ asset('assets/js/rainbow.js') }}"></script>
 
 
-
     <div class="wrapper">
         <div><a href="javascript:void(0);" id="add-group" title="" class="bFirst button basic"><img src="{{ asset('assets/images/icons/dark/photos.png') }}" class="icon" alt=""><span>Add new group</span></a></div>
 
@@ -32,23 +31,50 @@
         <div class="list-category">
             {% for category in categorys %}
                 <div class="group group-{{ category.id }}">
-                    <h4 data-id="{{ category.id }}" class="title title-{{ category.id }}"><label>{{ category.name }} </label><span><a onclick="removecategory({{ category.id }})" href="javascript:;">Xoa</a> <a onclick="editcategory({{ category.id }})" href="javascript:;">Edit</a></span></h4>
+                    <h4 data-id="{{ category.id }}" class="title title-{{ category.id }}"><label>{{ category.name }} </label>
+                        <span>
+                            <a class="tipS" original-title="Remove" onclick="removecategory({{ category.id }})" href="javascript:;"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
+                            <a class="tipS" original-title="Update" onclick="editcategory({{ category.id }})" href="javascript:;"><img src="{{ asset('assets/images/icons/edit.png') }}" alt=""></a>
+                        </span></h4>
                 <div class="update-{{ category.id }}"></div>
                 <ul class="ul-task ul-task-{{ category.id }}">
-                    {% for task in category.tasks %}
-                        <li class="li-task li-task{{ task.getId() }}" data-id="{{ task.getId() }}">
-                            <div class="title-task">
-                                <input type="checkbox"/> <span class="task-name">{{ task.getTitle() }}</span>
-                                <label><a href="javascript:void(0)" onclick="remove_task({{ task.getId() }} , '{{ task.getTitle() }}' )" >Xoa</a> <a onclick="edit_task({{ task.getId() }})" href="javascript:void(0)">Edit</a></label>
-                            </div>
-                            <div class="edit-from-task"></div>
-                        </li>
-                    {% endfor %}
+                    {% if category.tasks %}
+                        {% for task in category.tasks %}
+                            <li class="li-task li-task{{ task.id }}" data-id="{{ task.id }}">
+                                <div class="title-task">
+                                    <input type="checkbox"/> <span class="task-name">{{ task.title }}
+                                        (
+                                        {% for user in task.user_assign %}
+                                            <span class="full_name">{{  user.firstname }} {{ user.lastname }} </span>
+                                        {% endfor %}
+                                        )
+                                        {% if task.duetime != '' %}
+                                            {{ task.duetime | date('Y-m-d') }}
+                                        {% endif %}
+                                    </span>
+                                    <label>
+                                        <a class="tipS" original-title="Remove" href="javascript:void(0)" onclick="remove_task({{ task.id }} , '{{ task.title }}' )" ><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
+                                        <a class="tipS" original-title="Update" onclick="edit_task({{ task.id }})" href="javascript:void(0)"><img src="{{ asset('assets/images/icons/edit.png') }}" alt=""></a>
+                                    </label>
+                                </div>
+                                <div class="edit-from-task"></div>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
                 </ul>
                 <a class="a-addtask a-addtask-{{ category.id }}" onclick="add_task({{ category.id }});" href="javascript:void(0);">Add task</a>
                 <div class="add-task add-task-{{ category.id }}">
                      <div class="widget form-task">
-                        <input type="text" name="name" id="title_task" />
+                        <input class="title_task" type="text" name="name" id="title_task" />
+                         <select style="width:100%"  data-placeholder="" style="" class="chzn-select" multiple="multiple" tabindex="9">
+                                <option value=""></option>
+                             {% for user in users %}
+                                <option value="{{ user.user_id }}">{{ user.firstname }} {{ user.lastname }}</option>
+                             {% endfor %}
+                         </select>
+                         <input name="due_date" type="text" value=""  class="datepicker due_date" />
+
+
                         <a onclick="save_task({{ category.id }})" class="button blueB"  href="javascript:void(0);">Save task</a> or <a onclick="close_task({{ category.id }})" href="javascript:void(0);" >Cancel</a>
                     </div>
                 </div>
@@ -56,6 +82,74 @@
             {% endfor %}
         </div>
     </div>
+
+
+
+
+
+
+
+
+
+    <form id="myForm" action="{{ path('_uploadfiletask' , { 'id': 2 }) }}" method="post" enctype="multipart/form-data">
+         <input type="file" size="60" name="file">
+         <input type="submit" value="Ajax File Upload">
+     </form>
+
+
+    <div id="progress">
+        <div id="bar"></div>
+        <div id="percent">0%</div >
+    </div>
+    <br/>
+
+    <div id="message"></div>
+
+
+    <script>
+$(document).ready(function()
+{
+
+    var options = {
+        beforeSend: function()
+        {
+            $("#progress").show();
+            //clear everything
+            $("#bar").width('0%');
+            $("#message").html("");
+            $("#percent").html("0%");
+        },
+        uploadProgress: function(event, position, total, percentComplete)
+        {
+            $("#bar").width(percentComplete+'%');
+            $("#percent").html(percentComplete+'%');
+
+
+        },
+        success: function()
+        {
+            $("#bar").width('100%');
+            $("#percent").html('100%');
+
+        },
+        complete: function(response)
+        {
+            $("#message").html("<font color='green'>"+response.responseText+"</font>");
+        },
+        error: function()
+        {
+            $("#message").html("<font color='red'> ERROR: unable to upload files</font>");
+
+        }
+
+    };
+
+    $("#myForm").ajaxForm(options);
+
+});
+
+</script>
+
 
 
 
@@ -137,7 +231,16 @@
             $('.a-addtask-'+id_category).show();
         }
         function save_task(id_category){
-            var title = $('.add-task-'+id_category+' input').val();
+
+            var selectednumbers = [];
+            $('.add-task-'+id_category+' select :selected').each(function(i, selected) {
+                selectednumbers[i] = $(selected).val();
+            });
+
+
+
+            var title = $('.add-task-'+id_category+' .title_task').val();
+            var due_date = $('.add-task-'+id_category+' .due_date').val();
             if(title.trim() == ''){
                 return false;
             }
@@ -145,7 +248,12 @@
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'title' : title ,'id_category' : id_category, 'project_id' : {{ project_id}} },
+                data:{'title' : title ,
+                    'id_category' : id_category,
+                    'project_id' : {{ project_id}} ,
+                    'user_asign' : selectednumbers,
+                    'due_date' : due_date
+                },
                 dataType : "json",
                 success : function(data){
                     var title_temp = "'"+title+"'";
@@ -155,6 +263,7 @@
                     html +=  '</div><div class="edit-from-task"></div>';
                     $('.ul-task-'+id_category).append(html);
                     $('.add-task-'+id_category+' input').val('');
+                    $('.add-task-'+id_category+' select').val(['']);
                     $('.add-task-'+id_category+' input').focus();
                     hover_li();
                     event.preventDefault();
@@ -172,16 +281,19 @@
 
 
         function edit_task(task_id){
+
             var URL = '{{ path('_ajaxGetFromEditTask') }}';
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'task_id' : task_id },
+                data:{'task_id' : task_id , 'project_id' : {{ project_id}} },
                 dataType : "html",
                 success : function(data){
                     $('.edit-task').hide();
                     $('.li-task'+task_id+' .edit-from-task').html(data);
+                    $('.title-task').show();
                     $('.li-task'+task_id+' .title-task').hide();
+
 
                 }
 
@@ -195,7 +307,10 @@
         }
         function save_edit_task(task_id){
             var title = $('.input-'+task_id).val();
-
+            var selectednumbers = [];
+            $('.edit-task-'+task_id+' select :selected').each(function(i, selected) {
+                selectednumbers[i] = $(selected).val();
+            });
             if(title.trim() == ''){
                 return false;
             }
@@ -204,7 +319,7 @@
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'title' : title ,'task_id' : task_id },
+                data:{'title' : title ,'task_id' : task_id , 'user_asign' : selectednumbers },
                 dataType : "json",
                 success : function(data){
                     $('.li-task'+task_id+' .task-name').html(data['title']);

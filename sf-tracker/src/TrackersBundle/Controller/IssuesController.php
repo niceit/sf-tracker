@@ -260,14 +260,14 @@
 
                 $Closed_Issues = new Project_Closed_Issues();
 
-                // date start time
+                              // date start time
                 $arr_start_date = explode('-',$start_date);
                 $arr_start_time = explode(':',$start_time);
 
                 $date_start = new \DateTime();
                 $date_start->setDate($arr_start_date[0],$arr_start_date[1],$arr_start_date[2]);
                 if($arr_start_time)
-                $date_start->setTime($arr_start_time[0],$arr_start_time[1],$arr_start_time[2]);
+                    $date_start->setTime($arr_start_time[0],$arr_start_time[1],$arr_start_time[2]);
 
                 // date end time
                 $arr_end_date = explode('-',$end_date);

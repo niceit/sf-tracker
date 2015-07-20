@@ -2212,7 +2212,7 @@ span.status.status_CLOSED{
     color: #000000;
 }
 .form-task {
-    padding: 20px;
+    padding: 15px;
     width: 50%;
 }
 .category input, .form-task input{
@@ -2230,8 +2230,8 @@ span.status.status_CLOSED{
     padding: 7px;
 }
 .ul-task li {
-    padding-left: 50px;
-    margin: 10px 0px;
+    padding-left: 16px;
+    margin: 4px 0px;
 }
 .ul-task li label{
     display: none;
@@ -2240,12 +2240,15 @@ span.status.status_CLOSED{
 }
 h4.title {
     position: relative;
-    padding-left: 50px;
+    padding-left: 15px;
+    line-height: 33px;
+    background-color: #EAEAEA;
+    margin-bottom: 10px;
 }
 h4.title span{
     position: absolute;
-    left: -27px;
-    top: 3px;
+    left: -12px;
+    top: 0px;
 
 }
 .a-addtask{
@@ -2255,6 +2258,19 @@ h4.title span{
     margin-bottom: 10px;
     padding: 10px;
     border-bottom: 1px solid #ddd;
+}
+.form-task .chzn-container-multi{
+    width: 100% !important;
+}
+.add-category-task {
+    width: 59%;
+    margin-left: 25px;
+}
+.add-task{
+    margin-left: 17px;
+}
+.full_name{
+    color: #003f81;
 }
 @media only screen and (max-width: 980px){
     .contact {

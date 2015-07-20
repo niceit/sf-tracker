@@ -1,6 +1,25 @@
 <div class="edit-task edit-task-{{ task.getId()  }}">
      <div class="widget form-task">
         <input type="text" value="{{ task.getTitle() }}" name="name" class="input-{{ task.getId()  }}" id="title_task" />
-        <a onclick="save_edit_task({{ task.getId() }})" class="button blueB"  href="javascript:void(0);">Update task</a> or <a onclick="close_Edit_task({{ task.getId()  }})" href="javascript:void(0);" >Cancel</a>
-    </div>
+
+          <select class="chzn-select edit-task-{{ task.getId()  }}" style="width:100%"  data-placeholder="" style=""  multiple="multiple" tabindex="9">
+              {% for user in users %}
+                  <option
+                          {% for task_u in  task_user %}
+                                {% if task_u.user_id == user.user_id %}
+                                    selected="selected"
+                                {% endif %}
+                          {% endfor %}
+                          value="{{ user.user_id }}">{{ user.firstname }} {{ user.lastname }}</option>
+              {% endfor %}
+         </select>
+         <input name="due_date" type="text" value=""  class="datepicker due_date" />
+
+         <a onclick="save_edit_task({{ task.getId() }})" class="button blueB"  href="javascript:void(0);">Update task</a> or <a onclick="close_Edit_task({{ task.getId()  }})" href="javascript:void(0);" >Cancel</a>
+     </div>
 </div>
+
+<script>
+    $(".chzn-select").chosen();
+    $("select, input:radio, input:file").uniform();
+</script>
