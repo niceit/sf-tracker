@@ -13,7 +13,7 @@
                           value="{{ user.user_id }}">{{ user.firstname }} {{ user.lastname }}</option>
               {% endfor %}
          </select>
-         <input name="due_date" type="text" value=""  class="datepicker due_date" />
+         <input name="due_date" type="text" value="{% if task.getDuetime() %}{{ task.getDuetime() | date('Y-m-d') }} {% endif %}"  class="datepicker due_date" />
 
          <a onclick="save_edit_task({{ task.getId() }})" class="button blueB"  href="javascript:void(0);">Update task</a> or <a onclick="close_Edit_task({{ task.getId()  }})" href="javascript:void(0);" >Cancel</a>
      </div>
@@ -22,4 +22,10 @@
 <script>
     $(".chzn-select").chosen();
     $("select, input:radio, input:file").uniform();
+
+    $( ".datepicker" ).datepicker({
+        defaultDate: +7,
+        autoSize: true,
+        dateFormat: 'yy-mm-dd'
+    });
 </script>

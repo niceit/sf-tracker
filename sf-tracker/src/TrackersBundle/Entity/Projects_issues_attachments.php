@@ -35,6 +35,15 @@ class Projects_issues_attachments
      */
     private $commentId;
 
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="task_id", type="integer")
+     */
+    private $taskId;
+
+
     /**
      * @var integer
      *
@@ -149,11 +158,11 @@ class Projects_issues_attachments
     }
 
     /**
-     * Set uploadedBy
-     *
-     * @param integer $uploadedBy
-     * @return Projects_issues_attachments
-     */
+ * Set uploadedBy
+ *
+ * @param integer $uploadedBy
+ * @return Projects_issues_attachments
+ */
     public function setUploadedBy($uploadedBy)
     {
         $this->uploadedBy = $uploadedBy;
@@ -164,11 +173,37 @@ class Projects_issues_attachments
     /**
      * Get uploadedBy
      *
-     * @return integer 
+     * @return integer
      */
     public function getUploadedBy()
     {
         return $this->uploadedBy;
+    }
+
+
+
+
+    /**
+     * Set taskId
+     *
+     * @param integer $taskId
+     * @return Projects_issues_attachments
+     */
+    public function setTaskId($taskId)
+    {
+        $this->taskId = $taskId;
+
+        return $this;
+    }
+
+    /**
+     * Get taskId
+     *
+     * @return integer
+     */
+    public function getTaskId()
+    {
+        return $this->taskId;
     }
 
     /**

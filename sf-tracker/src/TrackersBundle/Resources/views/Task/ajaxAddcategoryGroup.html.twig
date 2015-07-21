@@ -1,0 +1,66 @@
+<div class="group group-{{ id }}">
+    <h4 data-id="{{ id }}" class="title title-{{ id }}"><label>{{ name }} </label>
+            <span>
+                <a class="tipS" original-title="Remove" onclick="removecategory({{ id }})" href="javascript:;"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
+                <a class="tipS" original-title="Update" onclick="editcategory({{ id }})" href="javascript:;"><img src="{{ asset('assets/images/icons/edit.png') }}" alt=""></a>
+            </span></h4>
+    <div class="update-{{ id }}"></div>
+    <ul class="ul-task ul-task-{{ id }}">
+    </ul>
+  <a class="a-addtask a-addtask-{{ id }}" onclick="add_task({{ id }});" href="javascript:void(0);">Add task</a>
+    <div style="display: none" class="add-task add-task-{{ id }}">
+         <div class="widget form-task">
+             Title:
+            <input class="title_task" type="text" name="name" id="title_task" />
+             Assign user:<br/>
+             <select style="width:100%"  data-placeholder="" style="" class="chzn-select" multiple="multiple" tabindex="9">
+                    <option value=""></option>
+                 {% for user in users %}
+                     <option value="{{ user.user_id }}">{{ user.firstname }} {{ user.lastname }}</option>
+                 {% endfor %}
+             </select>
+             Due date: <input name="due_date" type="text" value=""  class="datepicker due_date" />
+
+            Attach files: <input data-id_category="{{ id }}"  class="fileuploads" type="file" name="files[]" multiple>
+            <div class="img-add">
+
+            </div>
+            <div class="submit-add-task">
+                <a  onclick="save_task({{ id }})" class="button blueB "  href="javascript:void(0);">Save task</a> or <a onclick="close_task({{ id }})" href="javascript:void(0);" >Cancel</a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(".chzn-select").chosen();
+    $("select, input:radio, input:file").uniform();
+
+    $( ".datepicker" ).datepicker({
+        defaultDate: +7,
+        autoSize: true,
+        dateFormat: 'yy-mm-dd'
+    });
+
+
+    $(function () {
+        $('.fileuploads').fileupload({
+            url: '{{ path('_uploadfiletask' , { 'id': project_id }) }}',
+            dataType: 'json',
+            done: function (e, data) {
+                var id =  $(this).data("id_category");
+                $('.add-task-'+id+' .img-add').append('<div class="parentfile_'+data.result['id']+'"  ><span class="file_'+data.result['id']+'"  ><input name="file_id[]" type="hidden"  value="'+data.result['id']+'" />'+data.result['name']+'</span><a onclick="romove_file('+data.result['id']+')" href="javascript:;">Delete</a></div>');
+                $('.add-task-'+id+' .submit-add-task').show();
+            },
+            progressall: function (e, data) {
+                var id =  $(this).data("id_category");
+                $('.add-task-'+id+' .submit-add-task').hide();
+            }
+        }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+
+    });
+
+</script>

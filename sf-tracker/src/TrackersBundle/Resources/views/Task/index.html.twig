@@ -11,6 +11,7 @@
     <link href="{{ asset('assets/css/jquery.growl.css') }}" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="{{ asset('assets/js/jquery.growl.js') }}"></script>
     <script type="text/javascript" src="{{ asset('assets/js/rainbow.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/fileuploadmulti.js') }}"></script>
 
 
     <div class="wrapper">
@@ -28,6 +29,8 @@
             </div>
         </div>
 
+
+
         <div class="list-category">
             {% for category in categorys %}
                 <div class="group group-{{ category.id }}">
@@ -43,14 +46,15 @@
                             <li class="li-task li-task{{ task.id }}" data-id="{{ task.id }}">
                                 <div class="title-task">
                                     <input type="checkbox"/> <span class="task-name">{{ task.title }}
-                                        (
-                                        {% for user in task.user_assign %}
-                                            <span class="full_name">{{  user.firstname }} {{ user.lastname }} </span>
-                                        {% endfor %}
-                                        )
-                                        {% if task.duetime != '' %}
-                                            {{ task.duetime | date('Y-m-d') }}
-                                        {% endif %}
+                                        <a class="change-assgin" onclick="edit_task({{ task.id }})" data-id="{{ task.id }}" href="javascript:;">(
+                                            {% for user in task.user_assign %}
+                                                <span class="full_name">{{  user.firstname }} {{ user.lastname }} </span>
+                                            {% endfor %}
+                                            )
+                                            {% if task.duetime != '' %}
+                                                {{ task.duetime | date('Y-m-d') }}
+                                            {% endif %}
+                                        </a>
                                     </span>
                                     <label>
                                         <a class="tipS" original-title="Remove" href="javascript:void(0)" onclick="remove_task({{ task.id }} , '{{ task.title }}' )" ><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
@@ -58,6 +62,8 @@
                                     </label>
                                 </div>
                                 <div class="edit-from-task"></div>
+
+
                             </li>
                         {% endfor %}
                     {% endif %}
@@ -65,17 +71,25 @@
                 <a class="a-addtask a-addtask-{{ category.id }}" onclick="add_task({{ category.id }});" href="javascript:void(0);">Add task</a>
                 <div class="add-task add-task-{{ category.id }}">
                      <div class="widget form-task">
+                         Title:
                         <input class="title_task" type="text" name="name" id="title_task" />
+                         Assign user:<br/>
                          <select style="width:100%"  data-placeholder="" style="" class="chzn-select" multiple="multiple" tabindex="9">
                                 <option value=""></option>
                              {% for user in users %}
-                                <option value="{{ user.user_id }}">{{ user.firstname }} {{ user.lastname }}</option>
+                                 <option value="{{ user.user_id }}">{{ user.firstname }} {{ user.lastname }}</option>
                              {% endfor %}
                          </select>
-                         <input name="due_date" type="text" value=""  class="datepicker due_date" />
+                         Due date: <input name="due_date" type="text" value=""  class="datepicker due_date" />
 
+                        Attach files: <input data-id_category="{{ category.id }}"  class="fileupload" type="file" name="files[]" multiple>
+                        <div class="img-add">
 
-                        <a onclick="save_task({{ category.id }})" class="button blueB"  href="javascript:void(0);">Save task</a> or <a onclick="close_task({{ category.id }})" href="javascript:void(0);" >Cancel</a>
+                        </div>
+                        <div class="submit-add-task">
+                            <a  onclick="save_task({{ category.id }})" class="button blueB "  href="javascript:void(0);">Save task</a> or <a onclick="close_task({{ category.id }})" href="javascript:void(0);" >Cancel</a>
+                        </div>
+
                     </div>
                 </div>
                 </div>
@@ -84,76 +98,42 @@
     </div>
 
 
-
-
-
-
-
-
-
-    <form id="myForm" action="{{ path('_uploadfiletask' , { 'id': 2 }) }}" method="post" enctype="multipart/form-data">
-         <input type="file" size="60" name="file">
-         <input type="submit" value="Ajax File Upload">
-     </form>
-
-
-    <div id="progress">
-        <div id="bar"></div>
-        <div id="percent">0%</div >
-    </div>
-    <br/>
-
-    <div id="message"></div>
-
-
-    <script>
-$(document).ready(function()
-{
-
-    var options = {
-        beforeSend: function()
-        {
-            $("#progress").show();
-            //clear everything
-            $("#bar").width('0%');
-            $("#message").html("");
-            $("#percent").html("0%");
-        },
-        uploadProgress: function(event, position, total, percentComplete)
-        {
-            $("#bar").width(percentComplete+'%');
-            $("#percent").html(percentComplete+'%');
-
-
-        },
-        success: function()
-        {
-            $("#bar").width('100%');
-            $("#percent").html('100%');
-
-        },
-        complete: function(response)
-        {
-            $("#message").html("<font color='green'>"+response.responseText+"</font>");
-        },
-        error: function()
-        {
-            $("#message").html("<font color='red'> ERROR: unable to upload files</font>");
-
-        }
-
-    };
-
-    $("#myForm").ajaxForm(options);
-
-});
-
-</script>
-
-
-
-
+    <link href="{{ asset('assets/css/jquery.fileupload.css') }}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{{ asset('assets/jsupload/vendor/jquery.ui.widget.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/jsupload/jquery.iframe-transport.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/jsupload/jquery.fileupload.js') }}"></script>
     <script type="text/javascript">
+    $(function () {
+        $('.fileupload').fileupload({
+            url: '{{ path('_uploadfiletask' , { 'id': project_id }) }}',
+            dataType: 'json',
+            done: function (e, data) {
+                var id =  $(this).data("id_category");
+                $('.add-task-'+id+' .img-add').append('<div class="parentfile_'+data.result['id']+'"  ><span class="file_'+data.result['id']+'"  ><input name="file_id[]" type="hidden"  value="'+data.result['id']+'" />'+data.result['name']+'</span><a onclick="romove_file('+data.result['id']+')" href="javascript:;">Delete</a></div>');
+                $('.add-task-'+id+' .submit-add-task').show();
+            },
+            progressall: function (e, data) {
+                var id =  $(this).data("id_category");
+                $('.add-task-'+id+' .submit-add-task').hide();
+              /*  var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('#progress .progress-bar').css(
+                        'width',
+                        progress + '%'
+                ); */
+            }
+        }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+
+    });
+
+    function romove_file(id){
+        $('.file_'+id).remove();
+        $('.parentfile_'+id).hide();
+    }
+
+
+
         $(function(){
             $('.add-category-task').hide();
             $('.add-task').hide();
@@ -196,17 +176,10 @@ $(document).ready(function()
                 dataType : "html",
                 success : function(data){
                     $('.add-category-task').slideToggle('slow');
-                    var html =      '<div class="group-'+data+'" ><h4 data-id="'+data+'" class="title title-'+data+'"><label>'+name_category_task+' </label><span><a onclick="removecategory('+data+')" href="javascript:;">Xoa</a> <a onclick="editcategory('+data+')" href="javascript:;">Edit</a></span></h4><div class="update-'+data+'"></div>';
-                    html +=         '<ul class="ul-task ul-task-'+data+'">';
-                    html +=       '</ul>';
-                    html +=        '<a class="a-addtask a-addtask-'+data+'" onclick="add_task('+data+');" href="javascript:void(0);">Add task</a>';
-                    html +=        '<div style="display:none" class="add-task add-task-'+data+'">';
-                    html +=        '<div class="widget form-task">';
-                    html +=        '<input type="text" name="name" id="title_task" />';
-                    html +=        '<a onclick="save_task('+data+')" class="button blueB"  href="javascript:void(0);">Save task</a> or <a onclick="close_task('+data+')" href="javascript:void(0);" >Cancel</a>';
-                    html +=        '</div>';
-                    html +=        '</div></div>';
-                    $( ".list-category" ).prepend( html );
+
+                    $( ".list-category" ).prepend( data );
+
+
                     $("h4.title span").hide();
                     $('#name_category_task').val('');
                     $('#name_category_task').focus();
@@ -237,7 +210,8 @@ $(document).ready(function()
                 selectednumbers[i] = $(selected).val();
             });
 
-
+            var file = $(".add-task-"+id_category+" input[name='file_id[]']")
+                    .map(function(){return $(this).val();}).get();
 
             var title = $('.add-task-'+id_category+' .title_task').val();
             var due_date = $('.add-task-'+id_category+' .due_date').val();
@@ -252,19 +226,25 @@ $(document).ready(function()
                     'id_category' : id_category,
                     'project_id' : {{ project_id}} ,
                     'user_asign' : selectednumbers,
-                    'due_date' : due_date
+                    'due_date' : due_date,
+                    'file' : file
                 },
                 dataType : "json",
                 success : function(data){
                     var title_temp = "'"+title+"'";
                     var html = '<li  class="li-task'+data['id']+'"   data-id="'+data['id']+'"><div class="title-task">';
-                    html +=    '<input type="checkbox"/> <span class="task-name">'+data['title']+'</span>';
-                    html +=  '<label><a href="javascript:void(0)" onclick="remove_task('+data['id']+' , '+title_temp+' )" >Xoa</a> <a onclick="edit_task('+data['id']+')" href="javascript:void(0)">Edit</a></label>';
+                    html +=    '<input type="checkbox"/> <span class="task-name">'+data['title']+'<a onclick="edit_task('+data['id']+')" href="#">('+data['full_name']+') '+due_date+'</a></span>';
+                    html +=  '<label><a href="javascript:void(0)" onclick="remove_task('+data['id']+' , '+title_temp+' )" ><img src="/assets/images/icons/remove.png" alt=""></a> <a onclick="edit_task('+data['id']+')" href="javascript:void(0)"><img src="/assets/images/icons/edit.png" alt=""></a></label>';
                     html +=  '</div><div class="edit-from-task"></div>';
                     $('.ul-task-'+id_category).append(html);
                     $('.add-task-'+id_category+' input').val('');
                     $('.add-task-'+id_category+' select').val(['']);
-                    $('.add-task-'+id_category+' input').focus();
+                   // $('.add-task-'+id_category+' input').focus();
+                    $('.add-task-'+id_category+' .img-add').html('');
+
+
+
+
                     hover_li();
                     event.preventDefault();
                     event.stopPropagation();
@@ -281,7 +261,7 @@ $(document).ready(function()
 
 
         function edit_task(task_id){
-
+            $('.loading').show();
             var URL = '{{ path('_ajaxGetFromEditTask') }}';
             jQuery.ajax({
                 type: "post",
@@ -293,7 +273,7 @@ $(document).ready(function()
                     $('.li-task'+task_id+' .edit-from-task').html(data);
                     $('.title-task').show();
                     $('.li-task'+task_id+' .title-task').hide();
-
+                    $('.loading').hide();
 
                 }
 
@@ -307,6 +287,7 @@ $(document).ready(function()
         }
         function save_edit_task(task_id){
             var title = $('.input-'+task_id).val();
+            var due_date = $('.edit-task-'+task_id+' .due_date').val();
             var selectednumbers = [];
             $('.edit-task-'+task_id+' select :selected').each(function(i, selected) {
                 selectednumbers[i] = $(selected).val();
@@ -319,10 +300,10 @@ $(document).ready(function()
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'title' : title ,'task_id' : task_id , 'user_asign' : selectednumbers },
+                data:{'title' : title ,'due_date' : due_date, 'task_id' : task_id , 'user_asign' : selectednumbers },
                 dataType : "json",
                 success : function(data){
-                    $('.li-task'+task_id+' .task-name').html(data['title']);
+                    $('.li-task'+task_id+' .task-name').html(data['title']+'<a onclick="edit_task('+data['id']+')" href="javascript:;">('+data['full_name']+') '+due_date+'</a>');
                     close_Edit_task(task_id);
                     event.preventDefault();
                     event.stopPropagation();
@@ -356,7 +337,7 @@ $(document).ready(function()
             });
         }
         function editcategory(category_id){
-
+            $('.loading').show();
             var URL = '{{ path('_ajaxGetFromCategory') }}';
             jQuery.ajax({
                 type: "post",
@@ -367,7 +348,7 @@ $(document).ready(function()
                     $('.update-'+category_id).show();
                     $('.title-'+category_id).hide();
                     $('.update-'+category_id).html(data);
-
+                    $('.loading').hide();
 
                 }
 

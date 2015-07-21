@@ -30,8 +30,17 @@ class CategoryTaskController extends Controller
             $em->persist($Project_category_task);
             $em->flush();
 
+            $em = $this->getDoctrine()->getEntityManager();
+
+            $query = $em->createQuery("SELECT n.firstname , n.lastname , n.user_id   FROM TrackersBundle:UserDetail n, TrackersBundle:User_projects u WHERE  u.userId = n.user_id AND  u.projectId = :projectid ")
+                ->setParameter('projectid', $project_id);
+
         }
-        echo $Project_category_task->getId();
+
+
+        $template = $this->render('TrackersBundle:Task:ajaxAddcategoryGroup.html.twig', array ('project_id'=> $project_id, 'id' => $Project_category_task->getId(), 'name' => $Project_category_task->getName(), 'users' => $query->getResult()));
+
+        return new Response($template->getContent());
         die();
     }
     /**
