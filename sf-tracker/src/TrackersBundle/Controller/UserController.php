@@ -24,7 +24,6 @@ class UserController extends Controller
         return array('active'=>'users');
     }
 
-
     /**
      * @Route("/user/add", name="_user_add")
      * @Template("TrackersBundle:User:add.html.twig")
@@ -38,9 +37,7 @@ class UserController extends Controller
             $requestData = $this->getRequest()->request;
             $account = $requestData->get('account');
 
-
             // Create a new user
-
             $user->setUsername($account['userName']);
             $user->setEmail($account['email']);
             $user->setPlainPassword('password');
@@ -49,7 +46,7 @@ class UserController extends Controller
             $manager = $this->getDoctrine()->getEntityManager();
             $manager->persist($user);
             $manager->flush();
-            if(!empty($user) && $user->getId()!=''){
+            if(!empty($user) && $user->getId() != ''){
                 $user_detail->setUser_id($user->getId());
                 $user_detail->setSituation('');
                 $user_detail->setFirstname('');
@@ -68,13 +65,12 @@ class UserController extends Controller
             }
         }
 
-
         return array();
     }
     /**
      * @Route("/ajaxSearch_user", name="_ajaxSearch_user")
      */
-    public function ajaxSearch_userAction()
+    public function ajaxSearchUserAction()
     {
         $requestData = $this->getRequest()->request;
         $user_name = $requestData->get('user_name');
@@ -106,7 +102,6 @@ class UserController extends Controller
         exit;
     }
 
-
     /**
      * @Route("/profile", name="_Profile")
      * @Template("TrackersBundle:User:profile.html.twig")
@@ -114,7 +109,6 @@ class UserController extends Controller
     public function profileAction()
     {
         $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
-
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
             $account = $requestData->get('account');
@@ -132,7 +126,6 @@ class UserController extends Controller
             if( $account['password'] != '' )
              $user->setPlainPassword($account['password']);
             $userManager->updateUser($user);
-
 
             //---- Update user_detail
             $userS = $repository_user->find($user_detail);
@@ -154,11 +147,8 @@ class UserController extends Controller
 
         }
 
-
-
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Country');
         $countrys = $repository->findAll();
-
 
         $users = $repository_user->findBy(array ('user_id' => $this->getUser()->getId()));
         $UserDetail = $repository_user->find($users[0]->getId());
@@ -167,15 +157,13 @@ class UserController extends Controller
            $is_avatar = true;
         }else $is_avatar = false;
 
-
-
         return array( 'users' => $this->getUser() ,'is_avatar' => $is_avatar, 'UserDetail' => $UserDetail, 'countrys' => $countrys , 'user_detail' => $users[0]->getId() );
     }
 
     /**
      * @Route("/ajaxgetcity", name="_ajaxGetCity")
      */
-    public function ajaxgetcityAction()
+    public function ajaxGetCityAction()
     {
         $citys = array();
 
@@ -187,7 +175,6 @@ class UserController extends Controller
             $repository = $this->getDoctrine()->getRepository('TrackersBundle:City');
             $citys = $repository->findBy(array ('countryId' => $id));
         }
-
 
         $template = $this->render('TrackersBundle:City:ajax_getcity.html.twig', array ('citys' => $citys , 'city_id' => $city_id));
         return new Response($template->getContent());

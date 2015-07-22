@@ -846,7 +846,7 @@ $(function() {
 
 	//===== Form elements styling =====//
 	
-	$("select, input:radio, input:file").uniform();
+	$("select, input:radio").uniform();
 
 	
 });

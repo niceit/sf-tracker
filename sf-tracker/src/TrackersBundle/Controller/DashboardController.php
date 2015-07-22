@@ -29,10 +29,7 @@ class DashboardController extends Controller
         $repository_issues = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
         $repository_issues_comments = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_comments');
 
-
-
-        foreach($projects as $project){
-
+        foreach ($projects as $project){
             $activitys = $repository->findBy(array ('parentId' => $project->getId() ), array ('createdAt' => 'DESC'),5, 0);
             $arr = array ();
             foreach ($activitys as $activity) {
@@ -40,19 +37,17 @@ class DashboardController extends Controller
                 $activity_type = $repository_activity->find($activity->getTypeId());
 
                 $issues = $repository_issues->find($activity->getItemId());
-                if(!empty($issues)){
+                if (!empty($issues)){
                     $tile_issue = $issues->getTitle();
-                }else
-                {
+                } else {
                     $tile_issue =  '';
                 }
-                if($activity->getActionId()!=''){
+                if ($activity->getActionId() != ''){
                     $comments = $repository_issues_comments->find($activity->getActionId());
                     if(!empty($comments)){
                         $comment = $comments->getComment();
                     }else $comment = '';
-                }else $comment = '';
-
+                } else $comment = '';
 
                 $arr[] = array (
                     'id' => $activity->getId(),
@@ -66,20 +61,18 @@ class DashboardController extends Controller
                     'users' => $user[0]->getFirstname()." ".$user[0]->getLastname()
                 );
             }
-
             $project_issues[] = array(
                 'id' => $project->getId(),
                 'name' => $project->getName(),
                 'activitys' => $arr
             );
         }
-
         return array( 'project_issues' => $project_issues );
     }
     /**
      * @Route("/number-notifications", name="_numberNotifications")
      */
-    public function NumberNotificationsAction()
+    public function numberNotificationsAction()
     {
         $em = $this->container->get('doctrine')->getManager();
         $query = $em->createQuery("SELECT p FROM TrackersBundle:Notifications p WHERE  p.userId = :user_id AND p.isRead = 0   ORDER BY p.created DESC ")
@@ -92,7 +85,7 @@ class DashboardController extends Controller
     /**
      * @Route("/notifications", name="_Notifications")
      */
-    public function NotificationsAction()
+    public function notificationsAction()
     {
         $em = $this->container->get('doctrine')->getManager();
         $query = $em->createQuery("SELECT p FROM TrackersBundle:Notifications p WHERE  p.userId = :user_id AND p.isRead = 0   ORDER BY p.created DESC ")
@@ -107,7 +100,7 @@ class DashboardController extends Controller
      * @Route("/notifications-view-all", name="_notificationsView_All")
      * @Template("TrackersBundle:Dashboard:notificationsviewall.html.twig")
      */
-    public function notificationsviewallAction()
+    public function notificationsViewAllAction()
     {
         $em = $this->container->get('doctrine')->getManager();
         $query = $em->createQuery("SELECT p FROM TrackersBundle:Notifications p WHERE  p.userId = :user_id AND p.isRead = 0   ORDER BY p.created DESC ")
@@ -118,7 +111,7 @@ class DashboardController extends Controller
     /**
      * @Route("/ajax_message", name="_ajax_message")
      */
-    public function ajax_messageAction()
+    public function ajaxMessageAction()
     {
         $requestData = $this->getRequest()->request;
         $page = $requestData->get('page');
@@ -129,14 +122,13 @@ class DashboardController extends Controller
 
         $total = (int)( count($repository->findBy(array ('userId' => $this->getUser()->getId()), array('created' => 'DESC'))) / $limit);
         $count = count($repository->findBy(array ('userId' => $this->getUser()->getId()), array('created' => 'DESC')));
-        if($count > $limit &&  $count  % $limit != 0){
+        if ($count > $limit &&  $count  % $limit != 0){
             $total = $total + 1;
         }
 
         $pagination = new Pagination();
         $paginations = $pagination->render($page, $total, 'loadMessage');
         $notifications = $repository->findBy(array ('userId' => $this->getUser()->getId()), array('created' => 'DESC', 'isRead' => 'ASC'), $limit, $offset);
-
 
         $template = $this->render('TrackersBundle:Dashboard:ajax_notifications_page.html.twig', array ('notifications' => $notifications, 'paginations' => $paginations));
         return new Response($template->getContent());
@@ -148,20 +140,16 @@ class DashboardController extends Controller
      */
     public function recentAvatarAction()
     {
-
         $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
 
         $users = $repository_user->findBy(array ('user_id' => $this->getUser()->getId()));
-
-
-       if(!empty($users) && $users[0]->getAvatar() != '' ){
-           if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$users[0]->getAvatar()) ){
+       if (!empty($users) && $users[0]->getAvatar() != '' ){
+           if (file_exists($this->get('kernel')->getRootDir() . '/../web'.$users[0]->getAvatar()) ){
                $is_avatar = true;
-           }else $is_avatar = false;
-       }else $is_avatar = false;
+           } else $is_avatar = false;
+       } else $is_avatar = false;
 
-
-            return $this->render(
+        return $this->render(
             'TrackersBundle:Dashboard:recentAvatar.html.twig',
             array('avatar' => $users[0]->getAvatar() , 'is_avatar' => $is_avatar)
         );
@@ -172,15 +160,11 @@ class DashboardController extends Controller
      */
     public function recentCountIssueAction($id)
     {
-
         $repository_Projects = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
         $project = $repository_Projects->find($id);
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
         $number_open = count($repository->findBy(array ('projectId' => $id, 'status' => 'OPEN')));
-
         $number_close = count($repository->findBy(array ('projectId' => $id, 'status' => 'CLOSED')));
-
-
 
         return $this->render(
             'TrackersBundle:Dashboard:recentCountIssue.html.twig',

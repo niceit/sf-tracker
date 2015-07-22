@@ -26,7 +26,7 @@ class DownloadController extends Controller
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
         $files = $repository->find($id);
 
-        if(empty($files)){
+        if (empty($files)){
             throw $this->createNotFoundException();
         }
         $filename = $files->getFileurl();
@@ -42,20 +42,14 @@ class DownloadController extends Controller
             throw $this->createNotFoundException();
         }
 
-
-
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename='.basename($filePath));
+        header('Content-Disposition: attachment; filename=' . basename($filePath));
         header('Expires: 0');
         header('Cache-Control: must-revalidate');
         header('Pragma: public');
         header('Content-Length: ' . filesize($filePath));
         readfile($filePath);
         exit;
-
-
-
-
     }
 }

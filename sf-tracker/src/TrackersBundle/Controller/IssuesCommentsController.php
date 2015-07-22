@@ -25,14 +25,14 @@ class IssuesCommentsController extends Controller
     /**
      * @Route("/uploadfile/{id}/{issue_id}", name="_uploadfile")
      */
-    public function uploadfileAction($id,$issue_id,Request $request)
+    public function uploadFileAction($id,$issue_id,Request $request)
     {
         $image = $request->files->get('file');
 
         $fs = new Filesystem();
         $file = 'upload/project_issues/'.$id;
         $dir = 'project_issues/'.$id;
-        if(!$fs->exists($file)){
+        if (!$fs->exists($file)){
             $fs->mkdir($file);
         }
         $arr = array();
@@ -49,7 +49,6 @@ class IssuesCommentsController extends Controller
         $name_image = $document->getSubDirectory() . "/" . $name_file. "." . $file_type;
 
         $projects_issues_attachments = new Projects_issues_attachments();
-
         $projects_issues_attachments->setIssueId(0);
         $projects_issues_attachments->setUploadedBy($this->getUser()->getId());
         $projects_issues_attachments->setFilesize($image->getClientSize());
@@ -64,22 +63,22 @@ class IssuesCommentsController extends Controller
 
         $Session = $request->getSession();
         $Session->start();
-        if($Session->get('comment_id'))
+        if ($Session->get('comment_id'))
             $arrComment = $Session->get('comment_id');
         else
             $arrComment = array();
         $arrComment[] = $projects_issues_attachments->getId();
         $Session->set('comment_id',$arrComment );
 
-
         $arr['id'] = $projects_issues_attachments->getId();
         echo $projects_issues_attachments->getId();//json_encode($arr);
         die();
     }
+
     /**
      * @Route("/getuploadfile", name="_getuploadfile")
      */
-    public function getuploadfileAction()
+    public function getUploadFileAction()
     {
         $Session = new Session();
         echo json_encode($Session->get('comment_id'));
@@ -90,7 +89,7 @@ class IssuesCommentsController extends Controller
     /**
      * @Route("/savecomment", name="_savecomment")
      */
-    public function savecommentAction()
+    public function saveCommentAction()
     {
         $requestData = $this->getRequest()->request;
         $comment = $requestData->get('comment');
@@ -119,8 +118,8 @@ class IssuesCommentsController extends Controller
         $em->persist($users_activity);
         $em->flush();
 
-        if(!empty($file_id)){
-            foreach($file_id as $file){
+        if (!empty($file_id)){
+            foreach ($file_id as $file){
                 $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
                 $files = $repository->find($file);
                 $files->setCommentId($projects_issues_comments->getId());
@@ -129,19 +128,14 @@ class IssuesCommentsController extends Controller
             }
         }
 
-
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
         $users = $repository->findBy(array('user_id' => $this->getUser()->getId()));
         $user = $users[0];
 
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects');
         $project = $repository->find($project_id);
-
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
         $issue = $repository->find($issue_id);
-
-
-
 
         // Get user detail
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
@@ -154,10 +148,8 @@ class IssuesCommentsController extends Controller
         $notifications = new Notifications();
         $text = $user->getFirstname().' '.$user->getLastname()." is comment issue with content ".$comment;
 
-
-
         // send user create project----
-        if($this->getUser()->getId() != $project->getOwnerId()){
+        if ($this->getUser()->getId() != $project->getOwnerId()){
             $notifications = new Notifications();
             $notifications->setUserId($project->getOwnerId());
             $notifications->setIssueId($issue->getId());
@@ -169,9 +161,9 @@ class IssuesCommentsController extends Controller
             $em->flush();
         }
         // send user do issues----
-        if(!empty($attachments)){
-            foreach($attachments as $attachment){
-                if($this->getUser()->getId() != $attachment->getUserId()){
+        if (!empty($attachments)){
+            foreach ($attachments as $attachment){
+                if ($this->getUser()->getId() != $attachment->getUserId()){
                     $notifications = new Notifications();
                     $notifications->setUserId($attachment->getUserId());
                     $notifications->setIssueId($issue->getId());
@@ -185,7 +177,6 @@ class IssuesCommentsController extends Controller
 
             }
         }
-
         $repository = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
         $users = $repository->findBy(array('user_id'=>$this->getUser()->getId()));
         $user = $repository->find($users[0]->getId());
@@ -198,19 +189,18 @@ class IssuesCommentsController extends Controller
         echo json_encode($arr_comment);
         die();
     }
+
     /**
      * @Route("/ajaxgetcomment", name="_ajaxgetcomment")
      */
-    public function ajaxgetcommentAction()
+    public function ajaxGetCommentAction()
     {
         $requestData = $this->getRequest()->request;
         $issueId = $requestData->get('issueId');
         $page = $requestData->get('page');
 
         $repository_project_issues = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
-
         $issue = $repository_project_issues->find($issueId);
-
         $arr_comments = array();
         $repository_comment = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_comments');
 
@@ -219,43 +209,35 @@ class IssuesCommentsController extends Controller
 
         $total = (int)( count($repository_comment->findBy(array( 'issueId' => $issueId ), array('createdAt' => 'DESC'))) / $limit);
         $count = count($repository_comment->findBy(array( 'issueId' => $issueId ), array('createdAt' => 'DESC')));
-        if($count > $limit &&  $count  % $limit != 0){
+        if ($count > $limit &&  $count  % $limit != 0){
             $total = $total + 1;
         }
-
-
 
         $pagination = new Pagination();
         $paginations = $pagination->render($page,$total,'loadcomments');
 
-
         $comments = $repository_comment->findBy( array( 'issueId' => $issueId ), array('createdAt' => 'DESC'),$limit,$offset );
 
         $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
-        foreach($comments as $comment){
+        foreach ($comments as $comment){
         $repository_attachments = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
         $attachments = $repository_attachments->findBy( array( 'commentId' => $comment->getId() ), array('createdAt' => 'ASC') );
 
-
         $users_comment = $repository_user->findBy(array('user_id'=>$comment->getCreatedBy()));
-
         $is_update = false;
-        if($comment->getCreatedBy()==$this->getUser()->getId())
+        if ($comment->getCreatedBy()==$this->getUser()->getId())
         {
-        $is_update = true;
+            $is_update = true;
         }
 
-        if(!empty($users_comment) && $users_comment[0]->getAvatar() != '' ){
-            if(file_exists($this->get('kernel')->getRootDir() . '/../web'.$users_comment[0]->getAvatar()) ) {
+        if (!empty($users_comment) && $users_comment[0]->getAvatar() != '' ){
+            if (file_exists($this->get('kernel')->getRootDir() . '/../web'.$users_comment[0]->getAvatar()) ) {
                 $is_avatar = true;
-            }
-            else $is_avatar = false;
-        }else $is_avatar = false;
+            } else $is_avatar = false;
+        } else $is_avatar = false;
 
-        if($issue->getStatus() == 'CLOSED')
+        if ($issue->getStatus() == 'CLOSED')
             $is_update = false;
-
-
             $arr_comments[] = array(
                 'fullname'  => $users_comment[0]->getFirstname()." ".$users_comment[0]->getLastname(),
                 'created_at' => $comment->getCreatedAt(),
@@ -268,24 +250,21 @@ class IssuesCommentsController extends Controller
             );
         }
 
-
-
-
         $repository_Closed_Issues = $this->getDoctrine()->getRepository('TrackersBundle:Project_Closed_Issues');
         $Closed_Issues = $repository_Closed_Issues->findBy(array('userId' => $this->getUser()->getId(), 'issueId' => $issueId ));
         $array_date = array();
 
         $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
-        foreach($Closed_Issues as $closed){
+        foreach ($Closed_Issues as $closed){
             $users = $repository_user->findBy(array ('user_id' => $issue->getCreatedBy()));
 
             $date1 = $closed->getStartDate();
             $date2 = $closed->getEndDate();
             $diff = $date2->diff($date1);
-            if($diff->format('%i') > 0 )
-                $h = $diff->format('%d')*24 + $diff->format('%h')." hours ".$diff->format('%i')." minute";
+            if ($diff->format('%i') > 0 )
+                $h = $diff->format('%d')*24 + $diff->format('%h') . " hours " . $diff->format('%i') . " minute";
             else
-                $h = $diff->format('%d')*24 + $diff->format('%h')." hours ";
+                $h = $diff->format('%d')*24 + $diff->format('%h') . " hours ";
             $array_date[] = array(
                 'full_name' => $users[0]->getFirstname()." ".$users[0]->getLastname(),
                 'start_date' => $closed->getStartDate(),
@@ -299,15 +278,15 @@ class IssuesCommentsController extends Controller
         return new Response($template->getContent());
         exit();
     }
+
     /**
      * @Route("/ajaxromovecomment", name="_ajaxromovecomment")
      */
-    public function ajax_romove_commentAction()
+    public function ajaxRomoveCommentAction()
     {
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
             $id = $requestData->get('id');
-
 
             $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_comments');
             $comments = $repository->find($id);
@@ -315,11 +294,8 @@ class IssuesCommentsController extends Controller
             $em->remove($comments);
             $em->flush();
 
-
-
             $repository = $this->getDoctrine()->getRepository('TrackersBundle:Users_activity');
             $comments = $repository->findBy(array('actionId'=>$id));
-
             $comment = $repository->find($comments[0]->getId());
             $em = $this->getDoctrine()->getManager();
             $em->remove($comment);
@@ -331,10 +307,11 @@ class IssuesCommentsController extends Controller
         echo 0;
         exit;
     }
+
     /**
      * @Route("/ajaxupdatecomment", name="_ajaxupdatecomment")
      */
-    public function ajaxupdatecommentAction()
+    public function ajaxUpdateCommentAction()
     {
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;

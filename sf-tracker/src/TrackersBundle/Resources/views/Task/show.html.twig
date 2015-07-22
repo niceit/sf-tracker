@@ -1,0 +1,95 @@
+{% extends '::layoutmain.html.twig' %}
+
+{% block title %}Task - {{ task.getTitle() }}{% endblock %}
+
+{% block Breadcrumb %}
+   <div><a style="margin: 0; float: left;  padding-left: 10px;" href="{{ path('_indexTask' , { 'project_id': task.getProjectId() }) }}" title="" class="button greenB ml15 m10 ajax-request-btn"><span>BACK TO PROJECT </span></a></div>
+    <div class="clear"></div>
+    <h5>Task</h5>
+    <p>{{ task.getTitle() }}</p>
+    {% if due_date|raw == '' %} {% else %} <b>Due date: {{ task.getDuetime() | date('Y-m-d') }}</b>{% endif %}
+{% endblock %}
+
+{% block body %}
+    <link href="{{ asset('assets/css/jquery.fileupload.css') }}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{{ asset('assets/jsupload/vendor/jquery.ui.widget.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/jsupload/jquery.iframe-transport.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/jsupload/jquery.fileupload.js') }}"></script>
+
+    <div class="wrapper">
+
+        <div class="message"></div>
+        <!-- WYSIWYG editor -->
+        <div class="widget ">
+            <div class="title"><img src="{{ asset('assets/images/icons/dark/pencil.png') }}" alt="" class="titleIcon" /><h6>Comment on this issue:</h6></div>
+            <textarea id="editor" rows="8" cols="" name="growingTextarea" class="autoGrow comment" style="height: auto; overflow: hidden; width: 100%"></textarea>
+
+             <div style="margin: 10px" class="attach-file">
+                 Attach files<br/>
+                <input  class="fileupload" type="file" name="files[]" multiple>
+                 <div style="display:none " class="contentProgress"><div class="barG tipS" id="bar9"></div></div>
+                <div id="arr_file"></div>
+             </div>
+
+            <a href="javascript:;" id="btn-comment" title="" class="wButton bluewB ml15 m10"><span>Comment</span></a>
+        </div>
+    </div>
+<script type="text/javascript">
+    $(function () {
+        $('.fileupload').fileupload({
+            url: '{{ path('_uploadfiletaskcomments' , { 'task_id': task.getId() }) }}',
+            dataType: 'json',
+            done: function (e, data) {
+                $('.contentProgress').hide();
+                $('#arr_file').append('<div class="parentfile_'+data.result['id']+'"  ><span class="file_'+data.result['id']+'"  ><input name="file_id[]" type="hidden"  value="'+data.result['id']+'" />'+data.result['name']+'</span> <a onclick="romove_file('+data.result['id']+')" href="javascript:;">Delete</a></div>');
+                $('#btn-comment').show();
+            },
+            progressall: function (e, data) {
+                $('#btn-comment').hide();
+                $('.contentProgress').show();
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('.contentProgress .barG').css(
+                        'width',
+                        progress + '%'
+                );
+            }
+        }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+    });
+    function romove_file(id){
+        $('.file_'+id).remove();
+        $('.parentfile_'+id).hide();
+    }
+    $('#btn-comment').click(function(){
+        $('.message').html('');
+        var editor = $('#editor').cleditor()[0];
+        var comment = editor.$area.val();
+        var file = $("input[name='file_id[]']")
+                .map(function(){return $(this).val();}).get();
+        if (comment.length == 0) {
+            $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
+            return false;
+        }
+        $('.loading').show();
+        var URL = '{{ path('_ajaxAddComment') }}';
+        jQuery.ajax({
+            type: "post",
+            url : URL,
+            data:{'comment' : comment , 'task_id':   {{ task.getId() }} , 'project_id' : {{ task.getProjectId() }} , 'file' : file},
+            dataType : "html",
+            success : function(data){
+                $('.loading').hide();
+                $('#arr_file').html('');
+                $('#editor').cleditor()[0].clear();
+                $('.message').html('<div class="nNote nSuccess hideit"> <p><strong>SUCCESS: </strong>Success comment!</p>  </div>');
+                setTimeout(function () {
+                    $('.message').hide();
+                }, 3000);
+
+            }
+        });
+    });
+</script>
+
+{% endblock %}

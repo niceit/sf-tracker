@@ -39,28 +39,28 @@ class RegisterController extends Controller
             $password = $requestData->get('password');
 
 
-            if(trim($firstName) == ''){
+            if (trim($firstName) == ''){
                 $arr_err['firstname'] = 'Please enter your first name';
             }
-            if(trim($lastName) == ''){
+            if (trim($lastName) == ''){
                 $arr_err['lastname'] = 'Please enter your last name';
             }
-            if(trim($userName) == ''){
+            if (trim($userName) == ''){
                 $arr_err['username'] = 'Please enter your user name';
             }
-            if(trim($email) == ''){
+            if (trim($email) == ''){
                 $arr_err['email'] = 'Please enter your email';
             }
-            if(trim($password) == ''){
+            if (trim($password) == ''){
                 $arr_err['password'] = 'Please enter your password';
             }
-            if(trim($repeatPassword) == ''){
+            if (trim($repeatPassword) == ''){
                 $arr_err['repeatPassword'] = 'Please enter your repeat Password';
             }
-            if(trim($password) != trim($repeatPassword)){
+            if (trim($password) != trim($repeatPassword)){
                 $arr_err['repeatPassword'] = 'Please provide a password';
             }
-            if($arr_err != null){
+            if ($arr_err != null){
                 echo json_encode($arr_err);
                 exit;
             }
@@ -75,7 +75,7 @@ class RegisterController extends Controller
             $manager = $this->getDoctrine()->getEntityManager();
             $manager->persist($user);
             $manager->flush();
-            if(!empty($user) && $user->getId()!=''){
+            if (!empty($user) && $user->getId() != ''){
                 $user_detail->setUser_id($user->getId());
                 $user_detail->setSituation('N/A');
                 $user_detail->setFirstname($firstName);
@@ -118,11 +118,10 @@ class RegisterController extends Controller
         exit;
     }
 
-
     /**
      * @Route("/isusername", name="_is_username")
      */
-    public function  isusernameAction(){
+    public function  isUserNameAction(){
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
             $username = trim($requestData->get('username'));
@@ -140,8 +139,7 @@ class RegisterController extends Controller
     /**
      * @Route("/isemail", name="_is_email")
      */
-    public  function is_email(){
-
+    public  function isEmail(){
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
             $email = trim($requestData->get('email'));
@@ -151,7 +149,6 @@ class RegisterController extends Controller
                 echo 1;
                 exit;
             }
-
         }
         echo 0;
         exit;
@@ -161,31 +158,29 @@ class RegisterController extends Controller
      * @Route("/forgotpassword", name="_forgotpassword")
      * @Template("TrackersBundle:Registration:forgotpassword.html.twig")
      */
-    public function forgotpasswordAction(Request $request)
+    public function forgotPasswordAction(Request $request)
     {
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
             $email = trim($requestData->get('email'));
             $userManager = $this->container->get('fos_user.user_manager');
             $user = $userManager->findUserByEmail($email);
-            if(empty($user)){
+            if (empty($user)){
                 $this->get('session')->getFlashBag()->add('error', 'Email does not exist!');
-            }else{
+            } else {
                 $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
                 $userS = $repository_user->findBy(array('user_id'=>$user->getId()));
                 $user = $userS[0];
-
 
                 $user->setForgotPasswordToken(md5($userS[0]->getUser_id().rand(0,1000000)));
                 $em = $this->getDoctrine()->getManager();
                 $em->persist($user);
                 $em->flush();
                 $this->get('session')->getFlashBag()->add('notice', 'Please check the mail we have sent you a confirmation link.');
-
             }
         }
 
-         $request->getHost().$this->generateUrl('_changepassword',array('token'=>'sssss','username'=>'sssss'));
+         $request->getHost().$this->generateUrl('_changepassword', array('token' => 'sssss', 'username' => 'sssss'));
 
         return array();
     }
@@ -194,12 +189,12 @@ class RegisterController extends Controller
      * @Route("/changepassword/{token}/{username}", name="_changepassword")
      * @Template("TrackersBundle:Registration:changepassword.html.twig")
      */
-    public function changepasswordAction($token ,$username )
+    public function changePasswordAction($token ,$username )
     {
         $repository_user = $this->getDoctrine()->getRepository('TrackersBundle:UserDetail');
         $userS = $repository_user->findBy(array('forgotpassword_token'=>$token));
 
-        if(empty($userS) || $token == ''){
+        if (empty($userS) || $token == ''){
             return $this->redirectToRoute('fos_user_security_login');
         }
 
@@ -207,7 +202,7 @@ class RegisterController extends Controller
             $requestData = $this->getRequest()->request;
             $Password = trim($requestData->get('Password'));
             $ConfirmPassword = trim($requestData->get('ConfirmPassword'));
-            if(trim( $Password ) == trim( $ConfirmPassword ) && trim($Password) != '' )
+            if (trim( $Password ) == trim( $ConfirmPassword ) && trim($Password) != '' )
             {
                 $repository = $this->getDoctrine()->getRepository('TrackersBundle:User');
 
@@ -226,13 +221,10 @@ class RegisterController extends Controller
                 $this->get('session')->getFlashBag()->add('notice', 'Change password successful.');
                 return $this->redirectToRoute('fos_user_security_login');
 
-            }else{
+            } else {
                 $this->get('session')->getFlashBag()->add('error', 'Incorrect password confirmation!');
             }
-
         }
-
-
         return array();
     }
 

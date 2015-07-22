@@ -2232,11 +2232,28 @@ span.status.status_CLOSED{
 .ul-task li {
     padding-left: 16px;
     margin: 4px 0px;
+    position: relative;
+
 }
 .ul-task li label{
     display: none;
     position: absolute;
-    left: 1px;
+    left: -8px;
+    top: 0px;
+}.li-task{
+     clear: both;
+ }
+ .task-name a{
+     margin-left: 15px;
+ }
+ #arr_file div{
+     margin: 10px 0px;
+ }
+.check-complete{
+    padding-top: 4px;
+    display: block;
+    float: left;
+    margin-right: 10px;
 }
 h4.title {
     position: relative;

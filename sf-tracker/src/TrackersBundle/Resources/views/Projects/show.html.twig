@@ -33,7 +33,8 @@
         <div class="wrapper">
             <div class="invButtons">
 
-                <a style="margin: 0; float: left;  padding-left: 10px;" href="{{ path('_addIssues' , { 'id': id }) }}" title="" class="button blueB ajax-request-btn"><img src="{{ asset('assets/images/icons/sPlus.png') }}" alt=""><span>Add new issues</span></a>
+                <a style="margin: 0px  10px; float: left;  padding-left: 10px;" href="{{ path('_addIssues' , { 'id': id }) }}" title="" class="button blueB ajax-request-btn"><img src="{{ asset('assets/images/icons/sPlus.png') }}" alt=""><span>Add new issues</span></a>
+                <a style="margin: 0; float: left;  padding-left: 10px;" href="{{ path('_indexTask' , { 'project_id': id }) }}" title="" class="button blueB ajax-request-btn"><img src="{{ asset('assets/images/icons/sPlus.png') }}" alt=""><span>Add new task</span></a>
                 <a style="float:right " href="{{ path('_editProjects', { 'id': id }) }}" title="" class="button blueB ajax-request-btn" style="margin: 5px;"><img src="{{ asset('assets/images/icons/light/create.png') }}" alt="" class="icon"><span>Edit project</span></a>
                  <div class="clear"></div>
             </div>

@@ -1,7 +1,11 @@
 {% if notifications %}
     <ul>
         {% for notification in notifications %}
-            <li><a class="ajax-request-btn" href="{{ path('_project_issues', { 'id': notification.getIssueId() , 'project_id': notification.getProjectId() }) }}">{{ notification.getText() }}</a></li>
+            {% if notification.getIssueId()|raw != '' %}
+                <li><a class="ajax-request-btn" href="{{ path('_project_issues', { 'id': notification.getIssueId() , 'project_id': notification.getProjectId() }) }}">{{ notification.getText() }}</a></li>
+            {% else %}
+                <li><a class="ajax-request-btn" href="{{ path('_showCategoryTask', { 'task_id': notification.getTaskId() }) }}">{{ notification.getText() }}</a></li>
+            {% endif %}
         {% endfor %}
         <li><a href="{{ path('_notificationsView_All') }}">View All</a></li>
     </ul>

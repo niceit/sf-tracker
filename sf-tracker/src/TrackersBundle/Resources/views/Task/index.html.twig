@@ -7,12 +7,21 @@
 
 {% endblock %}
 
+{% block assigned_user %}
+    {{ include('TrackersBundle:Components:leftAssign.html.twig', { 'project_id': project_id }) }}
+{% endblock %}
+
 {% block body %}
     <link href="{{ asset('assets/css/jquery.growl.css') }}" rel="stylesheet" type="text/css" />
     <script type="text/javascript" src="{{ asset('assets/js/jquery.growl.js') }}"></script>
     <script type="text/javascript" src="{{ asset('assets/js/rainbow.js') }}"></script>
     <script type="text/javascript" src="{{ asset('assets/js/fileuploadmulti.js') }}"></script>
-
+    <style>
+        .chzn-container-multi .chzn-choices .search-choice .search-choice-close {
+            right: -15px;
+            top: -8px;
+        }
+    </style>
 
     <div class="wrapper">
         <div><a href="javascript:void(0);" id="add-group" title="" class="bFirst button basic"><img src="{{ asset('assets/images/icons/dark/photos.png') }}" class="icon" alt=""><span>Add new group</span></a></div>
@@ -28,9 +37,6 @@
                 </div>
             </div>
         </div>
-
-
-
         <div class="list-category">
             {% for category in categorys %}
                 <div class="group group-{{ category.id }}">
@@ -45,15 +51,21 @@
                         {% for task in category.tasks %}
                             <li class="li-task li-task{{ task.id }}" data-id="{{ task.id }}">
                                 <div class="title-task">
-                                    <input type="checkbox"/> <span class="task-name">{{ task.title }}
-                                        <a class="change-assgin" onclick="edit_task({{ task.id }})" data-id="{{ task.id }}" href="javascript:;">(
-                                            {% for user in task.user_assign %}
-                                                <span class="full_name">{{  user.firstname }} {{ user.lastname }} </span>
-                                            {% endfor %}
-                                            )
-                                            {% if task.duetime != '' %}
-                                                {{ task.duetime | date('Y-m-d') }}
+                                    <span class="check-complete"><input type="checkbox"/></span><span class="task-name"><a href="{{ path('_showTask', {'task_id': task.id }) }}">{{ task.title }}</a>
+                                        <a class="change-assgin" onclick="edit_task({{ task.id }})" data-id="{{ task.id }}" href="javascript:;">
+                                            {% if task.user_assign %}
+                                            (
+                                                {% set i = 1 %}
+                                                {% for user in task.user_assign %}
+                                                    <span class="full_name">{{  user.firstname }} {{ user.lastname }} {% if task.user_assign|length != i %} - {% endif %}</span>
+                                                    {% set i = i + 1 %}
+                                                {% endfor %}
+                                                )
                                             {% endif %}
+                                                {% if task.duetime != '' %}
+                                                    {{ task.duetime | date('Y-m-d') }}
+                                                {% endif %}
+
                                         </a>
                                     </span>
                                     <label>
@@ -72,7 +84,7 @@
                 <div class="add-task add-task-{{ category.id }}">
                      <div class="widget form-task">
                          Title:
-                        <input class="title_task" type="text" name="name" id="title_task" />
+                        <input class="title_task" placeholder="Please enter title..." type="text" name="name" id="title_task" />
                          Assign user:<br/>
                          <select style="width:100%"  data-placeholder="" style="" class="chzn-select" multiple="multiple" tabindex="9">
                                 <option value=""></option>
@@ -82,9 +94,12 @@
                          </select>
                          Due date: <input name="due_date" type="text" value=""  class="datepicker due_date" />
 
-                        Attach files: <input data-id_category="{{ category.id }}"  class="fileupload" type="file" name="files[]" multiple>
+                        <a href="javascript:;" data-id="{{ category.id }}" title="" class="smallButton attach-file" style="margin: 5px;float: right"><img src="{{ asset('assets/images/icons/color/paper-clip.png') }}" alt="">Attach files..</a>
+                         <div  style="display: none" class="attach-file-{{ category.id }}">
+                            <input data-id_category="{{ category.id }}"  class="fileupload" type="file" name="files[]" multiple>
+                         </div>
+                         <div style="display:none " class="contentProgress{{ category.id }}"><div class="barG tipS" id="bar9"></div></div>
                         <div class="img-add">
-
                         </div>
                         <div class="submit-add-task">
                             <a  onclick="save_task({{ category.id }})" class="button blueB "  href="javascript:void(0);">Save task</a> or <a onclick="close_task({{ category.id }})" href="javascript:void(0);" >Cancel</a>
@@ -103,35 +118,39 @@
     <script type="text/javascript" src="{{ asset('assets/jsupload/jquery.iframe-transport.js') }}"></script>
     <script type="text/javascript" src="{{ asset('assets/jsupload/jquery.fileupload.js') }}"></script>
     <script type="text/javascript">
-    $(function () {
-        $('.fileupload').fileupload({
-            url: '{{ path('_uploadfiletask' , { 'id': project_id }) }}',
-            dataType: 'json',
-            done: function (e, data) {
-                var id =  $(this).data("id_category");
-                $('.add-task-'+id+' .img-add').append('<div class="parentfile_'+data.result['id']+'"  ><span class="file_'+data.result['id']+'"  ><input name="file_id[]" type="hidden"  value="'+data.result['id']+'" />'+data.result['name']+'</span><a onclick="romove_file('+data.result['id']+')" href="javascript:;">Delete</a></div>');
-                $('.add-task-'+id+' .submit-add-task').show();
-            },
-            progressall: function (e, data) {
-                var id =  $(this).data("id_category");
-                $('.add-task-'+id+' .submit-add-task').hide();
-              /*  var progress = parseInt(data.loaded / data.total * 100, 10);
-                $('#progress .progress-bar').css(
-                        'width',
-                        progress + '%'
-                ); */
-            }
-        }).prop('disabled', !$.support.fileInput)
-                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+        $(function () {
+            $('.fileupload').fileupload({
+                url: '{{ path('_uploadfiletask' , { 'id': project_id }) }}',
+                dataType: 'json',
+                done: function (e, data) {
+                    var id =  $(this).data("id_category");
+                    $('.contentProgress'+id).hide();
+                    $('.add-task-'+id+' .img-add').append('<div class="parentfile_'+data.result['id']+'"  ><span class="file_'+data.result['id']+'"  ><input name="file_id[]" type="hidden"  value="'+data.result['id']+'" />'+data.result['name']+'</span><a onclick="romove_file('+data.result['id']+')" href="javascript:;">Delete</a></div>');
+                    $('.add-task-'+id+' .submit-add-task').show();
+                },
+                progressall: function (e, data) {
+                    var id =  $(this).data("id_category");
+                    $('.add-task-'+id+' .submit-add-task').hide();
+                    $('.contentProgress'+id).show();
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    $('.contentProgress'+id+' .barG').css(
+                            'width',
+                            progress + '%'
+                    );
+                }
+            }).prop('disabled', !$.support.fileInput)
+                    .parent().addClass($.support.fileInput ? undefined : 'disabled');
 
+        });
 
-    });
+        $('.attach-file').click(function(){
+            $('.attach-file-' + $(this).data("id")).slideToggle('slow');
+        });
 
-    function romove_file(id){
-        $('.file_'+id).remove();
-        $('.parentfile_'+id).hide();
-    }
-
+        function romove_file(id){
+            $('.file_'+id).remove();
+            $('.parentfile_'+id).hide();
+        }
 
 
         $(function(){
@@ -142,6 +161,7 @@
             hover_h4();
             hover_li();
         });
+
         function hover_li(){
             $(".ul-task li").hover(function(){
                 $('.li-task'+$(this).data("id")+' label').show();
@@ -149,6 +169,7 @@
                 $('.li-task'+$(this).data("id")+' label').hide();
             });
         }
+
         function hover_h4(){
             $("h4.title").hover(function(){
                 $('h4.title-'+$(this).data("id")+' span').show();
@@ -159,6 +180,7 @@
         $('#add-group').click(function(){
             $('.add-category-task').slideToggle('slow');
         });
+
         function close_category(){
             $('.add-category-task').slideToggle('slow');
         }
@@ -176,9 +198,7 @@
                 dataType : "html",
                 success : function(data){
                     $('.add-category-task').slideToggle('slow');
-
                     $( ".list-category" ).prepend( data );
-
 
                     $("h4.title span").hide();
                     $('#name_category_task').val('');
@@ -190,7 +210,6 @@
                         message: "Add category "+name_category_task+" successful!"
                     });
                 }
-
             });
 
         });
@@ -199,10 +218,12 @@
             $('.add-task-'+id_category).slideToggle('slow');
             $('.a-addtask-'+id_category).hide();
         }
+
         function close_task(id_category){
             $('.add-task-'+id_category).slideToggle('slow');
             $('.a-addtask-'+id_category).show();
         }
+
         function save_task(id_category){
 
             var selectednumbers = [];
@@ -216,6 +237,8 @@
             var title = $('.add-task-'+id_category+' .title_task').val();
             var due_date = $('.add-task-'+id_category+' .due_date').val();
             if(title.trim() == ''){
+                $('.add-task-'+id_category+' .title_task').css('border','1px solid red');
+                $('.add-task-'+id_category+' .title_task').focus();
                 return false;
             }
             var URL = '{{ path('_ajaxAddTask') }}';
@@ -231,19 +254,18 @@
                 },
                 dataType : "json",
                 success : function(data){
+                    $('.add-task-'+id_category+' .title_task').css('border','none');
                     var title_temp = "'"+title+"'";
                     var html = '<li  class="li-task'+data['id']+'"   data-id="'+data['id']+'"><div class="title-task">';
-                    html +=    '<input type="checkbox"/> <span class="task-name">'+data['title']+'<a onclick="edit_task('+data['id']+')" href="#">('+data['full_name']+') '+due_date+'</a></span>';
+                    html +=    '<span class="check-complete"><input type="checkbox"/></span> <span class="task-name"><a title="'+data['title']+'" href="'+data['url']+'">'+data['title']+'</a><a onclick="edit_task('+data['id']+')" href="#">('+data['full_name']+') '+due_date+'</a></span>';
                     html +=  '<label><a href="javascript:void(0)" onclick="remove_task('+data['id']+' , '+title_temp+' )" ><img src="/assets/images/icons/remove.png" alt=""></a> <a onclick="edit_task('+data['id']+')" href="javascript:void(0)"><img src="/assets/images/icons/edit.png" alt=""></a></label>';
                     html +=  '</div><div class="edit-from-task"></div>';
                     $('.ul-task-'+id_category).append(html);
                     $('.add-task-'+id_category+' input').val('');
-                    $('.add-task-'+id_category+' select').val(['']);
-                   // $('.add-task-'+id_category+' input').focus();
+                    $('.add-task-'+id_category+' .title_task').focus();
                     $('.add-task-'+id_category+' .img-add').html('');
-
-
-
+                    var select = $('.add-task-'+id_category+' select');
+                    select.val('').trigger('liszt:updated');
 
                     hover_li();
                     event.preventDefault();
@@ -252,13 +274,10 @@
                         message: "Add task "+title+" successful!"
                     });
 
-
                 }
 
             });
         }
-
-
 
         function edit_task(task_id){
             $('.loading').show();
@@ -269,22 +288,23 @@
                 data:{'task_id' : task_id , 'project_id' : {{ project_id}} },
                 dataType : "html",
                 success : function(data){
-                    $('.edit-task').hide();
+                   // $('.edit-task').hide();
                     $('.li-task'+task_id+' .edit-from-task').html(data);
                     $('.title-task').show();
                     $('.li-task'+task_id+' .title-task').hide();
                     $('.loading').hide();
-
                 }
 
             });
 
 
         }
+
         function close_Edit_task(task_id){
             $('.edit-task-'+task_id).slideToggle('slow');
             $('.li-task'+task_id+' .title-task').show();
         }
+
         function save_edit_task(task_id){
             var title = $('.input-'+task_id).val();
             var due_date = $('.edit-task-'+task_id+' .due_date').val();
@@ -292,7 +312,13 @@
             $('.edit-task-'+task_id+' select :selected').each(function(i, selected) {
                 selectednumbers[i] = $(selected).val();
             });
+
+            var file = $(".edit-task-"+task_id+" input[name='file_id[]']")
+                    .map(function(){return $(this).val();}).get();
+
             if(title.trim() == ''){
+                $('.input-'+task_id).css('border','1px solid red');
+                $('.input-'+task_id).focus();
                 return false;
             }
 
@@ -300,10 +326,11 @@
             jQuery.ajax({
                 type: "post",
                 url : URL,
-                data:{'title' : title ,'due_date' : due_date, 'task_id' : task_id , 'user_asign' : selectednumbers },
+                data:{'title' : title , 'due_date' : due_date, 'file' : file, 'task_id' : task_id , 'user_asign' : selectednumbers },
                 dataType : "json",
                 success : function(data){
-                    $('.li-task'+task_id+' .task-name').html(data['title']+'<a onclick="edit_task('+data['id']+')" href="javascript:;">('+data['full_name']+') '+due_date+'</a>');
+                    $('.input-'+task_id).css('border','none');
+                    $('.li-task'+task_id+' .task-name').html('<a href="'+data['url']+'">'+data['title']+'</a><a onclick="edit_task('+data['id']+')" href="javascript:;">'+data['full_name']+' '+due_date+'</a>');
                     close_Edit_task(task_id);
                     event.preventDefault();
                     event.stopPropagation();
@@ -311,13 +338,12 @@
                         message: "Update task "+data['title']+" successful!"
                     });
                 }
-
             });
         }
+
         function remove_task(task_id, title){
             var confirmBox = confirm(' Are you sure you want to delete this task?');
             if (!confirmBox) return false;
-
 
             var URL = '{{ path('_ajaxRomoveTask') }}';
             jQuery.ajax({
@@ -336,6 +362,7 @@
 
             });
         }
+
         function editcategory(category_id){
             $('.loading').show();
             var URL = '{{ path('_ajaxGetFromCategory') }}';
@@ -349,11 +376,10 @@
                     $('.title-'+category_id).hide();
                     $('.update-'+category_id).html(data);
                     $('.loading').hide();
-
                 }
-
             });
         }
+
         function save_edit_category(category_id){
             var name = $('.name_category_'+category_id).val();
 
@@ -373,11 +399,10 @@
                     return $.growl.notice({
                         message: "Update category "+data['name']+" successful!"
                     });
-
                 }
-
             });
         }
+
         function removecategory(category_id){
             var confirmBox = confirm(' Are you sure you want to delete this category?');
             if (!confirmBox) return false;
@@ -396,9 +421,9 @@
                         message: "Delete category successful!"
                     });
                 }
-
             });
         }
+
         function close_edit_category(category_id){
             $('.update-'+category_id).slideUp('slow');
             $('.title-'+category_id).slideDown('slow');

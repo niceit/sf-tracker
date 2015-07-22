@@ -1,0 +1,55 @@
+<ul class="partners">
+    {% for comment in comments %}
+        <li class="row-comment{{ comment.id }}">
+            <a href="#" title="" class="floatL"><img {% if comment.is_avatar  %}  width="36px" src="{{ asset(comment.avatar) }}" {% else %} src="{{ asset('assets/images/user.png') }}"  {% endif %} alt=""></a>
+            <div class="pInfo">
+                <a href="#" title=""><strong> {{ comment.fullname  }} </strong> Commented {{ comment.created_at |date('Y-m-d') }}</a>
+                <i>{{ comment.comment | raw}} </i>
+                {% if comment.attachments %}
+                    <ul>
+                        {% for attach in comment.attachments %}
+                            <li><a href="{{ path('download_file', { 'id': attach.getId  }) }}">{{ attach.getFilename }}</a> - {{ attach.getFilesize | number_format }} kb</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            {% if comment.id_update %}
+                <div class="pLinks">
+                    <a onclick="romove_comment({{ comment.id }})" href="javascript:void(0);" class="tipW" original-title="Remove"><img src="{{ asset('assets/images/icons/remove.png') }}" alt=""></a>
+                    <a onclick="edit_comment({{ comment.id }})" href="javascript:void(0);" class="tipW" original-title="Update"><img src="{{ asset('assets/images/icons/edit.png') }}" alt=""></a>
+                </div>
+            {% endif %}
+            <div class="clear"></div>
+            <div style="display: none" class="edit-{{ comment.id }}">
+                 <textarea class="editor-{{ comment.id }}" rows="8" cols="" name="growingTextarea" class="autoGrow comment" style="height: auto; overflow: hidden; width: 100%">{{ comment.comment | raw}}</textarea>
+                <a href="javascript:void(0);" onclick="save_comment_detail({{ comment.id }},{{ page }})" title="" class="button greyishB" style="margin: 5px;"><span>Save</span></a>
+            </div>
+
+
+        </li>
+    {% endfor %}
+</ul>
+{% if paginations != '' %}
+    <div class="pagination">
+        <ul class="pages">
+            {{ paginations| raw }}
+        </ul>
+    </div>
+{% endif %}
+
+ {% for complete in completes %}
+     <p class="close-p"><b>{{ complete.full_name }}</b> start <b>from</b> {{ complete.start_date | date('Y-m-y h:i:s') }} <b>to</b> {{ complete.end_date | date('Y-m-y h:i:s') }} : <b>{{ complete.total_time }}</b></p>
+ {% endfor %}
+
+<script>
+    $(function(){
+        {% for comment in comments %}
+            $(".editor-{{ comment.id }}").cleditor({
+                width:"100%",
+                height:"100%",
+                bodyStyle: "margin: 10px; font: 12px Arial,Verdana; cursor:text"
+            });
+        {% endfor %}
+    });
+
+</script>

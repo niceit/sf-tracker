@@ -19,6 +19,7 @@ class CategoryTaskController extends Controller
         if ($this->getRequest()->getMethod() == 'POST') {
             $requestData = $this->getRequest()->request;
             $name = $requestData->get('name');
+
             $project_id = $requestData->get('project_id');
             $Project_category_task = new Project_category_task();
             $Project_category_task->setName($name);
@@ -31,15 +32,12 @@ class CategoryTaskController extends Controller
             $em->flush();
 
             $em = $this->getDoctrine()->getEntityManager();
-
             $query = $em->createQuery("SELECT n.firstname , n.lastname , n.user_id   FROM TrackersBundle:UserDetail n, TrackersBundle:User_projects u WHERE  u.userId = n.user_id AND  u.projectId = :projectid ")
                 ->setParameter('projectid', $project_id);
 
         }
 
-
         $template = $this->render('TrackersBundle:Task:ajaxAddcategoryGroup.html.twig', array ('project_id'=> $project_id, 'id' => $Project_category_task->getId(), 'name' => $Project_category_task->getName(), 'users' => $query->getResult()));
-
         return new Response($template->getContent());
         die();
     }
@@ -84,6 +82,8 @@ class CategoryTaskController extends Controller
                 'id' => $Project_category_task->getId(),
                 'name' => $Project_category_task->getName()
             );
+        } else {
+            die('Error...');
         }
         echo json_encode($arr);
         die();
@@ -99,13 +99,10 @@ class CategoryTaskController extends Controller
             $requestData = $this->getRequest()->request;
             $id = $requestData->get('category_id');
 
-
             $repository_pro = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
             $tasks = $repository_pro->findBy(array('categoryTaskId' => $id));
 
             foreach($tasks as $row){
-
-
                 $em = $this->getDoctrine()->getManager();
                 $taskrow = $repository_pro->find($row->getId());
                 $em->remove($taskrow);
@@ -119,6 +116,8 @@ class CategoryTaskController extends Controller
             $em->flush();
             echo $id;
             exit;
+        } else {
+            die('Error...');
         }
         echo 0;
         die();

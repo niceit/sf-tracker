@@ -38,6 +38,13 @@ class Notifications
     /**
      * @var integer
      *
+     * @ORM\Column(name="task_id", type="integer")
+     */
+    private $taskId;
+
+    /**
+     * @var integer
+     *
      * @ORM\Column(name="project_id", type="integer")
      */
     private $projectId;
@@ -124,6 +131,29 @@ class Notifications
     public function getIssueId()
     {
         return $this->issueId;
+    }
+
+    /**
+     * Set taskId
+     *
+     * @param integer $taskId
+     * @return Notifications
+     */
+    public function setTaskId($taskId)
+    {
+        $this->taskId = $taskId;
+
+        return $this;
+    }
+
+    /**
+     * Get taskId
+     *
+     * @return integer
+     */
+    public function getTaskId()
+    {
+        return $this->taskId;
     }
 
 
