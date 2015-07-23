@@ -27,51 +27,52 @@ class IssuesCommentsController extends Controller
      */
     public function uploadFileAction($id,$issue_id,Request $request)
     {
-        $image = $request->files->get('file');
-
-        $fs = new Filesystem();
-        $file = 'upload/project_issues/'.$id;
-        $dir = 'project_issues/'.$id;
-        if (!$fs->exists($file)){
-            $fs->mkdir($file);
+        $files = $request->files->get('files');
+        if (!empty($files)) {
+            foreach ($files as $image) {
+                $fs = new Filesystem();
+                $file = 'upload/project_issues_comment/' . $id;
+                $dir = 'project_issues_comment/' . $id;
+                if (!$fs->exists($file)) {
+                    $fs->mkdir($file);
+                }
+                $arr = array ();
+                $file_type = $image->getClientOriginalExtension();
+                $name_array = explode('.', $image->getClientOriginalName());
+                $name_file = strtolower($name_array[0] . "-" . md5(rand(0, 100)));
+                $document = new Document();
+                $document->setFile($image);
+                $document->setSubDirectory($dir);
+                $document->setNameFile($name_file);
+                $document->setTypeFile(strtolower($file_type));
+                $document->processFile();
+                $name_image = $document->getSubDirectory() . "/" . $name_file . "." . $file_type;
+                $projects_issues_attachments = new Projects_issues_attachments();
+                $projects_issues_attachments->setIssueId(0);
+                $projects_issues_attachments->setUploadedBy($this->getUser()->getId());
+                $projects_issues_attachments->setFilesize($image->getClientSize());
+                $projects_issues_attachments->setFilename($image->getClientOriginalName());
+                $projects_issues_attachments->setFileextension($file_type);
+                $projects_issues_attachments->setFileurl($name_image);
+                $projects_issues_attachments->setCreatedAt(new \DateTime('now'));
+                $em = $this->getDoctrine()->getManager();
+                $em->persist($projects_issues_attachments);
+                $em->flush();
+                $Session = $request->getSession();
+                $Session->start();
+                if ($Session->get('comment_id'))
+                    $arrComment = $Session->get('comment_id');
+                else
+                    $arrComment = array ();
+                $arrComment[] = $projects_issues_attachments->getId();
+                $Session->set('comment_id', $arrComment);
+                $arr['id'] = $projects_issues_attachments->getId();
+                $arr['name'] = $image->getClientOriginalName();
+                $arr['size'] = number_format($image->getClientSize());
+                echo json_encode($arr);
+                die();
+            }
         }
-        $arr = array();
-         $file_type = $image->getClientOriginalExtension();
-        $name_array = explode('.', $image->getClientOriginalName());
-
-        $name_file = strtolower($name_array[0] . "-" . md5(rand(0,100)));
-        $document = new Document();
-        $document->setFile($image);
-        $document->setSubDirectory($dir);
-        $document->setNameFile( $name_file );
-        $document->setTypeFile(strtolower($file_type));
-        $document->processFile();
-        $name_image = $document->getSubDirectory() . "/" . $name_file. "." . $file_type;
-
-        $projects_issues_attachments = new Projects_issues_attachments();
-        $projects_issues_attachments->setIssueId(0);
-        $projects_issues_attachments->setUploadedBy($this->getUser()->getId());
-        $projects_issues_attachments->setFilesize($image->getClientSize());
-        $projects_issues_attachments->setFilename($image->getClientOriginalName());
-        $projects_issues_attachments->setFileextension($file_type);
-        $projects_issues_attachments->setFileurl($name_image);
-        $projects_issues_attachments->setCreatedAt(new \DateTime('now'));
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($projects_issues_attachments);
-        $em->flush();
-
-        $Session = $request->getSession();
-        $Session->start();
-        if ($Session->get('comment_id'))
-            $arrComment = $Session->get('comment_id');
-        else
-            $arrComment = array();
-        $arrComment[] = $projects_issues_attachments->getId();
-        $Session->set('comment_id',$arrComment );
-
-        $arr['id'] = $projects_issues_attachments->getId();
-        echo $projects_issues_attachments->getId();//json_encode($arr);
         die();
     }
 
@@ -197,6 +198,7 @@ class IssuesCommentsController extends Controller
     {
         $requestData = $this->getRequest()->request;
         $issueId = $requestData->get('issueId');
+        $project_id = $requestData->get('project_id');
         $page = $requestData->get('page');
 
         $repository_project_issues = $this->getDoctrine()->getRepository('TrackersBundle:Project_issues');
@@ -214,7 +216,7 @@ class IssuesCommentsController extends Controller
         }
 
         $pagination = new Pagination();
-        $paginations = $pagination->render($page,$total,'loadcomments');
+        $paginations = $pagination->render($page, $total, 'loadcomments');
 
         $comments = $repository_comment->findBy( array( 'issueId' => $issueId ), array('createdAt' => 'DESC'),$limit,$offset );
 
@@ -274,7 +276,7 @@ class IssuesCommentsController extends Controller
             );
         }
 
-        $template =  $this->render('TrackersBundle:Comments:ajax_getcomment.html.twig', array( 'comments' => $arr_comments , 'paginations' => $paginations , 'page' => $page, 'status_issue' => $issue->getStatus(), 'completes' => $array_date ));
+        $template =  $this->render('TrackersBundle:Comments:ajax_getcomment.html.twig', array( 'comments' => $arr_comments , 'issueId' => $issueId, 'project_id' => $project_id,  'paginations' => $paginations , 'page' => $page, 'status_issue' => $issue->getStatus(), 'completes' => $array_date ));
         return new Response($template->getContent());
         exit();
     }
@@ -317,7 +319,9 @@ class IssuesCommentsController extends Controller
             $requestData = $this->getRequest()->request;
             $id = $requestData->get('id');
             $page = $requestData->get('page');
+            $file_id = $requestData->get('file');
             $content= $requestData->get('comment');
+
             $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_comments');
             $comment = $repository->find($id);
             $comment->setComment($content);
@@ -325,6 +329,23 @@ class IssuesCommentsController extends Controller
             $em = $this->getDoctrine()->getManager();
             $em->persist($comment);
             $em->flush();
+
+            $em = $this->getDoctrine()->getEntityManager();
+            $query = $em->createQuery("UPDATE TrackersBundle:Projects_issues_attachments u SET u.commentId = NULL  WHERE  u.commentId = :commentId ")
+                ->setParameter('commentId', $id);
+            $query->execute();
+
+            if (!empty($file_id)){
+                foreach ($file_id as $file){
+                    $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
+                    $files = $repository->find($file);
+                    $files->setIssueId($comment->getIssueId());
+                    $files->setCommentId($id);
+                    $em->persist($files);
+                    $em->flush();
+                }
+            }
+
             echo $page;
             die();
         }

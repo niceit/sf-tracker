@@ -2289,6 +2289,9 @@ h4.title span{
 .full_name{
     color: #003f81;
 }
+#arr_file img{
+    margin-left: 15px;
+}
 @media only screen and (max-width: 980px){
     .contact {
         width: 100%;

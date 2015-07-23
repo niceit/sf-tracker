@@ -14,6 +14,12 @@
 
 
 {% block body %}
+
+    <link href="{{ asset('assets/css/jquery.fileupload.css') }}" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{{ asset('assets/jsupload/vendor/jquery.ui.widget.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/jsupload/jquery.iframe-transport.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/jsupload/jquery.fileupload.js') }}"></script>
+
     <div class="wrapper">
 
         <div class="widget">
@@ -63,9 +69,15 @@
                 <div class="widget ">
                     <div class="title"><img src="{{ asset('assets/images/icons/dark/pencil.png') }}" alt="" class="titleIcon" /><h6>Comment on this issue:</h6></div>
                     <textarea id="editor" rows="8" cols="" name="growingTextarea" class="autoGrow comment" style="height: auto; overflow: hidden; width: 100%"></textarea>
-                    <div id="uploaders"></div>
-                    <div id="arr_file"></div>
-                    <a href="javasrcipt:void(0);" id="btn-comment" title="" class="wButton bluewB ml15 m10"><span>Comment</span></a>
+                    <div style="margin: 10px" class="attach-file">
+                       <div class="uploadBox">
+                           <a href="javascript:;" id="uploadIcon" title="" class="smallButton attach-file" style="margin: 0px;float: right"><img src="{{ asset('assets/images/icons/color/paper-clip.png') }}" alt="">Attach files..</a>
+                            <input style="visibility : hidden;" id="uploadFile" class="fileuploads" type="file" name="files[]" multiple>
+                        </div>
+                         <div style="display:none ; width: 89%;  margin-top: -8px; " class="contentProgress contentProgress-main"><div class="barG tipS" id="bar9"></div></div>
+                        <div id="arr_file"></div>
+                     </div>
+                    <a href="javasrcipt:void(0);" id="btn-comment" title="" class="wButton bluewB ml15 m10"><span class="show-text">Comment</span></a>
                 </div>
             </div>
         {% endif %}
@@ -99,241 +111,205 @@
 
     <script type="text/javascript">
 
+    $(function () {
+        $('.fileuploads').fileupload({
+            url: '{{ path('_uploadfile' ,{ 'id': project.getId(), 'issue_id': issue.getId() }) }}',
+            dataType: 'json',
+            done: function (e, data) {
+                $('.contentProgress-main').hide();
+                $('#arr_file').append('<div class="parentfile_'+data.result['id']+'"  ><span class="file_'+data.result['id']+'"  ><input name="file_id[]" type="hidden"  value="'+data.result['id']+'" />'+data.result['name']+'</span> -('+data.result['size']+' kb) <a onclick="romove_file('+data.result['id']+')" href="javascript:;"><img src="{{ asset('assets/images/icons/remove.png') }}" /></a></div>');
+                $('.show-text').html('Comment');
+            },
+            progressall: function (e, data) {
+                $('.contentProgress-main').show();
+                $('.show-text').html('Please wait upload...');
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('.contentProgress .barG').css(
+                        'width',
+                        progress + '%'
+                );
+            }
+        }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
 
+    });
+
+    $(function(){
+        $("#uploadIcon").click(function(){
+            $(this).next().trigger('click');
+        });
+    })
+    function romove_file(id){
+        $('.file_'+id).remove();
+        $('.parentfile_'+id).hide();
+    }
     $( "#opener" ).click(function() {
         $( "#dialog-messages").dialog({modal: true, height: 270, width: 300 });
         $( "#dialog-messages" ).dialog( "open" );
         return false;
     });
 
-
-    function load_fileloader(){
-            var uploader = $("#uploaders").pluploadQueue({
-                runtimes : 'html5,html4',
-                url : '{{ path('_uploadfile' ,{ 'id': project.getId(), 'issue_id': issue.getId() }) }}',
-                max_file_size : '100mb',
-                unique_names : true,
-                filters : [
-                    {title : "Image files", extensions : "jpg,gif,png"},
-                    {title : "Zip files", extensions : "zip"},
-                    {title : "php files", extensions : "php"},
-                    {title : "xml files", extensions : "xml"},
-                    {title : "css files", extensions : "css"},
-                    {title : "js files", extensions : "js"}
-                ],
-
-                init : {
-                    UploadComplete: function(up, files) {
-                        var URL = '{{ path('_getuploadfile') }}';
-                        jQuery.ajax({
-                            type: "post",
-                            url : URL,
-                            data:{},
-                            dataType : "json",
-                            success : function(data){
-                                for( var i=0 ; i < data.length ; i++ ){
-                                    $('#arr_file').append('<input value="'+data[i]+'" type="hidden" id="comment" name="comment[]" />');
-                                }
-
-                            }
-                        });
-                    }
-                }
-            });
+    function fc_close(){
+        $('.error').html('');
+        var start_date = $("#start_date").val();
+        var start_time = $("#start_time").val();
+        var end_date = $("#end_date").val();
+        var end_time = $("#end_time").val();
+        if(start_date.length ==0 || start_time.length == 0){
+            $('.error-start').html('Please enter the start time!');
+            return false;
         }
-        function fc_close(){
-            $('.error').html('');
-            var start_date = $("#start_date").val();
-            var start_time = $("#start_time").val();
-            var end_date = $("#end_date").val();
-            var end_time = $("#end_time").val();
-            if(start_date.length ==0 || start_time.length == 0){
-                $('.error-start').html('Please enter the start time!');
-                return false;
+        if(end_date.length ==0 || end_time.length == 0 ){
+            $('.error-end').html('Please enter the end time!');
+            return false;
+        }
+        var confirmBox = confirm('Are you sure you want to close this issue?');
+        if (!confirmBox) return false;
+
+        $('.loading').show();
+        var URL = '{{ path('_ajaxcloseissues') }}';
+        jQuery.ajax({
+            type: "post",
+            url : URL,
+            data:{
+                'issueId' : {{ issue.getId() }} ,
+                'project_id': {{ project.getId() }} ,
+                'start_date' : start_date,
+                'start_time' : start_time,
+                'end_date' : end_date,
+                'end_time' : end_time
+            },
+            dataType : "html",
+            success : function(data){
+                $('.form_comment').hide();
+                $('.close_issue').hide();
+                $('.open_issue').show();
+                loadcomments(0);
+                $('.loading').hide();
+
+                $( '#dialog-messages' ).dialog( "close" );
             }
-            if(end_date.length ==0 || end_time.length == 0 ){
-                $('.error-end').html('Please enter the end time!');
-                return false;
+        });
+    }
+    function fc_open(){
+        var confirmBox = confirm('Are you sure you want to  reopened this issue?');
+        if (!confirmBox) return false;
+
+        $('.loading').show();
+        var URL = '{{ path('_ajaxopenissues') }}';
+        jQuery.ajax({
+            type: "post",
+            url : URL,
+            data:{'issueId' : {{ issue.getId() }} , 'project_id': {{ project.getId() }}},
+            dataType : "html",
+            success : function(data){
+                $('.form_comment').slideDown( "slow" );
+                $('.close_issue').show();
+                $('.open_issue').hide();
+                $('.loading').hide();
             }
-            var confirmBox = confirm('Are you sure you want to close this issue?');
-            if (!confirmBox) return false;
 
-            $('.loading').show();
-            var URL = '{{ path('_ajaxcloseissues') }}';
-            jQuery.ajax({
-                type: "post",
-                url : URL,
-                data:{
-                    'issueId' : {{ issue.getId() }} ,
-                    'project_id': {{ project.getId() }} ,
-                    'start_date' : start_date,
-                    'start_time' : start_time,
-                    'end_date' : end_date,
-                    'end_time' : end_time
-                },
-                dataType : "html",
-                success : function(data){
-                    $('.form_comment').hide();
-                    $('.close_issue').hide();
-                    $('.open_issue').show();
-                    loadcomments(0);
-                    $('.loading').hide();
+        });
+    }
+    function loadcomments(page){
+        $('.loading').show();
+        $("#comment_content").append("<div style='width:100%; text-align:center;'><img  src='{{ asset('assets/images/loaders/loader5.gif') }}'></div>");
+        var URL = '{{ path('_ajaxgetcomment') }}';
+        jQuery.ajax({
+            type: "post",
+            url : URL,
+            data:{'page':page, 'issueId' : {{ issue.getId() }} , 'project_id': {{ project.getId() }} },
+            dataType : "html",
+            success : function(data){
+                jQuery('#comment_content').html(data);
+                $('.loading').hide();
+            }
+        });
 
-                    $( '#dialog-messages' ).dialog( "close" );
-                }
-            });
-        }
-        function fc_open(){
-            var confirmBox = confirm('Are you sure you want to  reopened this issue?');
-            if (!confirmBox) return false;
-
-            $('.loading').show();
-            var URL = '{{ path('_ajaxopenissues') }}';
-            jQuery.ajax({
-                type: "post",
-                url : URL,
-                data:{'issueId' : {{ issue.getId() }} , 'project_id': {{ project.getId() }}},
-                dataType : "html",
-                success : function(data){
-                    $('.form_comment').slideDown( "slow" );
-                    $('.close_issue').show();
-                    $('.open_issue').hide();
-                    $('.loading').hide();
-                }
-
-            });
-        }
-        function loadcomments(page){
-            $('.loading').show();
-            $("#comment_content").append("<div style='width:100%; text-align:center;'><img  src='{{ asset('assets/images/loaders/loader5.gif') }}'></div>");
-            var URL = '{{ path('_ajaxgetcomment') }}';
-            jQuery.ajax({
-                type: "post",
-                url : URL,
-                data:{'page':page, 'issueId' : {{ issue.getId() }} },
-                dataType : "html",
-                success : function(data){
-                    jQuery('#comment_content').html(data);
-                    $('.loading').hide();
-                }
-            });
-
-        }
-        function romove_comment(id){
-            $('.loading').show();
-            var URL = '{{ path('_ajaxromovecomment') }}';
-            jQuery.ajax({
-                type: "post",
-                url : URL,
-                data:{'id':id},
-                dataType : "html",
-                success : function(data){
-                    if(data = 1)
+    }
+    function romove_comment(id){
+        $('.loading').show();
+        var URL = '{{ path('_ajaxromovecomment') }}';
+        jQuery.ajax({
+            type: "post",
+            url : URL,
+            data:{'id':id},
+            dataType : "html",
+            success : function(data){
+                if(data = 1)
                     $('.row-comment'+id).hide();
-                    $('.loading').hide();
-                }
-            });
+                $('.loading').hide();
+            }
+        });
+    }
+    function edit_comment(id){
+        $('.edit-'+id).slideToggle( "slow" );
+    }
+    function save_comment_detail(id,page){
+        $('.message').html('');
+        var editor = $('.editor-'+id).cleditor()[0];
+        var comment = editor.$area.val();
+        var file = $("#arr_file_" + id + " input[name='file_id[]']")
+                .map(function(){return $(this).val();}).get();
+        if (comment.length == 0) {
+            $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
+            return false;
         }
-        function edit_comment(id){
-            $('.edit-'+id).slideToggle( "slow" );
-        }
-        function save_comment_detail(id,page){
-            $('.message').html('');
-            var editor = $('.editor-'+id).cleditor()[0];
-            var comment = editor.$area.val();
+        $('.loading').show();
+        var URL = '{{ path('_ajaxupdatecomment') }}';
+        jQuery.ajax({
+            type: "post",
+            url : URL,
+            data:{'id':id, 'page' : page, 'comment' : comment , 'file' : file},
+            dataType : "html",
+            success : function(data){
+                $('.edit-'+id).slideUp( "slow" );
+                loadcomments(data);
+                $('.loading').hide();
+            }
+        });
+    }
 
+    $(function(){
+        loadcomments(0);
+        $('#btn-comment').click(function(){
+            var file = $("#arr_file input[name='file_id[]']")
+                    .map(function(){return $(this).val();}).get();
+
+            var editor = $('#editor').cleditor()[0];
+            var comment = editor.$area.val();
             if (comment.length == 0) {
                 $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
                 return false;
             }
             $('.loading').show();
-            var URL = '{{ path('_ajaxupdatecomment') }}';
+            var URL = '{{ path('_savecomment') }}';
             jQuery.ajax({
                 type: "post",
-                url : URL,
-                data:{'id':id, 'page' : page, 'comment' : comment},
-                dataType : "html",
-                success : function(data){
-                    $('.edit-'+id).slideUp( "slow" );
-                    loadcomments(data);
+                url: URL,
+                data: {
+                    'file_id': file,
+                    'comment': comment,
+                    'issue_id': {{ issue.getId() }},
+                    'project_id': {{ project.getId() }}
+                },
+                dataType: "json",
+                success: function (data) {
+                    $('#arr_file').html('');
+                    $('#editor').cleditor()[0].clear();
+                    $('.message').html('<div class="nNote nSuccess hideit"> <p><strong>SUCCESS: </strong>Success comment!</p>  </div>');
+                    loadcomments(0);
                     $('.loading').hide();
+                    setTimeout(function () {
+                        $('.message').hide();
+                    }, 3000);
+
                 }
             });
-        }
-
-
-
-
-        $(function(){
-            loadcomments(0);
-            load_fileloader();
-
-            $('#btn-comment').click(function(){
-
-                if($('.plupload_droptext').html()==null && $('.plupload_done').html()  ==null){
-                    alert('Please click upload to attachments file!');
-                    return false;
-                }else {
-
-
-                    /*  if($('.plupload_buttons') != 'none'){
-                     $('.plupload_start').trigger('click');
-
-                     setTimeout(function(){  }, 3000);
-                     } */
-                    var file_id = $("input[id='comment']")
-                            .map(function () {
-                                return $(this).val();
-                            }).get();
-                    var editor = $('#editor').cleditor()[0];
-                    var comment = editor.$area.val();
-                    if (comment.length == 0) {
-                        $('.message').html('<div class="nNote nFailure hideit"> <p><strong>FAILURE: </strong>Please enter text!</p>  </div>');
-                        return false;
-                    }
-                    $('.loading').show();
-                    var URL = '{{ path('_savecomment') }}';
-                    jQuery.ajax({
-                        type: "post",
-                        url: URL,
-                        data: {
-                            'file_id': file_id,
-                            'comment': comment,
-                            'issue_id': {{ issue.getId() }},
-                            'project_id': {{ project.getId() }}
-                        },
-                        dataType: "json",
-                        success: function (data) {
-                            $('#arr_file').html('');
-                            load_fileloader();
-                            $('#editor').cleditor()[0].clear();
-                            $('.message').html('<div class="nNote nSuccess hideit"> <p><strong>SUCCESS: </strong>Success comment!</p>  </div>');
-                            loadcomments(0);
-                            $('.loading').hide();
-                            setTimeout(function () {
-                                $('.message').hide();
-                            }, 3000);
-
-                        }
-                    });
-                }
-            });
-
 
         });
-
-
-
-
-
+    });
 
     </script>
-
-
-
-
-
-
-
 
 {% endblock %}

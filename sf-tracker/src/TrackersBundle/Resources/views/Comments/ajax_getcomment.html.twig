@@ -22,6 +22,20 @@
             <div class="clear"></div>
             <div style="display: none" class="edit-{{ comment.id }}">
                  <textarea class="editor-{{ comment.id }}" rows="8" cols="" name="growingTextarea" class="autoGrow comment" style="height: auto; overflow: hidden; width: 100%">{{ comment.comment | raw}}</textarea>
+                    <div style="margin: 10px" class="attach-file">
+                     <div class="uploadBox">
+                           <a href="javascript:;"  title="" class="smallButton attach-file uploadIcon{{ comment.id }}" style="margin: 0px;float: right"><img src="{{ asset('assets/images/icons/color/paper-clip.png') }}" alt="">Attach files..</a>
+                              <input style="visibility : hidden;"  data-id="{{ comment.id }}" class="fileupload" type="file" name="files[]" multiple>
+                         </div>
+                     <div style="display:none ; width: 88%;  margin-top: -9px; " class="contentProgress contentProgress-{{ comment.id }}"><div class="barG tipS" id="bar9"></div></div>
+                    <div id="arr_file_{{ comment.id }}">
+                        {% if comment.attachments %}
+                            {% for attach in comment.attachments %}
+                                <div class="parentfile_{{ attach.getId }}"  ><span class="file_{{ attach.getId }}"  ><input name="file_id[]" type="hidden"  value="{{ attach.getId }}" />{{ attach.getFilename }} - ({{ attach.getFilesize | number_format }} kb)</span> - ({{ attach.getFilesize | number_format }} kb) <a onclick="romove_file({{ attach.getId }})" href="javascript:;"><img src="{{ asset('assets/images/icons/remove.png') }}" /></a></div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                 </div>
                 <a href="javascript:void(0);" onclick="save_comment_detail({{ comment.id }},{{ page }})" title="" class="button greyishB" style="margin: 5px;"><span>Save</span></a>
             </div>
 
@@ -44,6 +58,9 @@
 <script>
     $(function(){
         {% for comment in comments %}
+            $(".uploadIcon{{ comment.id }}").click(function(){
+                $(this).next().trigger('click');
+            });
             $(".editor-{{ comment.id }}").cleditor({
                 width:"100%",
                 height:"100%",
@@ -52,4 +69,28 @@
         {% endfor %}
     });
 
+    $(function () {
+        $('.fileupload').fileupload({
+            url: '{{ path('_uploadfile' ,{ 'id': project_id, 'issue_id': issueId }) }}',
+            dataType: 'json',
+            done: function (e, data) {
+                var id = $(this).data("id");
+                $('.contentProgress-'+id).hide();
+                $('#arr_file_'+id).append('<div class="parentfile_'+data.result['id']+'"  ><span class="file_'+data.result['id']+'"  ><input name="file_id[]" type="hidden"  value="'+data.result['id']+'" />'+data.result['name']+'</span> -('+data.result['size']+' kb) <a onclick="romove_file('+data.result['id']+')" href="javascript:;"><img src="{{ asset('assets/images/icons/remove.png') }}" /></a></div>');
+                $('.show-text'+id).html('Comment');
+            },
+            progressall: function (e, data) {
+                var id = $(this).data("id");
+                $('.contentProgress-'+id).show();
+                $('.show-text'+id).html('Please wait upload...');
+                var progress = parseInt(data.loaded / data.total * 100, 10);
+                $('.contentProgress .barG').css(
+                        'width',
+                        progress + '%'
+                );
+            }
+        }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+    });
 </script>

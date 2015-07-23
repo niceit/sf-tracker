@@ -44,6 +44,78 @@
     {% endif %}
 
     <div class="wrapper">
+
+        <div class="widget">
+            <ul class="tabs_task tabs">
+                <li class="li-tab10 activeTab"><a href="#tab10"><span class="number_task_open">{{ task_open }}</span> Task Open</a></li>
+                <li class="li-tab20"><a href="#tab20"><span class="number_task_complete">{{ task_complete }}</span> Task Complete</a></li>
+                <li class="li-tab30"><a href="#tab30"><span class="number_assigned_task">{{ number_assigned_task }}</span> Task Assigned To You</a></li>
+            </ul>
+            <div class="tab_container">
+                <div id="tab10" class="tab_content" style="display: block;">
+                    <div class="widget content_task_open" ></div>
+                </div>
+                <div id="tab20" class="tab_content">
+                    <div class="widget content_task_complete" ></div>
+                </div>
+                <div id="tab30" class="tab_content" style="display: block;">
+                    <div class="widget content_task_assign" ></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <br/>
+    <div class="line"></div>
+
+    <script type="text/javascript">
+        $(function(){
+            loadOpenTask(0);
+            loadCompleteTask(0);
+            loadAssignTask(0);
+        });
+        function loadOpenTask(page){
+            var URL = '{{ path('_ajaxGetOpenTask') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'page' : page , 'project_id' : {{ id }}},
+                dataType : "html",
+                success : function(data){
+                    $('.content_task_open').html(data);
+                }
+            });
+        }
+        function loadCompleteTask(page){
+            var URL = '{{ path('_ajaxGetCompleteTask') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'page' : page , 'project_id' : {{ id }}},
+                dataType : "html",
+                success : function(data){
+                    $('.content_task_complete').html(data);
+                }
+            });
+        }
+        function loadAssignTask(page){
+            var URL = '{{ path('_ajaxGetAssignTask') }}';
+            jQuery.ajax({
+                type: "post",
+                url : URL,
+                data:{'page' : page , 'project_id' : {{ id }}},
+                dataType : "html",
+                success : function(data){
+                    $('.content_task_assign').html(data);
+                }
+            });
+        }
+
+    </script>
+
+
+    <div class="wrapper">
+        <!---  CONTENT ISSUES  ---->
         <div class="widget">
             <ul class="tabs">
                 <li class="li-tab1"><a href="#tab1"><span class="number_activity">{{ number_activity }}</span> Activity</a></li>
@@ -131,15 +203,17 @@
     <script type="text/javascript" >
         var project_id = {{ id }};
         var tab = {{ tab }};
-
+        var tab2 = 10;
         $(function(){
             //===== Tabs =====//
-
             $.fn.contentTabs = function(){
 
                 $(this).find(".tab_content").hide(); //Hide all content
                 $(this).find("ul.tabs .li-tab"+tab).addClass("activeTab").show(); //Activate first tab
                 $(this).find("#tab"+tab).show(); //Show first tab content
+
+                $(this).find("ul.tabs .li-tab"+tab2).addClass("activeTab").show(); //Activate first tab
+                $(this).find("#tab"+tab2).show(); //Show first tab content
 
                 $("ul.tabs li").click(function() {
                     $(this).parent().parent().find("ul.tabs li").removeClass("activeTab"); //Remove any "active" class

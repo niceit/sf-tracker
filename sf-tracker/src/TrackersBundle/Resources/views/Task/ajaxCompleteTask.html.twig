@@ -1,0 +1,34 @@
+{% if tasks %}
+    <table cellpadding="0" cellspacing="0" width="100%" class="sTable withCheck" id="checkAll">
+        <thead>
+        <tr>
+            <td width="30">ID</td>
+            <td>Tile</td>
+        </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr class="row-{{ task.id }} ">
+                <td align="center">#{{ task.id }}</td>
+                <td><h5><a href="{{ path('_showTask', {'task_id': task.id }) }}">{{ task.title }}</a></h5>
+                    {{ task.fullName }}
+                    {{ time_diff(task.created) }}
+                </td>
+            </tr>
+        {% endfor %}
+            <tr>
+            <td colspan="4">
+
+                <div class="pagination">
+                    <ul class="pages">
+                       {{ paginations| raw }}
+                    </ul>
+                </div>
+            </td>
+        </tr>
+      </tbody>
+    </table>
+
+{% else %}
+    <p>No data available at this time...</p>
+{% endif %}

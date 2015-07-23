@@ -9,11 +9,12 @@ use TrackersBundle\Entity\Project_category_task;
 use TrackersBundle\Entity\Project_task;
 use Symfony\Component\HttpFoundation\Response;
 use TrackersBundle\Entity\UserTask;
-use TrackersBundle\Entity\Projects_issues_attachments;
+use TrackersBundle\Entity\Project_Task_Attachments;
 use TrackersBundle\Entity\Notifications;
 use TrackersBundle\Models\Document;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Request;
+use TrackersBundle\Entity\Pagination;
 
 
 class TaskController extends Controller
@@ -113,9 +114,10 @@ class TaskController extends Controller
             $Project_task->setDescription('');
             $Project_task->setCategoryTaskId($id_category);
             $Project_task->setProjectId($project_id);
+            $Project_task->setStatus('OPEN');
             $Project_task->setCreatedBy($this->getUser()->getId());
             $Project_task->setCreated(new \DateTime('now'));
-            $Project_task->setModified(new \DateTime('now'));
+            //$Project_task->setModified(new \DateTime('now'));
             if ($due_date == ''){
                 $due_start = '';
             } else {
@@ -159,7 +161,7 @@ class TaskController extends Controller
 
             if (!empty($file_id)){
                 foreach ($file_id as $file){
-                    $repository = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
+                    $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_Task_Attachments');
                     $files = $repository->find($file);
                     $files->setTaskId($Project_task->getId());
                     $em->persist($files);
@@ -241,13 +243,13 @@ class TaskController extends Controller
             }
 
             $em = $this->getDoctrine()->getEntityManager();
-            $query = $em->createQuery("UPDATE TrackersBundle:Projects_issues_attachments u SET u.taskId = NULL  WHERE  u.taskId = :taskId ")
+            $query = $em->createQuery("UPDATE TrackersBundle:Project_Task_Attachments u SET u.taskId = NULL  WHERE  u.taskId = :taskId ")
                 ->setParameter('taskId', $task_id);
             $query->execute();
 
             if (!empty($file_id)){
                 foreach ($file_id as $file){
-                    $repository_attach = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
+                    $repository_attach = $this->getDoctrine()->getRepository('TrackersBundle:Project_Task_Attachments');
                     $files = $repository_attach->find($file);
                     $files->setTaskId($task_id);
                     $em->persist($files);
@@ -328,7 +330,7 @@ class TaskController extends Controller
             $querys = $em->createQuery("SELECT n.firstname , n.lastname , n.user_id   FROM TrackersBundle:UserDetail n, TrackersBundle:UserTask u WHERE  u.userId = n.user_id AND  u.taskId = :taskId ")
                 ->setParameter('taskId', $task_id);
 
-            $repository_attach = $this->getDoctrine()->getRepository('TrackersBundle:Projects_issues_attachments');
+            $repository_attach = $this->getDoctrine()->getRepository('TrackersBundle:Project_Task_Attachments');
             $attachFile = $repository_attach->findBy(array('taskId' => $task_id));
         }
 
@@ -364,18 +366,18 @@ class TaskController extends Controller
                 $document->processFile();
                 $name_image = $document->getSubDirectory() . "/" . $name_file. "." . $file_type;
 
-                $projects_issues_attachments = new Projects_issues_attachments();
+                $projects_task_attachments = new Project_Task_Attachments();
 
-                $projects_issues_attachments->setIssueId(0);
-                $projects_issues_attachments->setUploadedBy($this->getUser()->getId());
-                $projects_issues_attachments->setFilesize($image->getClientSize());
-                $projects_issues_attachments->setFilename($image->getClientOriginalName());
-                $projects_issues_attachments->setFileextension($file_type);
-                $projects_issues_attachments->setFileurl($name_image);
-                $projects_issues_attachments->setCreatedAt(new \DateTime('now'));
+                $projects_task_attachments->setCommentId(0);
+                $projects_task_attachments->setUploadedBy($this->getUser()->getId());
+                $projects_task_attachments->setFilesize($image->getClientSize());
+                $projects_task_attachments->setFilename($image->getClientOriginalName());
+                $projects_task_attachments->setFileextension($file_type);
+                $projects_task_attachments->setFileurl($name_image);
+                $projects_task_attachments->setCreatedAt(new \DateTime('now'));
 
                 $em = $this->getDoctrine()->getManager();
-                $em->persist($projects_issues_attachments);
+                $em->persist($projects_task_attachments);
                 $em->flush();
 
             }
@@ -384,10 +386,168 @@ class TaskController extends Controller
             die();
         }
 
-        $arr = array('name' => $image->getClientOriginalName(), 'id' => $projects_issues_attachments->getId());
+        $arr = array('name' => $image->getClientOriginalName(), 'size' => number_format($image->getClientSize()) , 'id' => $projects_task_attachments->getId());
         echo json_encode($arr);
         die();
     }
 
+    /**
+ * @Route("/ajaxGetOpenTask", name="_ajaxGetOpenTask")
+ */
+    public function ajaxGetOpenTaskAction()
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $page = $requestData->get('page');
+            $project_id = $requestData->get('project_id');
+
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
+            $tasksAll = $repository->findBy(array ('projectId' => $project_id, 'status' => 'OPEN'), array ('created' => 'DESC'));
+
+            $limit =  $this->container->getParameter( 'limit_comment_issues');
+            $offset = $page*$limit;
+
+            $total = (int)( count($tasksAll) / $limit);
+            $count = count($tasksAll);
+            if ($count > $limit &&  $count  % $limit != 0){
+                $total = $total + 1;
+            }
+
+            $pagination = new Pagination();
+            $paginations = $pagination->render($page, $total, 'loadOpenTask');
+
+            $em = $this->container->get('doctrine')->getManager();
+            $query = $em->createQuery("SELECT t, u.firstname , u.lastname , u.avatar  FROM TrackersBundle:Project_task t , TrackersBundle:UserDetail u  WHERE t.status = 'OPEN' AND  t.createdBy = u.user_id AND t.projectId =:projectId   ORDER BY t.created DESC ")
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
+                ->setParameter('projectId', $project_id);
+            $tasks = $query->getResult();
+
+            $tomorrow = date('Y-m-d', strtotime('+1 day'));
+            $now = date('Y-m-d');
+            $arr_tasks = array();
+            foreach ($tasks as $task){
+                $temp = $task[0]->getDuetime();
+                if (!empty($temp)){
+                    $endtime = $task[0]->getDuetime()->format('Y-m-d');
+                } else {
+                    $endtime = '';
+                }
+
+                $arr_tasks[] = array(
+                    'id' => $task[0]->getId(),
+                    'title' => $task[0]->getTitle(),
+                    'created' => $task[0]->getCreated(),
+                    'fullName' => $task['firstname'] . ' ' . $task['lastname'],
+                    'unis_endtime' => strtotime($endtime),
+                    'Duetime' =>  $task[0]->getDuetime()
+                );
+            }
+
+            $template = $this->render('TrackersBundle:Task:ajaxOpenTask.html.twig', array ('tomorrow' => $tomorrow, 'now' => $now, 'tasks' => $arr_tasks , 'paginations' => $paginations , 'project_id' => $project_id));
+            return new Response($template->getContent());
+            die();
+        }
+        die();
+    }
+
+    /**
+     * @Route("/ajaxGetCompleteTask", name="_ajaxGetCompleteTask")
+     */
+    public function ajaxGetCompleteTaskAction()
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $page = $requestData->get('page');
+            $project_id = $requestData->get('project_id');
+
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
+            $tasksAll = $repository->findBy(array ('projectId' => $project_id, 'status' => 'CLOSED'), array ('created' => 'DESC'));
+
+            $limit =  $this->container->getParameter( 'limit_comment_issues');
+            $offset = $page*$limit;
+
+            $total = (int)( count($tasksAll) / $limit);
+            $count = count($tasksAll);
+            if ($count > $limit &&  $count  % $limit != 0){
+                $total = $total + 1;
+            }
+
+            $pagination = new Pagination();
+            $paginations = $pagination->render($page, $total, 'loadCompleteTask');
+
+            $em = $this->container->get('doctrine')->getManager();
+            $query = $em->createQuery("SELECT t, u.firstname , u.lastname , u.avatar  FROM TrackersBundle:Project_task t , TrackersBundle:UserDetail u  WHERE t.status = 'CLOSED' AND  t.createdBy = u.user_id AND t.projectId =:projectId   ORDER BY t.created DESC ")
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
+                ->setParameter('projectId', $project_id);
+            $tasks = $query->getResult();
+
+            $arr_tasks = array();
+            foreach ($tasks as $task){
+                $arr_tasks[] = array(
+                    'id' => $task[0]->getId(),
+                    'title' => $task[0]->getTitle(),
+                    'created' => $task[0]->getCreated(),
+                    'fullName' => $task['firstname'] . ' ' . $task['lastname']
+                );
+            }
+
+            $template = $this->render('TrackersBundle:Task:ajaxCompleteTask.html.twig', array ( 'tasks' => $arr_tasks , 'paginations' => $paginations , 'project_id' => $project_id));
+            return new Response($template->getContent());
+            die();
+        }
+        die();
+    }
+
+    /**
+     * @Route("/ajaxGetAssignTask", name="_ajaxGetAssignTask")
+     */
+    public function ajaxGetAssignTaskAction()
+    {
+        if ($this->getRequest()->getMethod() == 'POST') {
+            $requestData = $this->getRequest()->request;
+            $page = $requestData->get('page');
+            $project_id = $requestData->get('project_id');
+
+            $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
+            $tasksAll = $repository->findBy(array ('projectId' => $project_id, 'status' => 'CLOSED'), array ('created' => 'DESC'));
+
+            $limit =  $this->container->getParameter( 'limit_comment_issues');
+            $offset = $page*$limit;
+
+            $total = (int)( count($tasksAll) / $limit);
+            $count = count($tasksAll);
+            if ($count > $limit &&  $count  % $limit != 0){
+                $total = $total + 1;
+            }
+
+            $pagination = new Pagination();
+            $paginations = $pagination->render($page, $total, 'loadAssignTask');
+
+            $em = $this->container->get('doctrine')->getManager();
+            $query = $em->createQuery("SELECT t, u.firstname , u.lastname , u.avatar  FROM TrackersBundle:Project_task t , TrackersBundle:UserDetail u , TrackersBundle:UserTask as ut  WHERE ut.taskId = t.id AND  t.createdBy = u.user_id AND t.projectId =:projectId  AND ut.userId =:userId  ORDER BY t.created DESC ")
+                ->setMaxResults($limit)
+                ->setFirstResult($offset)
+                ->setParameter('userId', $this->getUser()->getId())
+                ->setParameter('projectId', $project_id);
+            $tasks = $query->getResult();
+
+            $arr_tasks = array();
+            foreach ($tasks as $task){
+                $arr_tasks[] = array(
+                    'id' => $task[0]->getId(),
+                    'title' => $task[0]->getTitle(),
+                    'created' => $task[0]->getCreated(),
+                    'fullName' => $task['firstname'] . ' ' . $task['lastname']
+                );
+            }
+
+            $template = $this->render('TrackersBundle:Task:ajaxCompleteTask.html.twig', array ('tasks' => $arr_tasks , 'paginations' => $paginations , 'project_id' => $project_id));
+            return new Response($template->getContent());
+            die();
+        }
+        die();
+    }
 
 }

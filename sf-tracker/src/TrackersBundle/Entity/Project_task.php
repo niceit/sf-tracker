@@ -50,6 +50,13 @@ class Project_task
     private $projectId;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=100)
+     */
+    private $status;
+
+    /**
      * @var integer
      *
      * @ORM\Column(name="created_by", type="integer")
@@ -180,6 +187,29 @@ class Project_task
     public function getProjectId()
     {
         return $this->projectId;
+    }
+
+    /**
+     * Set status
+     *
+     * @param string $status
+     * @return Project_task
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * Get status
+     *
+     * @return string
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 
     /**

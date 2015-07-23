@@ -60,7 +60,20 @@ class ProjectsController extends Controller
             ->setParameter('userId', $this->getUser()->getId());
         $project_issues = $query->getResult();
         $number_assigned = count($project_issues);
-        return array('id'=>$id, 'is_image' => $is_image, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned' => $number_assigned, 'project' => $project , 'is_add' => $is_add , 'tab' => $tab);
+
+        //task
+        $repository = $this->getDoctrine()->getRepository('TrackersBundle:Project_task');
+        $tasks_open = count($repository->findBy(array( 'projectId' => $id , 'status' => 'OPEN' ) ,array('created' => 'DESC') ));
+        $tasks_complete =  count($repository->findBy(array( 'projectId' => $id , 'status' => 'CLOSED' ) ,array('created' => 'DESC') ));
+
+        $em = $this->container->get('doctrine')->getManager();
+        $query = $em->createQuery("SELECT t FROM TrackersBundle:Project_task t , TrackersBundle:UserTask ut  WHERE  t.id = ut.taskId  AND  t.projectId =:projectId AND ut.userId =:userId  ")
+            ->setParameter('projectId', $id)
+            ->setParameter('userId', $this->getUser()->getId());
+        $project_task = $query->getResult();
+        $number_assigned_task = count($project_task);
+
+        return array('number_assigned_task' => $number_assigned_task, 'task_open' => $tasks_open, 'task_complete' => $tasks_complete, 'id'=>$id, 'is_image' => $is_image, 'number_activity' => $number_activity , 'number_open' => $number_open, 'number_close' => $number_close , 'number_assigned' => $number_assigned, 'project' => $project , 'is_add' => $is_add , 'tab' => $tab);
     }
 
     /**
@@ -94,7 +107,7 @@ class ProjectsController extends Controller
 
         $projects = $query->getResult();
         $pagination = new Pagination();
-        $paginations = $pagination->render($page,$total,'list_projects');
+        $paginations = $pagination->render($page, $total, 'list_projects');
 
         echo $this->render('TrackersBundle:Projects:ajax_list.html.twig', array( 'projects' => $projects , 'paginations' => $paginations ,'user_id' => $this->getUser()->getId()));
         die();
